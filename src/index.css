@@ -1,0 +1,214 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+/* ─── Dark mode: class-based (Tailwind v4) ──────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Design tokens ─────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --ten-gold-500: #f97316;
+  --ten-gold-400: #fb923c;
+  --ten-gold-300: #fdba74;
+
+  /* Surfaces */
+  --ten-surface-900: #0f1115;
+  --ten-bg:          #ffffff;
+  --ten-bg-subtle:   #f9fafb;
+  --ten-text:        #18181b;
+  --ten-text-muted:  #52525b;
+  --ten-border:      rgba(228, 228, 231, 0.85);
+
+  /* Motion */
+  --ten-ease-out:       cubic-bezier(0.22, 1, 0.36, 1);
+  --ten-transition-fast: 200ms;
+  --ten-transition:      260ms;
+
+  /* Spacing scale (8px base) */
+  --ten-space-1: 0.5rem;   /* 8px */
+  --ten-space-2: 1rem;     /* 16px */
+  --ten-space-3: 1.5rem;   /* 24px */
+  --ten-space-4: 2rem;     /* 32px */
+  --ten-space-6: 3rem;     /* 48px */
+  --ten-space-8: 4rem;     /* 64px */
+  --ten-space-12: 6rem;    /* 96px */
+
+  /* Typography */
+  --ten-font-xs:   0.6875rem; /* 11px */
+  --ten-font-sm:   0.875rem;  /* 14px */
+  --ten-font-base: 1rem;      /* 16px */
+  --ten-font-lg:   1.0625rem; /* 17px */
+  --ten-font-xl:   1.25rem;   /* 20px */
+  --ten-font-2xl:  1.5rem;    /* 24px */
+  --ten-font-3xl:  1.875rem;  /* 30px */
+  --ten-font-4xl:  2.25rem;   /* 36px */
+  --ten-font-5xl:  3rem;      /* 48px */
+
+  /* Radius */
+  --ten-radius-sm: 0.5rem;   /* 8px */
+  --ten-radius:    0.75rem;  /* 12px */
+  --ten-radius-lg: 1rem;     /* 16px */
+  --ten-radius-xl: 1.5rem;   /* 24px */
+  --ten-radius-2xl: 2rem;    /* 32px */
+  --ten-radius-pill: 9999px;
+}
+
+.dark {
+  color-scheme: dark;
+  --ten-bg:         #09090b;
+  --ten-bg-subtle:  #18181b;
+  --ten-text:       #f4f4f5;
+  --ten-text-muted: #a1a1aa;
+  --ten-border:     rgba(39, 39, 42, 0.9);
+}
+
+/* ─── Global base ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  font-family: Manrope, Inter, ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100%;
+  line-height: 1.5;
+  /* Use token so dark-mode flip is seamless */
+  background-color: var(--ten-bg);
+  color: var(--ten-text);
+  /* Smooth colour transition for theme toggle */
+  transition: background-color var(--ten-transition-fast) ease-out,
+              color           var(--ten-transition-fast) ease-out;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Focus ──────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(249, 115, 22, 0.55);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── Selection ──────────────────────────────────────────────────────────── */
+::selection {
+  background-color: rgba(253, 186, 116, 0.6);
+  color: rgb(24 24 27);
+}
+.dark ::selection {
+  background-color: rgba(249, 115, 22, 0.35);
+  color: rgb(244 244 245);
+}
+
+/* ─── Brand colour overrides (v4 compatibility) ──────────────────────────── */
+.bg-orange-500  { background-color: var(--ten-gold-500) !important; }
+.bg-orange-400  { background-color: var(--ten-gold-400) !important; }
+.fill-orange-500 { fill: var(--ten-gold-500) !important; }
+.fill-orange-400 { fill: var(--ten-gold-400) !important; }
+.text-orange-500 { color: var(--ten-gold-500) !important; }
+.text-orange-400 { color: var(--ten-gold-400) !important; }
+.text-orange-300 { color: var(--ten-gold-300) !important; }
+.border-orange-500 { border-color: var(--ten-gold-500) !important; }
+.border-orange-400 { border-color: var(--ten-gold-400) !important; }
+.hover\:bg-orange-400:hover   { background-color: var(--ten-gold-400) !important; }
+.hover\:text-orange-500:hover { color: var(--ten-gold-500) !important; }
+.hover\:text-orange-400:hover { color: var(--ten-gold-400) !important; }
+.hover\:border-orange-400:hover { border-color: var(--ten-gold-400) !important; }
+.from-orange-500 { --tw-gradient-from: var(--ten-gold-500) var(--tw-gradient-from-position) !important; }
+.to-orange-600   { --tw-gradient-to: #ea580c var(--tw-gradient-to-position) !important; }
+.via-amber-400   { --tw-gradient-stops: var(--tw-gradient-from), var(--ten-gold-400) var(--tw-gradient-via-position), var(--tw-gradient-to) !important; }
+.from-orange-300 { --tw-gradient-from: var(--ten-gold-300) var(--tw-gradient-from-position) !important; }
+.via-amber-200   { --tw-gradient-stops: var(--tw-gradient-from), #fde68a var(--tw-gradient-via-position), var(--tw-gradient-to) !important; }
+.to-orange-400   { --tw-gradient-to: var(--ten-gold-400) var(--tw-gradient-to-position) !important; }
+
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+.shadow-glow {
+  box-shadow:
+    0 0 0 1px rgba(249, 115, 22, 0.12),
+    0 10px 40px rgba(249, 115, 22, 0.28);
+}
+
+.shadow-glow-sm {
+  box-shadow:
+    0 0 0 1px rgba(249, 115, 22, 0.10),
+    0 4px 20px rgba(249, 115, 22, 0.22);
+}
+
+.ten-hero-text-shadow {
+  text-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* Gradient headline — solid fallback + webkit clip so text never renders invisible */
+.ten-hero-emphasis {
+  color: #fdba74;
+  line-height: 1.15;
+  /* background-clip:text trims descenders (g, y, p) unless the line box has room */
+  padding-bottom: 0.06em;
+  background-image: linear-gradient(to right, #fdba74, #fde68a, #fb923c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* Avoid global color transitions breaking clipped gradient during theme toggle */
+  transition: none;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .ten-hero-emphasis {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Hero copy stays on its own layer above background/overlay (no visual change) */
+.ten-hero-content {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+.ten-hero-content h1 {
+  overflow: visible;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes pulseRing {
+  0%   { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pulseRing { animation: pulseRing 1.6s ease-out infinite; }
+.animate-marquee   { animation: marquee 30s linear infinite; }
+.animate-fadeUp    { animation: fadeUp 0.4s var(--ten-ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-pulseRing,
+  .animate-fadeUp {
+    animation: none;
+  }
+  html { scroll-behavior: auto; }
+}
