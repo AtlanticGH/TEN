@@ -3,14 +3,12 @@ import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom'
 export function RouterErrorBoundary() {
   const error = useRouteError()
 
-  const is404 =
-    !error ||
-    (isRouteErrorResponse(error) && error.status === 404)
+  const is404 = isRouteErrorResponse(error) && error.status === 404
 
   const title = is404
     ? 'Page not found'
     : isRouteErrorResponse(error)
-      ? `${error.status} ${error.statusText}`
+      ? `${error.status} — ${error.statusText}`
       : 'Something went wrong'
 
   const message = is404

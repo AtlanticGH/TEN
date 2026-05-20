@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
-import { supabase } from '@/lib/supabaseClient'
+import { supabase, supabaseIsConfigured } from '@/lib/supabaseClient'
 import { useAuth } from '@/hooks/useAuth'
 
 type Mode = 'login' | 'signup'
@@ -54,7 +54,7 @@ export function AuthPage() {
     if (!password) return setError('Please enter your password.')
     if (password.length < 8) return setError('Password must be at least 8 characters.')
 
-    if (!supabase) {
+    if (!supabaseIsConfigured) {
       setError('Supabase is not configured. Check environment variables.')
       return
     }
