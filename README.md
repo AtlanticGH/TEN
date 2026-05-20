@@ -1,4 +1,8 @@
-# Ten dummy (React + Vite + Supabase)
+# The Ember Network
+
+Production web platform for **The Ember Network (TEN)** — maintained by **Atlantic Catering & Logistics**.
+
+React, Vite, Express, and Supabase power the public site, member area, and admin CMS.
 
 ## Getting started
 
@@ -10,12 +14,12 @@ npm install
 
 Create a local env file:
 
-- Copy `.env.example` → `.env` (or use the included `.env` for demo mode)
-- For **demo / UI-only** local dev, set `APP_MODE=demo` and leave Supabase keys blank
-- For full features, fill in Supabase keys:
+- Copy `.env.example` → `.env` (or use `.env.local`)
+- For **local UI without Supabase**, set `APP_MODE=demo` and leave Supabase keys blank
+- For full features, configure:
   - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (client)
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server — secret)
-  - (Optional) `SITE_URL` for `/api/inviteApplicant`
+  - (Optional) `SITE_URL`, `FRONTEND_ORIGIN` for invites and CORS
 
 Start **frontend + API** together (recommended):
 
@@ -25,7 +29,7 @@ npm run dev:all
 
 Open http://localhost:5173/
 
-API-only (e.g. production-style on port 3000):
+API only (e.g. port 3000):
 
 ```bash
 npm start
@@ -33,24 +37,19 @@ npm start
 
 ## Troubleshooting
 
-If you see:
+If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to `.env`, then restart the dev server.
 
-> Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your env.
+## Supabase (optional)
 
-…it means `.env` is missing those values (or they’re empty). After updating `.env`, restart the dev server so Vite picks up the new env vars.
+Apply SQL in order under `supabase/`, then seed development users:
 
-## Supabase dev users (optional)
+```bash
+node scripts/seed-dev-users.mjs
+```
 
-If you want the same dummy accounts inside Supabase Auth:
-- Run the SQL files in order:
-  - `supabase/schema.sql`
-  - `supabase/platform.sql`
-  - `supabase/cms.sql`
-  - `supabase/platform_cms_v2.sql`
-  - `supabase/contact.sql`
-  - `supabase/learning_cms.sql`
-  - `supabase/admin_progress.sql`
-  - `supabase/storage.sql`
-- Create users + profiles:
-  - **Script**: `node scripts/seed-dev-users.mjs` (requires `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`)
-  - **SQL only**: `supabase/seed-dev-users.sql` (requires you to create auth users first)
+Requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. See `supabase/SETUP.md`.
+
+## Documentation
+
+- `docs/PRODUCTION_AUDIT.md` — deployment and security checklist
+- `docs/CMS_ARCHITECTURE.md` — admin CMS architecture

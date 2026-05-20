@@ -1,5 +1,5 @@
 /**
- * Dev-only: create the Ember dummy auth users in Supabase Auth.
+ * Development only: create The Ember Network seed auth users in Supabase.
  *
  * Requires server-side env vars:
  * - SUPABASE_URL

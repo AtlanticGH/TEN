@@ -44,13 +44,6 @@ import {
 } from './router/lazyPages'
 import { queryClient } from './lib/queryClient'
 
-// Dev-only sanity check: query profiles once on startup.
-if (import.meta.env.DEV) {
-  import('./lib/testSupabase')
-    .then(({ testSupabase }) => testSupabase())
-    .catch(() => {})
-}
-
 const memberCourseRoutes = [
   {
     path: 'courses',

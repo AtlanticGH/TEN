@@ -1,4 +1,4 @@
-# CMS / Admin platform — production architecture (Ember Network)
+# CMS / Admin platform — The Ember Network (Atlantic Catering & Logistics)
 
 This project ships as a **React 19 + Vite SPA** with **Supabase (PostgreSQL + Auth + Storage + RLS)** as the primary backend. Deploying on **Vercel** hosts static assets and rewrites; **data plane and authorization** remain on Supabase (recommended for production).
 

@@ -1,4 +1,4 @@
-## Supabase setup (Ember Network)
+## Supabase setup — The Ember Network (Atlantic Catering & Logistics)
 
 ### 1) Create Supabase project
 - Create a new project in Supabase.

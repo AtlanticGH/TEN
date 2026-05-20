@@ -1,4 +1,4 @@
--- Dev-only dummy users (profiles)
+-- Development seed users (profiles) — The Ember Network
 -- IMPORTANT:
 -- - You cannot create auth users via SQL on hosted Supabase.
 -- - First create the auth users (Email/Password) using:

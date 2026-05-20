@@ -59,7 +59,7 @@ const isDemoMode = APP_MODE === 'demo' && !supabase
 if (!supabase) {
   if (isDemoMode) {
     // eslint-disable-next-line no-console
-    console.log('[server] Demo mode — public API uses stubs (no Supabase)')
+    console.log('[server] APP_MODE=demo — public API stubs active (no Supabase)')
   } else {
     // Don’t crash import-time in tooling, but do fail at request-time.
     // eslint-disable-next-line no-console

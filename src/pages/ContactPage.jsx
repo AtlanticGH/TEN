@@ -1,12 +1,10 @@
-import { useEffect } from 'react'
 import { ContactDetails } from './contact/ContactDetails'
 import { ContactFAQ } from './contact/ContactFAQ'
 import { ContactHero } from './contact/ContactHero'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function ContactPage() {
-  useEffect(() => {
-    document.title = 'The Ember Network | Contact'
-  }, [])
+  useDocumentTitle('Contact')
 
   return (
     <main id="page-main" data-component="page-main" className="overflow-x-hidden">

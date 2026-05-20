@@ -2,10 +2,33 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 const storageKeys = {
+  chatLog: 'ten-chat-log',
+  chatOpen: 'ten-chat-open',
+  chatSound: 'ten-chat-sound',
+}
+
+const legacyStorageKeys = {
   chatLog: 'forge-chat-log',
   chatOpen: 'forge-chat-open',
   chatSound: 'forge-chat-sound',
 }
+
+function migrateChatStorage() {
+  try {
+    for (const key of Object.keys(storageKeys)) {
+      const next = storageKeys[key]
+      const prev = legacyStorageKeys[key]
+      if (localStorage.getItem(next) == null && localStorage.getItem(prev) != null) {
+        localStorage.setItem(next, localStorage.getItem(prev))
+        localStorage.removeItem(prev)
+      }
+    }
+  } catch {
+    // localStorage unavailable
+  }
+}
+
+migrateChatStorage()
 
 function formatChatTime(ts) {
   const d = new Date(ts || Date.now())

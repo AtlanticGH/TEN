@@ -1,0 +1,18 @@
+{
+  "name": "The Ember Network",
+  "short_name": "TEN",
+  "description": "A community of ignition and empowerment for aspiring entrepreneurs and early-stage founders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#f97316",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
