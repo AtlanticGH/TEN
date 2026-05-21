@@ -7,7 +7,7 @@ export async function createMentorAssignment({ lessonId, title, description, fil
 
   let upload = null
   if (file) {
-    upload = await uploadStorageFile({ file, bucket: 'public', folder: `assignments/${lessonId}` })
+    upload = await uploadStorageFile({ file, bucket: 'public', folder: `assignments/${lessonId}`, uploadRole: 'mentor' })
   }
 
   return apiFetch(`/api/mentor/lessons/${encodeURIComponent(lessonId)}/assignments`, {

@@ -11,6 +11,7 @@ import {
 } from '@/components/workspace/WorkspaceChrome'
 import { listAssignments } from '@/services/assignments'
 import { createMentorAssignment, deleteMentorAssignment } from '@/services/mentorAssignments'
+import { uploadMentorCourseThumbnail } from '@/services/mentorCourseAssets'
 import { deleteMentorLessonFile, listLessonFiles, uploadMentorLessonFile } from '@/services/mentorLessonFiles'
 import {
   createMentorLesson,
@@ -58,6 +59,8 @@ export function MentorCourseEditorPage() {
   const [files, setFiles] = useState([])
   const [fileTitle, setFileTitle] = useState('')
   const [fileObj, setFileObj] = useState(null)
+  const [coverFile, setCoverFile] = useState(null)
+  const [fileLessonId, setFileLessonId] = useState('')
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -83,10 +86,34 @@ export function MentorCourseEditorPage() {
     queueMicrotask(() => refresh())
   }, [refresh])
 
+  useEffect(() => {
+    if (!lessonOptions.length) return
+    const id = fileLessonId && lessonOptions.some((o) => o.id === fileLessonId) ? fileLessonId : lessonOptions[0].id
+    if (id !== fileLessonId) setFileLessonId(id)
+    listLessonFiles(id)
+      .then(setFiles)
+      .catch(() => setFiles([]))
+  }, [lessonOptions, fileLessonId])
+
   const totalLessons = useMemo(
     () => Object.values(lessonsByModule).reduce((acc, ls) => acc + (ls?.length || 0), 0),
     [lessonsByModule],
   )
+
+  const lessonOptions = useMemo(() => {
+    const rows = []
+    modules.forEach((m) => {
+      ;(lessonsByModule[m.id] || []).forEach((l) => {
+        rows.push({ id: l.id, label: `${m.title} → ${l.title}` })
+      })
+    })
+    return rows
+  }, [modules, lessonsByModule])
+
+  const coverPreview = useMemo(() => {
+    if (coverFile) return URL.createObjectURL(coverFile)
+    return course?.thumbnail_url || ''
+  }, [coverFile, course?.thumbnail_url])
 
   if (loading) return <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
   if (error && !course) return <p className="text-sm text-rose-700 dark:text-rose-200">{error}</p>
@@ -109,6 +136,148 @@ export function MentorCourseEditorPage() {
       />
 
       <WorkspaceAlert message={error} />
+
+      <WorkspacePanel>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Course image & student downloads</p>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+          Upload a cover image for the course catalog. Add PDFs, documents, and other files per lesson — students download them on each lesson page after you publish.
+        </p>
+
+        <div className="mt-5 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Cover image</p>
+            {coverPreview ? (
+              <img
+                src={coverPreview}
+                alt="Course cover"
+                className="mt-3 h-32 w-full rounded-xl object-cover ring-1 ring-zinc-200 dark:ring-zinc-700"
+              />
+            ) : (
+              <div className="mt-3 flex h-32 items-center justify-center rounded-xl border border-dashed border-zinc-300 text-xs text-zinc-500 dark:border-zinc-700">
+                No cover image yet
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="mt-3 block w-full text-sm"
+              onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+            />
+            <button
+              type="button"
+              disabled={!coverFile || busy === 'course:cover'}
+              className="mt-3 rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-50"
+              onClick={async () => {
+                if (!coverFile) return
+                setBusy('course:cover')
+                setError('')
+                try {
+                  const updated = await uploadMentorCourseThumbnail(course.id, coverFile)
+                  setCourse(updated)
+                  setCoverFile(null)
+                } catch (err) {
+                  setError(err?.message || 'Unable to upload cover image.')
+                } finally {
+                  setBusy('')
+                }
+              }}
+            >
+              {busy === 'course:cover' ? 'Uploading…' : 'Save cover image'}
+            </button>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Upload lesson file</p>
+            {lessonOptions.length ? (
+              <>
+                <label className="mt-3 block text-xs text-zinc-500">
+                  Lesson
+                  <select
+                    value={fileLessonId || lessonOptions[0]?.id || ''}
+                    onChange={(e) => {
+                      const id = e.target.value
+                      setFileLessonId(id)
+                      setFileTitle('')
+                      setFileObj(null)
+                      listLessonFiles(id)
+                        .then(setFiles)
+                        .catch(() => setFiles([]))
+                    }}
+                    className="mt-2 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+                  >
+                    {lessonOptions.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <input
+                  value={fileTitle}
+                  onChange={(e) => setFileTitle(e.target.value)}
+                  placeholder="File title (optional)"
+                  className="mt-3 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+                />
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.gif,.zip,application/pdf"
+                  className="mt-3 block w-full text-sm"
+                  onChange={(e) => setFileObj(e.target.files?.[0] || null)}
+                />
+                <button
+                  type="button"
+                  disabled={!fileObj || busy === 'course:lesson-file'}
+                  className="mt-3 rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-50"
+                  onClick={async () => {
+                    const lessonId = fileLessonId || lessonOptions[0]?.id
+                    if (!lessonId || !fileObj) return
+                    setBusy('course:lesson-file')
+                    setError('')
+                    try {
+                      await uploadMentorLessonFile({ lessonId, title: fileTitle, file: fileObj })
+                      setFiles(await listLessonFiles(lessonId))
+                      setFileTitle('')
+                      setFileObj(null)
+                    } catch (err) {
+                      setError(err?.message || 'Unable to upload file.')
+                    } finally {
+                      setBusy('')
+                    }
+                  }}
+                >
+                  {busy === 'course:lesson-file' ? 'Uploading…' : 'Upload file for students'}
+                </button>
+                {files.length ? (
+                  <ul className="mt-4 space-y-2">
+                    {files.map((f) => (
+                      <li
+                        key={f.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900/60"
+                      >
+                        <span className="font-medium">{f.title || f.path}</span>
+                        {f.download_url ? (
+                          <a
+                            href={f.download_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-semibold text-orange-600 dark:text-orange-300"
+                          >
+                            Preview
+                          </a>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-xs text-zinc-500">No files on this lesson yet.</p>
+                )}
+              </>
+            ) : (
+              <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Create a module and lesson below, then upload files here.</p>
+            )}
+          </div>
+        </div>
+      </WorkspacePanel>
 
       <WorkspaceSplit>
         <WorkspaceMutedPanel>
@@ -715,7 +884,7 @@ function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditConte
           <>
             <IconButton onClick={() => setEditing(true)}>Edit</IconButton>
             <IconButton onClick={onEditContent}>Content</IconButton>
-            <IconButton onClick={onEditFiles}>Downloads</IconButton>
+            <IconButton onClick={onEditFiles}>Files</IconButton>
             <IconButton onClick={onEditAssignments}>Assignments</IconButton>
             <button
               type="button"

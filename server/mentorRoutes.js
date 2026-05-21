@@ -1,8 +1,10 @@
+import express from 'express'
+
 function isMentorRole(role) {
   return String(role || '') === 'mentor'
 }
 
-export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRow, pickFields }) {
+export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRow, pickFields, validateUpload }) {
   async function requireMentor(req, res, next) {
     try {
       if (!supabase) return res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
@@ -48,6 +50,43 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
     const { data: lesson, error } = await supabase.from('lessons').select('module_id').eq('id', lessonId).single()
     if (error) throw error
     return ownsModule(mentorId, lesson.module_id)
+  }
+
+  if (validateUpload) {
+    app.post(
+      '/api/mentor/storage/upload',
+      verifyUser,
+      requireMentor,
+      express.raw({ type: '*/*', limit: '25mb' }),
+      async (req, res) => {
+        try {
+          const v = validateUpload(req)
+          if (v.error) return res.status(400).json({ error: v.error })
+          const { contentType } = v
+
+          const bucket = String(req.query?.bucket || 'public')
+          const folder = String(req.query?.folder || 'uploads').replace(/^\/+|\/+$/g, '')
+          const filename = String(req.query?.filename || 'file').replace(/[^\w.\-]+/g, '-').slice(0, 120)
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+          const path = `${folder}/${stamp}-${filename}`
+
+          const { error } = await supabase.storage.from(bucket).upload(path, req.body, {
+            upsert: false,
+            contentType,
+          })
+          if (error) throw error
+
+          res.json({
+            bucket,
+            path,
+            mime_type: contentType || null,
+            size_bytes: Buffer.isBuffer(req.body) ? req.body.length : null,
+          })
+        } catch (err) {
+          res.status(400).json({ error: err?.message || 'Upload error' })
+        }
+      },
+    )
   }
 
   app.get('/api/mentor/summary', verifyUser, requireMentor, async (req, res) => {

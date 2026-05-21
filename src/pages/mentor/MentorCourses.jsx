@@ -52,7 +52,7 @@ export function MentorCoursesPage() {
       <WorkspaceHeader
         label="Courses"
         title="Your courses"
-        description="Create learning tracks and build modules and lessons for your mentees."
+        description="Create courses, upload cover images, and build modules with lessons and downloadable files."
         actions={
           <button
             type="button"

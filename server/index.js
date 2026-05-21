@@ -970,7 +970,7 @@ app.delete('/api/admin/assignments/:id', verifyUser, requireStaff, async (req, r
   }
 })
 
-registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRow, pickFields })
+registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRow, pickFields, validateUpload })
 
 // -------------------------
 // Admin: summary + applications

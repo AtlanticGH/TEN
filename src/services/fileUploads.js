@@ -49,7 +49,7 @@ export function validateUploadFile(file, { maxBytes = 25 * 1024 * 1024 } = {}) {
   }
 }
 
-export async function uploadStorageFile({ file, bucket = 'public', folder = 'uploads' } = {}) {
+export async function uploadStorageFile({ file, bucket = 'public', folder = 'uploads', uploadRole = 'admin' } = {}) {
   validateUploadFile(file)
 
   const ext = sanitizeFilename(file.name).split('.').pop()
@@ -58,8 +58,11 @@ export async function uploadStorageFile({ file, bucket = 'public', folder = 'upl
   const filename = `${base}-${stamp}${ext ? `.${ext}` : ''}`
   const buf = await file.arrayBuffer()
 
+  const uploadPath =
+    uploadRole === 'mentor' ? '/api/mentor/storage/upload' : '/api/admin/storage/upload'
+
   const upload = await apiFetch(
-    `/api/admin/storage/upload?bucket=${encodeURIComponent(bucket)}&folder=${encodeURIComponent(folder)}&filename=${encodeURIComponent(
+    `${uploadPath}?bucket=${encodeURIComponent(bucket)}&folder=${encodeURIComponent(folder)}&filename=${encodeURIComponent(
       filename,
     )}`,
     {
