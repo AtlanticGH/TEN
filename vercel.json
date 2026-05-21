@@ -3,7 +3,13 @@
     { "source": "/signup", "destination": "/apply", "permanent": true },
     { "source": "/signup.html", "destination": "/apply", "permanent": true }
   ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api?__path=$1" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

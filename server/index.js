@@ -242,6 +242,7 @@ async function requireStaff(req, res, next) {
 }
 
 app.get('/healthz', (_req, res) => res.status(200).send('ok'))
+app.get('/api/healthz', (_req, res) => res.status(200).send('ok'))
 
 // -------------------------
 // Hybrid API (frontend → backend → Supabase DB)

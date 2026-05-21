@@ -53,7 +53,7 @@ npm start
 
 If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to `.env`, then restart the dev server.
 
-**Vercel: `/resources` shows `Request failed: 404`:** The Express API runs in `api/[[...slug]].js`. In Vercel project settings, set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FRONTEND_ORIGIN` (your production URL, e.g. `https://your-app.vercel.app`). Leave `VITE_API_URL` **empty** so the browser calls same-origin `/api/*`. Redeploy after env changes. An empty resources list (`No resources published yet.`) is normal until you add items in **Admin → Resources**.
+**Vercel: `/resources` shows `Request failed: 404`:** The API must deploy as `api/index.js` with the `/api/(.*)` rewrite in `vercel.json` (do not use `api/[[...slug]].js` — that is Next.js-only). Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FRONTEND_ORIGIN` (e.g. `https://your-app.vercel.app`). Leave `VITE_API_URL` **empty**. After deploy, `https://<app>/api/healthz` should return `ok` and `https://<app>/api/public/resources` should return JSON. Redeploy without build cache if routes still 404.
 
 **Password reset / invite links land on a blank login page:** Supabase appends a one-time token in the URL hash. Add these to **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**:
 
