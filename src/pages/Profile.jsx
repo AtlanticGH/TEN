@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { uploadMyAvatar } from '@/lib/avatars'
 import { updateMyProfile } from '../services/db'
 
 function InitialsAvatar({ name, email }) {
@@ -33,6 +34,8 @@ export function ProfilePage() {
   const [phone, setPhone] = useState('')
   const [country, setCountry] = useState('')
   const [goals, setGoals] = useState('')
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState('')
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -43,6 +46,11 @@ export function ProfilePage() {
       setGoals(profile?.goals || '')
     })
   }, [profile])
+
+  useEffect(() => {
+    if (avatarFile) return
+    setAvatarPreview(profile?.profile_image_url || '')
+  }, [profile?.profile_image_url, avatarFile])
 
   const joinedAtLabel = useMemo(() => {
     const raw = profile?.joined_at
@@ -66,9 +74,9 @@ export function ProfilePage() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
           <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div className="flex items-start gap-4">
-              {profile?.profile_image_url ? (
+              {avatarPreview ? (
                 <img
-                  src={profile.profile_image_url}
+                  src={avatarPreview}
                   alt="Profile"
                   className="h-16 w-16 rounded-full object-cover ring-2 ring-orange-200 dark:ring-orange-900/40"
                   loading="lazy"
@@ -134,13 +142,18 @@ export function ProfilePage() {
             }
             setSaving(true)
             try {
-              await updateMyProfile({
+              const patch = {
                 full_name: fullName.trim(),
                 bio: bio.trim(),
                 phone: phone.trim(),
                 country: country.trim(),
                 goals: goals.trim(),
-              })
+              }
+              if (avatarFile) {
+                patch.avatar_path = await uploadMyAvatar(avatarFile)
+              }
+              await updateMyProfile(patch)
+              setAvatarFile(null)
               await refreshProfile()
               setNotice('Profile updated.')
             } catch (err) {
@@ -150,6 +163,37 @@ export function ProfilePage() {
             }
           }}
         >
+          <div className="rounded-3xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+            <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Profile photo</label>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="" className="h-14 w-14 rounded-full object-cover ring-2 ring-orange-200" />
+              ) : (
+                <InitialsAvatar name={fullName || profile?.full_name} email={user?.email} />
+              )}
+              <label className="inline-flex cursor-pointer rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                Choose image
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    if (file.size > 5 * 1024 * 1024) {
+                      setError('Image must be 5MB or smaller.')
+                      return
+                    }
+                    setError('')
+                    setAvatarFile(file)
+                    setAvatarPreview(URL.createObjectURL(file))
+                  }}
+                />
+              </label>
+            </div>
+            <p className="mt-2 text-xs text-zinc-500">JPEG, PNG, WebP, or GIF — max 5MB. Saved when you click Save changes.</p>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Full name</label>

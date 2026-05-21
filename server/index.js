@@ -111,15 +111,29 @@ async function ensureProfileRow(user) {
   return inserted
 }
 
+async function enrichProfileAvatar(row) {
+  if (!row?.avatar_path || !supabase) return row
+  try {
+    const { data, error } = await supabase.storage.from('avatars').createSignedUrl(row.avatar_path, 60 * 60)
+    if (error || !data?.signedUrl) return row
+    return { ...row, avatar_url: data.signedUrl, profile_image_url: data.signedUrl }
+  } catch {
+    return row
+  }
+}
+
 async function getMyProfileRow(userId, authUser = null) {
   if (!supabase) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
   const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle()
   if (error) throw error
-  if (data) return data
-  if (authUser?.id === userId) return await ensureProfileRow(authUser)
-  const err = new Error('Profile not found')
-  err.code = 'PGRST116'
-  throw err
+  let row = data
+  if (!row && authUser?.id === userId) row = await ensureProfileRow(authUser)
+  if (!row) {
+    const err = new Error('Profile not found')
+    err.code = 'PGRST116'
+    throw err
+  }
+  return await enrichProfileAvatar(row)
 }
 
 function isStaffRole(role) {
@@ -145,6 +159,8 @@ const PROFILE_SELF_UPDATABLE = [
   'country',
   'goals',
   'profile_image_url',
+  'avatar_path',
+  'avatar_url',
 ]
 const APPLICATION_STAFF_UPDATABLE = ['status', 'notes', 'invited_user_id', 'invited_at']
 const APPLICATION_STATUSES = new Set(['submitted', 'waitlist', 'approved', 'rejected'])
@@ -233,7 +249,7 @@ app.put('/api/profile', verifyUser, async (req, res) => {
       .select('*')
       .single()
     if (error) throw error
-    res.json(data)
+    res.json(await enrichProfileAvatar(data))
   } catch (err) {
     res.status(400).json({ error: err?.message || 'Profile update error' })
   }
@@ -1284,6 +1300,12 @@ app.post(
         contentType,
       })
       if (error) throw error
+
+      await supabase
+        .from('profiles')
+        .update({ avatar_path: path })
+        .eq('user_id', req.user.id)
+
       res.json({ path })
     } catch (err) {
       res.status(400).json({ error: err?.message || 'Avatar upload error' })

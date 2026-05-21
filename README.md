@@ -37,6 +37,10 @@ npm run bootstrap:admin -- --email you@company.com --password "YourSecurePass1" 
 
 Public sign-up is disabled; members join via **Apply** → admin approve → invite. The bootstrap admin is only for your initial staff account.
 
+```bash
+npm run setup:check   # verify env, tables, CMS hero, staff account, API
+```
+
 API only (e.g. port 3000):
 
 ```bash
