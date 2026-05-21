@@ -5,15 +5,21 @@ import { dashboardPathForRole, isMentorRole, isStaffRole } from '../lib/rbac'
 import { useMemberDashboard } from '../hooks/useMemberDashboard'
 import { useTeams } from '../hooks/useTeams'
 import { TeamList } from '../components/dashboard/TeamList'
-
-function ProgressBar({ value }) {
-  const v = Math.max(0, Math.min(100, Number(value) || 0))
-  return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-      <div className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-600" style={{ width: `${v}%` }} />
-    </div>
-  )
-}
+import {
+  DashboardAlert,
+  DashboardAvatar,
+  DashboardButton,
+  DashboardEmpty,
+  DashboardHero,
+  DashboardPage as DashboardShell,
+  DashboardPanel,
+  DashboardProgressBar,
+  DashboardSectionHeader,
+  DashboardSkeleton,
+  DashboardSplit,
+  DashboardStatCard,
+  DashboardStatsRow,
+} from '../components/dashboard/DashboardChrome'
 
 function useCountUp(value, { durationMs = 650 } = {}) {
   const [shown, setShown] = useState(() => Number(value) || 0)
@@ -38,50 +44,6 @@ function useCountUp(value, { durationMs = 650 } = {}) {
   }, [value])
 
   return shown
-}
-
-function InitialsAvatar({ name, email }) {
-  const initials = useMemo(() => {
-    const base = (name || email || 'Member').trim()
-    const parts = base.split(/\s+/).filter(Boolean)
-    const a = (parts[0]?.[0] || 'M').toUpperCase()
-    const b = (parts[1]?.[0] || parts[0]?.[1] || 'E').toUpperCase()
-    return `${a}${b}`
-  }, [name, email])
-
-  return (
-    <div className="grid h-14 w-14 place-content-center rounded-full bg-gradient-to-br from-orange-500 via-amber-400 to-orange-600 text-sm font-bold text-white shadow-glow ring-2 ring-white/60 dark:ring-zinc-950/60">
-      {initials}
-    </div>
-  )
-}
-
-function Skeleton({ className = '' }) {
-  return <div className={['animate-pulse rounded-2xl bg-zinc-200/70 dark:bg-zinc-800/60', className].join(' ')} />
-}
-
-function StatCard({ label, value, sublabel, tone = 'orange', icon }) {
-  const toneClass =
-    tone === 'emerald'
-      ? 'from-emerald-500/10 via-emerald-400/5 to-transparent border-emerald-200/60 dark:border-emerald-900/40'
-      : tone === 'zinc'
-        ? 'from-zinc-500/10 via-zinc-400/5 to-transparent border-zinc-200/60 dark:border-zinc-800'
-        : 'from-orange-500/10 via-amber-400/5 to-transparent border-orange-200/60 dark:border-orange-900/40'
-
-  return (
-    <div className={['group rounded-3xl border bg-gradient-to-br p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md', toneClass].join(' ')}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{value}</p>
-          {sublabel ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{sublabel}</p> : null}
-        </div>
-        <div className="grid h-10 w-10 place-content-center rounded-2xl border border-zinc-200 bg-white/70 text-zinc-700 shadow-sm transition group-hover:border-orange-300 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-200">
-          <span className="text-base">{icon}</span>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 function MemberNav({ onNavigate, profileTo = '/member/profile' }) {
@@ -299,7 +261,7 @@ export function DashboardPage() {
                     loading="lazy"
                   />
                 ) : (
-                  <InitialsAvatar name={profile?.full_name} email={user?.email} />
+                  <DashboardAvatar name={profile?.full_name} email={user?.email} />
                 )}
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 line-clamp-1">{name}</p>
@@ -313,7 +275,7 @@ export function DashboardPage() {
           </aside>
         ) : null}
 
-        <section className="min-w-0 space-y-6">
+        <DashboardShell className="min-w-0">
           <div className="flex items-center justify-between gap-2 lg:hidden">
             <button
               type="button"
@@ -342,113 +304,82 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-            <div className="relative p-8">
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
-              <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                <div className="flex items-start gap-4">
-                  {profile?.profile_image_url ? (
-                    <img
-                      src={profile.profile_image_url}
-                      alt="Profile"
-                      className="h-16 w-16 rounded-full object-cover ring-2 ring-orange-200 dark:ring-orange-900/40"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <InitialsAvatar name={profile?.full_name} email={user?.email} />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Member Dashboard</p>
-                    <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Welcome back, {name}</h1>
-                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-                      <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-                        Status: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{statusLabel}</span>
-                      </span>
-                      <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-                        Member ID: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{memberId}</span>
-                      </span>
-                      <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-                        Joined: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{joinedAtLabel}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    to="/member/courses"
-                    className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:scale-[1.02] hover:bg-orange-400 active:scale-[0.99]"
-                    title="Browse available courses"
-                  >
-                    Browse courses
-                  </Link>
-                  <Link
-                    to={profileTo}
-                    className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-                    title="Edit your profile"
-                  >
-                    Edit profile
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </header>
+          <DashboardHero
+            label="Student dashboard"
+            title={`Welcome back, ${name}`}
+            description="Track enrolled programs, mentorship sessions, and your latest activity in one place."
+            avatar={
+              <DashboardAvatar
+                name={profile?.full_name}
+                email={user?.email}
+                imageUrl={profile?.profile_image_url}
+                size="lg"
+              />
+            }
+            badges={[
+              { label: 'Status', value: statusLabel },
+              { label: 'Member ID', value: memberId },
+              { label: 'Joined', value: joinedAtLabel },
+            ]}
+            actions={
+              <>
+                <DashboardButton to="/member/courses">Browse courses</DashboardButton>
+                <DashboardButton to={profileTo} variant="secondary">
+                  Edit profile
+                </DashboardButton>
+              </>
+            }
+          />
 
           {loading ? (
-            <div className="grid gap-4 md:grid-cols-3">
-              <Skeleton className="h-28 rounded-3xl" />
-              <Skeleton className="h-28 rounded-3xl" />
-              <Skeleton className="h-28 rounded-3xl" />
-              <Skeleton className="h-48 rounded-3xl md:col-span-2" />
-              <Skeleton className="h-48 rounded-3xl" />
-            </div>
+            <>
+              <DashboardStatsRow>
+                <DashboardSkeleton className="h-32" />
+                <DashboardSkeleton className="h-32" />
+                <DashboardSkeleton className="h-32" />
+              </DashboardStatsRow>
+              <DashboardSplit className="lg:grid-cols-[1.25fr_0.75fr]">
+                <DashboardSkeleton className="h-72" />
+                <DashboardSkeleton className="h-72" />
+              </DashboardSplit>
+            </>
           ) : loadError ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-              <p>{loadError}</p>
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className="mt-4 rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-400"
-              >
-                Retry
-              </button>
-            </div>
+            <DashboardAlert message={loadError} onRetry={() => refetch()} />
           ) : (
             <>
-              <div className="grid gap-4 md:grid-cols-3">
-                <StatCard
+              <DashboardStatsRow>
+                <DashboardStatCard
                   label="Active courses"
                   value={Math.round(statActiveCourses)}
                   sublabel="Currently enrolled"
                   icon="📚"
+                  href="/member/courses"
                 />
-                <StatCard
+                <DashboardStatCard
                   label="Overall progress"
                   value={`${Math.round(statOverallPct)}%`}
                   sublabel="Across enrolled courses"
                   icon="📈"
                   tone="emerald"
                 />
-                <StatCard
+                <DashboardStatCard
                   label="Notifications"
                   value={Math.round(statNotifs)}
                   sublabel="Latest updates"
                   icon="🔔"
                   tone="zinc"
                 />
-              </div>
+              </DashboardStatsRow>
 
-              <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
-                <section className="rounded-3xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+              <DashboardSplit className="lg:grid-cols-[1.25fr_0.75fr]">
+                <DashboardPanel>
                   <div className="flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Your courses</p>
-                      <h2 className="mt-2 text-2xl font-semibold">Enrolled programs</h2>
-                      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-                        Jump back into a program and track progress with quick visual indicators.
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950/40">
+                    <DashboardSectionHeader
+                      label="Learning"
+                      title="Enrolled programs"
+                      description="Jump back into a program and track progress with visual indicators."
+                    />
+                    <div className="rounded-2xl border border-zinc-200/90 bg-zinc-50/80 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950/40">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Monthly activity</p>
                       <div className="mt-2">
                         <SparkBars values={monthlyActivityBars} />
@@ -465,60 +396,75 @@ export function DashboardPage() {
                           <Link
                             key={enrollment.id}
                             to={`/member/courses/${course.id}`}
-                            className="group rounded-3xl border border-zinc-200 bg-zinc-50 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:bg-white hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/40 dark:hover:border-orange-500/60"
+                            className="group rounded-[24px] border border-zinc-200/90 bg-zinc-50/80 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300/80 hover:bg-white hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/40 dark:hover:border-orange-500/50"
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">Progress</p>
-                                <h3 className="mt-2 text-lg font-semibold text-zinc-900 group-hover:text-orange-600 dark:text-zinc-100 dark:group-hover:text-orange-300 line-clamp-2">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Progress</p>
+                                <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-zinc-900 group-hover:text-orange-600 dark:text-zinc-100 dark:group-hover:text-orange-300">
                                   {course.title}
                                 </h3>
                               </div>
-                              <div className="grid h-10 w-10 place-content-center rounded-2xl border border-zinc-200 bg-white text-xs font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-200">
+                              <div className="grid h-11 w-11 shrink-0 place-content-center rounded-2xl border border-white/60 bg-white/90 text-xs font-bold text-zinc-700 shadow-sm dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-200">
                                 {pct}%
                               </div>
                             </div>
                             <p className="mt-3 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">{course.description}</p>
                             <div className="mt-4 space-y-2">
                               <div className="flex items-center justify-between text-xs text-zinc-500">
-                                <span>{p?.completed_modules ?? 0}/{p?.total_modules ?? 0} modules</span>
-                                <span className="font-semibold text-zinc-700 dark:text-zinc-200">Continue →</span>
+                                <span>
+                                  {p?.completed_modules ?? 0}/{p?.total_modules ?? 0} modules
+                                </span>
+                                <span className="font-semibold text-orange-600 dark:text-orange-300">Continue →</span>
                               </div>
-                              <ProgressBar value={pct} />
+                              <DashboardProgressBar value={pct} />
                             </div>
                           </Link>
                         )
                       })}
                     </div>
                   ) : (
-                    <div className="mt-6 rounded-3xl border border-dashed border-zinc-300 p-7 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-                      You’re not enrolled in any courses yet. Browse courses to get started.
+                    <div className="mt-6">
+                      <DashboardEmpty>
+                        You&apos;re not enrolled in any courses yet.{' '}
+                        <Link to="/member/courses" className="font-semibold text-orange-600 hover:underline dark:text-orange-300">
+                          Browse courses
+                        </Link>{' '}
+                        to get started.
+                      </DashboardEmpty>
                     </div>
                   )}
-                </section>
+                </DashboardPanel>
 
                 <aside className="space-y-6">
-                  <div className="rounded-3xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-                    <div className="flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Mentorship</p>
-                        <h2 className="mt-2 text-2xl font-semibold">Upcoming sessions</h2>
-                      </div>
+                  <DashboardPanel>
+                    <DashboardSectionHeader
+                      label="Mentorship"
+                      title="Upcoming sessions"
+                      description="Scheduled meetings with your mentor."
+                    />
+                    <div className="mt-4 flex justify-end">
                       <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-200">
-                        {sessions.length}
+                        {sessions.length} scheduled
                       </span>
                     </div>
 
                     {sessions.length ? (
-                      <div className="mt-5 space-y-3">
+                      <div className="mt-4 space-y-3">
                         {sessions.map((row) => (
-                          <div key={row.session?.id} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 transition hover:border-orange-300 dark:border-zinc-800 dark:bg-zinc-950/40">
-                            <p className="text-sm font-semibold">{row.session?.title}</p>
+                          <div
+                            key={row.session?.id}
+                            className="rounded-2xl border border-zinc-200/90 bg-zinc-50/80 p-4 transition hover:border-orange-300/70 hover:bg-white dark:border-zinc-800 dark:bg-zinc-950/40"
+                          >
+                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{row.session?.title}</p>
                             <p className="mt-1 text-xs text-zinc-500">
                               {new Date(row.session?.starts_at).toLocaleString()} • {row.status}
                             </p>
                             {row.session?.meeting_url ? (
-                              <a className="mt-2 inline-flex text-sm font-semibold text-orange-600 hover:underline dark:text-orange-300" href={row.session.meeting_url}>
+                              <a
+                                className="mt-2 inline-flex text-sm font-semibold text-orange-600 hover:underline dark:text-orange-300"
+                                href={row.session.meeting_url}
+                              >
                                 Open meeting
                               </a>
                             ) : null}
@@ -526,15 +472,19 @@ export function DashboardPage() {
                         ))}
                       </div>
                     ) : (
-                      <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 p-5 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-                        No upcoming sessions yet.
+                      <div className="mt-4">
+                        <DashboardEmpty>No upcoming sessions yet.</DashboardEmpty>
                       </div>
                     )}
-                  </div>
+                  </DashboardPanel>
 
-                  <div className="rounded-3xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-                    <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Recent activity</p>
-                    <h2 className="mt-2 text-2xl font-semibold">Timeline</h2>
+                  <DashboardPanel>
+                    <DashboardSectionHeader
+                      label="Updates"
+                      title="Recent activity"
+                      description="Notifications and milestones from your programs."
+                      href="/member/activity"
+                    />
                     <div className="mt-5">
                       {activityItems.length ? (
                         <div>
@@ -549,19 +499,17 @@ export function DashboardPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="rounded-2xl border border-dashed border-zinc-300 p-5 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-                          No recent activity yet.
-                        </div>
+                        <DashboardEmpty>No recent activity yet.</DashboardEmpty>
                       )}
                     </div>
-                  </div>
+                  </DashboardPanel>
                 </aside>
-              </div>
+              </DashboardSplit>
 
               <TeamList memberships={teamMemberships} />
             </>
           )}
-        </section>
+        </DashboardShell>
       </div>
 
       {mobileNavOpen ? (
