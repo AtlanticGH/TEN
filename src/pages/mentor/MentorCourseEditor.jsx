@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Dialog } from '@/components/ui/Dialog'
-import { WorkspaceHeader, WorkspacePage, WorkspacePanel, WorkspaceMutedPanel, WorkspaceAlert } from '@/components/workspace/WorkspaceChrome'
+import {
+  WorkspaceAlert,
+  WorkspaceHeader,
+  WorkspaceMutedPanel,
+  WorkspacePage,
+  WorkspacePanel,
+  WorkspaceSplit,
+} from '@/components/workspace/WorkspaceChrome'
 import { listAssignments } from '@/services/assignments'
 import { createMentorAssignment, deleteMentorAssignment } from '@/services/mentorAssignments'
 import { deleteMentorLessonFile, listLessonFiles, uploadMentorLessonFile } from '@/services/mentorLessonFiles'
@@ -103,7 +110,7 @@ export function MentorCourseEditorPage() {
 
       <WorkspaceAlert message={error} />
 
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <WorkspaceSplit>
         <WorkspaceMutedPanel>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Add module</p>
           <form
@@ -212,7 +219,7 @@ export function MentorCourseEditorPage() {
             </p>
           )}
         </div>
-      </div>
+      </WorkspaceSplit>
 
       <Dialog
         open={!!filesLesson}

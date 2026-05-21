@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom'
 
-/** Shared layout chrome for member + mentor app shells (matches Dashboard shapes). */
-export function WorkspacePage({ children }) {
-  return <div className="space-y-6">{children}</div>
+/** Full-width column used inside member/mentor layout outlets. */
+export function WorkspacePage({ children, className = '' }) {
+  return <div className={['w-full max-w-none space-y-6', className].join(' ')}>{children}</div>
+}
+
+/** Standard two-column mentor/member workspace (equal width on large screens). */
+export function WorkspaceSplit({ children, className = '' }) {
+  return <div className={['grid w-full max-w-none gap-6 lg:grid-cols-2', className].join(' ')}>{children}</div>
 }
 
 export function WorkspaceHeader({ label, title, description, actions }) {
@@ -15,7 +20,7 @@ export function WorkspaceHeader({ label, title, description, actions }) {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">{label}</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl">{title}</h1>
             {description ? (
-              <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-300">{description}</p>
+              <div className="mt-2 max-w-none text-sm text-zinc-600 dark:text-zinc-300">{description}</div>
             ) : null}
           </div>
           {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}

@@ -96,8 +96,10 @@ export function MentorLayout() {
           </div>
         </aside>
 
-        <section className="min-w-0">
-          <Outlet />
+        <section className="min-w-0 w-full max-w-full">
+          <div className="w-full">
+            <Outlet />
+          </div>
         </section>
       </div>
 

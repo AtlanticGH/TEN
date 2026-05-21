@@ -6,6 +6,7 @@ import {
   WorkspaceMutedPanel,
   WorkspacePage,
   WorkspacePanel,
+  WorkspaceSplit,
 } from '@/components/workspace/WorkspaceChrome'
 
 export function MentorStudentsPage() {
@@ -66,7 +67,7 @@ export function MentorStudentsPage() {
 
       <WorkspaceAlert message={error} />
 
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <WorkspaceSplit>
         <WorkspacePanel>
           {loading ? (
             <p className="text-sm text-zinc-500">Loading…</p>
@@ -148,7 +149,7 @@ export function MentorStudentsPage() {
             </div>
           ) : null}
         </WorkspaceMutedPanel>
-      </div>
+      </WorkspaceSplit>
     </WorkspacePage>
   )
 }

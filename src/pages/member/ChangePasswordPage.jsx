@@ -1,12 +1,19 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { updateMyPassword } from '../../services/auth'
 import { useAuth } from '../../hooks/useAuth'
 import { dashboardPathForRole } from '../../lib/rbac'
+import { WorkspaceHeader, WorkspacePage, WorkspacePanel } from '@/components/workspace/WorkspaceChrome'
 
 export function ChangePasswordPage() {
+  const location = useLocation()
   const { user, profile } = useAuth()
   const navigate = useNavigate()
+  const inAppShell =
+    location.pathname.startsWith('/member') || location.pathname.startsWith('/mentor')
+  const dashboardTo = dashboardPathForRole(profile?.role)
+  const profileTo = location.pathname.startsWith('/mentor') ? '/mentor/profile' : '/member/profile'
+
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [ok, setOk] = useState('')
@@ -15,6 +22,94 @@ export function ChangePasswordPage() {
 
   const needsReset = !!user?.user_metadata?.force_password_reset
   const canSubmit = useMemo(() => pw.length >= 10 && pw === pw2 && !busy, [pw, pw2, busy])
+
+  const formFields = (
+    <>
+      {error ? (
+        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
+          {error}
+        </div>
+      ) : null}
+      {ok ? (
+        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+          {ok}
+        </div>
+      ) : null}
+
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">New password</label>
+          <input
+            type="password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            className="mt-2 h-11 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
+            placeholder="At least 10 characters"
+            autoComplete="new-password"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Confirm new password</label>
+          <input
+            type="password"
+            value={pw2}
+            onChange={(e) => setPw2(e.target.value)}
+            className="mt-2 h-11 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
+            placeholder="Repeat password"
+            autoComplete="new-password"
+          />
+        </div>
+        <button
+          type="button"
+          disabled={!canSubmit}
+          onClick={async () => {
+            setBusy(true)
+            setError('')
+            setOk('')
+            try {
+              if (pw !== pw2) throw new Error('Passwords do not match.')
+              if (pw.length < 10) throw new Error('Password must be at least 10 characters.')
+              await updateMyPassword(pw)
+              setOk('Password updated.')
+              navigate(dashboardTo, { replace: true })
+            } catch (err) {
+              setError(err?.message || 'Unable to update password.')
+            } finally {
+              setBusy(false)
+            }
+          }}
+          className="mt-2 h-11 w-full rounded-full bg-orange-500 px-5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
+        >
+          {busy ? 'Updating…' : 'Update password'}
+        </button>
+      </div>
+    </>
+  )
+
+  if (inAppShell) {
+    return (
+      <WorkspacePage>
+        <WorkspaceHeader
+          label="Security"
+          title="Change your password"
+          description={
+            needsReset
+              ? 'You’re using a temporary password. Please set a new password to continue.'
+              : 'Update your password to keep your account secure.'
+          }
+          actions={
+            <Link
+              to={profileTo}
+              className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-200"
+            >
+              Profile
+            </Link>
+          }
+        />
+        <WorkspacePanel>{formFields}</WorkspacePanel>
+      </WorkspacePage>
+    )
+  }
 
   return (
     <div className="mx-auto w-full max-w-xl py-6">
@@ -28,67 +123,8 @@ export function ChangePasswordPage() {
         ) : (
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Update your password.</p>
         )}
-
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-            {error}
-          </div>
-        ) : null}
-        {ok ? (
-          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
-            {ok}
-          </div>
-        ) : null}
-
-        <div className="mt-6 space-y-3">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">New password</label>
-            <input
-              type="password"
-              value={pw}
-              onChange={(e) => setPw(e.target.value)}
-              className="mt-2 h-11 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
-              placeholder="At least 10 characters"
-              autoComplete="new-password"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Confirm new password</label>
-            <input
-              type="password"
-              value={pw2}
-              onChange={(e) => setPw2(e.target.value)}
-              className="mt-2 h-11 w-full rounded-2xl border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
-              placeholder="Repeat password"
-              autoComplete="new-password"
-            />
-          </div>
-          <button
-            type="button"
-            disabled={!canSubmit}
-            onClick={async () => {
-              setBusy(true)
-              setError('')
-              setOk('')
-              try {
-                if (pw !== pw2) throw new Error('Passwords do not match.')
-                if (pw.length < 10) throw new Error('Password must be at least 10 characters.')
-                await updateMyPassword(pw)
-                setOk('Password updated.')
-                navigate(dashboardPathForRole(profile?.role), { replace: true })
-              } catch (err) {
-                setError(err?.message || 'Unable to update password.')
-              } finally {
-                setBusy(false)
-              }
-            }}
-            className="mt-2 h-11 w-full rounded-full bg-orange-500 px-5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
-          >
-            {busy ? 'Updating…' : 'Update password'}
-          </button>
-        </div>
+        <div className="mt-6">{formFields}</div>
       </div>
     </div>
   )
 }
-
