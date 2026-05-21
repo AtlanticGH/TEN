@@ -236,10 +236,10 @@ export async function listMyUpcomingSessions({ limit = 5 } = {}) {
   const now = new Date().toISOString()
   const { data, error } = await getSupabase()
     .from('session_attendees')
-    .select('status, sessions(*)')
+    .select('status, sessions!inner(*)')
     .eq('user_id', user.id)
     .gte('sessions.starts_at', now)
-    .order('sessions.starts_at', { ascending: true })
+    .order('starts_at', { ascending: true, foreignTable: 'sessions' })
     .limit(limit)
 
   if (error) throw error

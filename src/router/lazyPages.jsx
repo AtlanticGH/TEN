@@ -2,7 +2,6 @@ import { Suspense, lazy } from 'react'
 import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 import { SITE_CARD, SITE_PAGE_BAND } from '../components/ui/siteDesignTokens'
 
-export const HomePage = lazy(() => import('../pages/HomePage').then((m) => ({ default: m.HomePage })))
 export const AboutPage = lazy(() => import('../pages/AboutPage').then((m) => ({ default: m.AboutPage })))
 export const ProgramsPage = lazy(() => import('../pages/ProgramsPage').then((m) => ({ default: m.ProgramsPage })))
 export const ProgramComponentsPage = lazy(() =>

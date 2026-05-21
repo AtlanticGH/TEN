@@ -1,42 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Reveal } from '../components/shared/Reveal'
-import { getSiteContent } from '../services/siteContent'
-import { EMPTY_HOME_HERO, HOME_HERO_FIELD_KEYS } from '../config/siteContentDefaults'
-import { mergeSiteContentDefaults, siteContentFieldsEqual } from '../utils/mergeSiteContent'
-import { useEffect, useMemo, useState } from 'react'
-
-const HOME_HERO_KEY = 'home.hero.v1'
-
-function mergeHero(override) {
-  return mergeSiteContentDefaults(EMPTY_HOME_HERO, override)
-}
+import { useHomeHero } from '../hooks/useHomeHero'
 
 export function HomePage() {
-  const [hero, setHero] = useState(EMPTY_HOME_HERO)
-  const [heroLoaded, setHeroLoaded] = useState(false)
-
-  useEffect(() => {
-    let alive = true
-    getSiteContent(HOME_HERO_KEY)
-      .then((row) => {
-        if (!alive) return
-        if (row?.value) {
-          const merged = mergeHero(row.value)
-          setHero((prev) =>
-            siteContentFieldsEqual(prev, merged, HOME_HERO_FIELD_KEYS) ? prev : merged,
-          )
-        }
-        setHeroLoaded(true)
-      })
-      .catch(() => {
-        if (alive) setHeroLoaded(true)
-      })
-    return () => { alive = false }
-  }, [])
-
-  const heroCopy = useMemo(() => mergeHero(hero), [hero])
-
-  const bg = heroCopy.background_image
+  const { heroCopy, bg } = useHomeHero()
 
   return (
     <main id="page-main" data-component="page-main" className="overflow-x-hidden">
@@ -67,11 +34,6 @@ export function HomePage() {
         <div className="relative mx-auto flex min-h-[100dvh] max-w-7xl flex-col justify-center px-6 pb-20 pt-32 sm:px-8 md:px-12 md:pb-24 lg:px-10">
           <div className="ten-hero-content max-w-6xl">
 
-            {/* Badge */}
-            {!heroLoaded ? (
-              <p className="text-sm text-zinc-400">Loading…</p>
-            ) : (
-              <>
             {heroCopy.badge ? (
             <p className="mb-6 inline-block w-fit rounded-full border border-white/25 bg-white/[0.07] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-300/90 backdrop-blur-sm">
               {heroCopy.badge}
@@ -123,8 +85,6 @@ export function HomePage() {
               </Link>
               ) : null}
             </div>
-              </>
-            )}
           </div>
         </div>
 

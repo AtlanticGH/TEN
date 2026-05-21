@@ -19,6 +19,7 @@ Migrations apply in **filename timestamp** order. Do not insert `ALTER` before `
 | 013 | `20260321130114_fix_profiles_rls_recursion.sql` | `SECURITY DEFINER` `is_staff`/`is_admin`; fix profiles RLS recursion |
 | 014 | `20260321130115_mentor_announcements.sql` | Legacy admin-audience mentor_mentees on `announcements` (superseded for mentors by 016) |
 | 015 | `20260321130116_mentor_student_communication.sql` | `mentor_students`, `mentor_announcements`, recipients, peer profile RLS, realtime |
+| 016 | `20260321130117_fix_mentor_announcements_rls.sql` | Break `mentor_announcements` ↔ recipients RLS recursion |
 
 Full architecture: `docs/DATABASE_ARCHITECTURE.md`
 

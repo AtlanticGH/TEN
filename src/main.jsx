@@ -4,6 +4,8 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
+import { HomePage } from './pages/HomePage'
+import { homeHeroQueryOptions } from './hooks/useHomeHero'
 import { LegacyMemberCourseRedirect, LegacyMemberLessonRedirect } from './components/routing/LegacyMemberRedirects'
 import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
@@ -33,7 +35,6 @@ import {
   CourseDetailsPage,
   CoursesPage,
   DashboardPage,
-  HomePage,
   LessonPage,
   MemberActivityPage,
   MemberAnnouncementsPage,
@@ -85,13 +86,15 @@ const memberCourseRoutes = [
   },
 ]
 
+queryClient.prefetchQuery(homeHeroQueryOptions())
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     errorElement: <RouterErrorBoundary />,
     children: [
-      { index: true, element: <PageFallback><HomePage /></PageFallback> },
+      { index: true, element: <HomePage /> },
       { path: 'about', element: <PageFallback><AboutPage /></PageFallback> },
       { path: 'programs', element: <PageFallback><ProgramsPage /></PageFallback> },
       { path: 'program-components', element: <PageFallback><ProgramComponentsPage /></PageFallback> },
