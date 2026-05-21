@@ -61,8 +61,17 @@ app.use(
 // JSON for normal API routes
 app.use(express.json({ limit: '2mb' }))
 
-const SUPABASE_URL = process.env.SUPABASE_URL || ''
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const SUPABASE_URL = (
+  process.env.SUPABASE_URL ||
+  process.env.VITE_SUPABASE_URL ||
+  ''
+).trim()
+
+const SUPABASE_SERVICE_ROLE_KEY = (
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_KEY ||
+  ''
+).trim().replace(/^['"]|['"]$/g, '')
 
 const supabase =
   SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
@@ -241,8 +250,19 @@ async function requireStaff(req, res, next) {
   }
 }
 
-app.get('/healthz', (_req, res) => res.status(200).send('ok'))
-app.get('/api/healthz', (_req, res) => res.status(200).send('ok'))
+async function healthzHandler(_req, res) {
+  if (!supabase) {
+    return res.status(503).json({ ok: false, error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY' })
+  }
+  const { error } = await supabase.from('site_content').select('key').limit(1)
+  if (error) {
+    return res.status(503).json({ ok: false, error: error.message })
+  }
+  return res.status(200).send('ok')
+}
+
+app.get('/healthz', healthzHandler)
+app.get('/api/healthz', healthzHandler)
 
 // -------------------------
 // Hybrid API (frontend → backend → Supabase DB)

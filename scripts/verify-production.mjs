@@ -7,7 +7,13 @@ const base = (process.env.PRODUCTION_URL || 'https://ember-network-qc25.vercel.a
 
 const checks = [
   { name: 'SPA home', path: '/', expectStatus: 200, expectBody: (t) => t.includes('The Ember Network') },
-  { name: 'API healthz', path: '/api/healthz', expectStatus: 200, expectBody: (t) => t.trim() === 'ok' },
+  {
+    name: 'API healthz',
+    path: '/api/healthz',
+    expectStatus: 200,
+    expectBody: (t) => t.trim() === 'ok' || (() => { try { return JSON.parse(t).ok !== false } catch { return false } })(),
+    hintOn503: 'Health check includes Supabase ping — fix SUPABASE_SERVICE_ROLE_KEY on Vercel.',
+  },
   {
     name: 'API public resources',
     path: '/api/public/resources?limit=1',
@@ -53,6 +59,8 @@ for (const c of checks) {
     } else {
       console.log(`✗ ${c.name} — HTTP ${res.status}`)
       if (res.status === 500 && c.hintOn500) console.log(`  → ${c.hintOn500}`)
+      else if (res.status === 503 && c.hintOn503) console.log(`  → ${c.hintOn503}`)
+      else if (text.length < 300) console.log(`  → ${text}`)
       else if (res.status === 400 && text.includes('Invalid API key') && c.hintOn400) console.log(`  → ${c.hintOn400}`)
       else if (!bodyOk && text.length < 200) console.log(`  → ${text}`)
       ok = false
