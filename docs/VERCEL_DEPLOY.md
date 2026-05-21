@@ -27,6 +27,17 @@ Dashboard → **Authentication** → **URL Configuration**:
 
 Deployments → latest → **Redeploy** → enable **Use existing Build Cache** off if env just changed.
 
+## Troubleshooting: `Invalid API key`
+
+The server env is set but Supabase rejected the key. In Vercel, fix:
+
+1. `SUPABASE_SERVICE_ROLE_KEY` must be the **service_role** secret (not `anon`).
+2. `SUPABASE_URL` must be `https://vawqdpalwuoyqntseqni.supabase.co` (same project as local `.env`).
+3. No quotes or trailing spaces in values.
+4. **Redeploy** after editing env vars.
+
+Get keys: Supabase Dashboard → Project **vawqdpalwuoyqntseqni** → Settings → API.
+
 ## 4. Verify
 
 ```bash

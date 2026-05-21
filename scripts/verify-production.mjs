@@ -21,6 +21,7 @@ const checks = [
       }
     },
     hintOn500: 'Set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in Vercel and redeploy.',
+    hintOn400: 'Invalid API key — use service_role (not anon) for SUPABASE_SERVICE_ROLE_KEY; match SUPABASE_URL to project; redeploy.',
   },
   {
     name: 'CMS home hero',
@@ -52,6 +53,7 @@ for (const c of checks) {
     } else {
       console.log(`✗ ${c.name} — HTTP ${res.status}`)
       if (res.status === 500 && c.hintOn500) console.log(`  → ${c.hintOn500}`)
+      else if (res.status === 400 && text.includes('Invalid API key') && c.hintOn400) console.log(`  → ${c.hintOn400}`)
       else if (!bodyOk && text.length < 200) console.log(`  → ${text}`)
       ok = false
     }
