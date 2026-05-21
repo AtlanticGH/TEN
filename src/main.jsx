@@ -4,26 +4,20 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
-import { JoinCommunityPage } from './pages/JoinCommunityPage'
-import { ContactPage } from './pages/ContactPage'
-import { HomePage } from './pages/HomePage'
-import { AboutPage } from './pages/AboutPage'
-import { ProgramsPage } from './pages/ProgramsPage'
-import { ProgramComponentsPage } from './pages/ProgramComponentsPage'
-import { ResourcesPage } from './pages/ResourcesPage'
 import { LegacyMemberCourseRedirect, LegacyMemberLessonRedirect } from './components/routing/LegacyMemberRedirects'
 import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
-import { AdminGate } from './pages/admin/AdminGate'
 
 import {
+  AboutPage,
   AdminAnnouncementsPage,
   AdminApplicationsPage,
   AdminCoursesPage,
   AdminContentPage,
   AdminCourseEditorPage,
+  AdminGate,
   AdminLogsPage,
   AdminMediaPage,
   AdminMembersPage,
@@ -32,15 +26,21 @@ import {
   AdminMemberProgressPage,
   AdminSessionsPage,
   AdminSettingsPage,
+  ContactPage,
   CourseDetailsPage,
   CoursesPage,
   DashboardPage,
+  HomePage,
+  JoinCommunityPage,
   LessonPage,
   MemberActivityPage,
   MemberLayout,
   ChangePasswordPage,
   PageFallback,
   ProfilePage,
+  ProgramComponentsPage,
+  ProgramsPage,
+  ResourcesPage,
 } from './router/lazyPages'
 import { queryClient } from './lib/queryClient'
 
@@ -77,12 +77,12 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <RouterErrorBoundary />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: 'about', element: <AboutPage /> },
-      { path: 'programs', element: <ProgramsPage /> },
-      { path: 'program-components', element: <ProgramComponentsPage /> },
-      { path: 'community', element: <JoinCommunityPage /> },
-      { path: 'resources', element: <ResourcesPage /> },
+      { index: true, element: <PageFallback><HomePage /></PageFallback> },
+      { path: 'about', element: <PageFallback><AboutPage /></PageFallback> },
+      { path: 'programs', element: <PageFallback><ProgramsPage /></PageFallback> },
+      { path: 'program-components', element: <PageFallback><ProgramComponentsPage /></PageFallback> },
+      { path: 'community', element: <PageFallback><JoinCommunityPage /></PageFallback> },
+      { path: 'resources', element: <PageFallback><ResourcesPage /></PageFallback> },
       {
         path: 'auth',
         lazy: async () => {
@@ -106,7 +106,7 @@ const router = createBrowserRouter([
         },
       },
       { path: 'join', element: <Navigate to="/community" replace /> },
-      { path: 'contact', element: <ContactPage /> },
+      { path: 'contact', element: <PageFallback><ContactPage /></PageFallback> },
       {
         path: 'login',
         lazy: async () => {

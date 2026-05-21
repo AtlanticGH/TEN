@@ -1,5 +1,18 @@
 import { Suspense, lazy } from 'react'
 
+export const HomePage = lazy(() => import('../pages/HomePage').then((m) => ({ default: m.HomePage })))
+export const AboutPage = lazy(() => import('../pages/AboutPage').then((m) => ({ default: m.AboutPage })))
+export const ProgramsPage = lazy(() => import('../pages/ProgramsPage').then((m) => ({ default: m.ProgramsPage })))
+export const ProgramComponentsPage = lazy(() =>
+  import('../pages/ProgramComponentsPage').then((m) => ({ default: m.ProgramComponentsPage })),
+)
+export const ResourcesPage = lazy(() => import('../pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage })))
+export const JoinCommunityPage = lazy(() =>
+  import('../pages/JoinCommunityPage').then((m) => ({ default: m.JoinCommunityPage })),
+)
+export const ContactPage = lazy(() => import('../pages/ContactPage').then((m) => ({ default: m.ContactPage })))
+export const AdminGate = lazy(() => import('../pages/admin/AdminGate').then((m) => ({ default: m.AdminGate })))
+
 export const DashboardPage = lazy(() => import('../pages/Dashboard').then((m) => ({ default: m.DashboardPage })))
 export const ProfilePage = lazy(() => import('../pages/Profile').then((m) => ({ default: m.ProfilePage })))
 export const CoursesPage = lazy(() => import('../pages/Courses').then((m) => ({ default: m.CoursesPage })))
