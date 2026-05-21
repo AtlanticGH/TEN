@@ -12,6 +12,8 @@ import { getPublicAssetUrl } from '../services/mediaAssets'
 import { listAssignments } from '../services/assignments'
 import { fetchMyAssignmentSubmission, submitAssignmentWork } from '../services/mentor'
 import { listMyQuizAttempts, listQuizQuestions, submitQuizAttempt } from '../services/quizzes'
+import { useAuth } from '../hooks/useAuth'
+import { dashboardPathForRole } from '../lib/rbac'
 
 function Block({ block }) {
   const type = block?.type || 'text'
@@ -150,6 +152,8 @@ function AssignmentSubmitPanel({ assignment }) {
 export function LessonPage() {
   const { courseId, lessonId } = useParams()
   const navigate = useNavigate()
+  const { profile } = useAuth()
+  const dashboardTo = dashboardPathForRole(profile?.role)
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -309,7 +313,7 @@ export function LessonPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/member')}
+                onClick={() => navigate(dashboardTo)}
                 className="rounded-full bg-zinc-900 px-5 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
               >
                 Dashboard

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { dashboardPathForRole, isMentorRole } from '../../lib/rbac'
 
 export function ProfileCard({
   avatarUrl,
@@ -14,6 +15,8 @@ export function ProfileCard({
   role: string
 }) {
   const title = username ? `@${username}` : fullName || 'Profile'
+  const dashboardTo = dashboardPathForRole(role)
+  const profileTo = isMentorRole(role) ? '/mentor/profile' : '/member/profile'
 
   return (
     <section className="rounded-3xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
@@ -45,16 +48,16 @@ export function ProfileCard({
 
       <div className="mt-6 flex flex-wrap gap-2">
         <Link
-          to="/member/profile"
+          to={profileTo}
           className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:scale-[1.02] hover:bg-orange-400 active:scale-[0.99]"
         >
           Edit profile
         </Link>
         <Link
-          to="/member"
+          to={dashboardTo}
           className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
         >
-          Member area
+          Dashboard
         </Link>
       </div>
     </section>
