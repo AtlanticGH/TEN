@@ -7,6 +7,7 @@
  */
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
+import { devOrigin } from './dev-origin.mjs'
 
 dotenv.config({ path: ['.env', '.env.local'], override: true })
 
@@ -57,8 +58,9 @@ if (existing?.user_id) {
     console.error('Profile update failed:', upErr.message)
     process.exit(1)
   }
+  const origin = devOrigin()
   console.log(`Promoted existing user to ${role}: ${email}`)
-  console.log('Login at http://localhost:5173/login → http://localhost:5173/admin/dashboard')
+  console.log(`Login at ${origin}/login → ${origin}/admin/dashboard`)
   process.exit(0)
 }
 
@@ -130,5 +132,6 @@ if (profErr) {
 }
 
 const { data: saved } = await supabase.from('profiles').select('role').eq('user_id', userId).single()
+const origin = devOrigin()
 console.log(`Created ${saved?.role ?? 'admin'}: ${email}`)
-console.log('Login at http://localhost:5173/login → http://localhost:5173/admin/dashboard')
+console.log(`Login at ${origin}/login → ${origin}/admin/dashboard`)

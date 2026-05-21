@@ -12,6 +12,7 @@ import approveApplication from '../api/applications/approve.js'
 import rejectApplication from '../api/applications/reject.js'
 import markComplete from '../api/progress/mark-complete.js'
 import markIncomplete from '../api/progress/mark-incomplete.js'
+import { registerMentorRoutes } from './mentorRoutes.js'
 
 // Load .env then .env.local (Vite-style: local overrides base).
 dotenv.config({ path: ['.env', '.env.local'], override: true })
@@ -961,6 +962,8 @@ app.delete('/api/admin/assignments/:id', verifyUser, requireStaff, async (req, r
     res.status(400).json({ error: err?.message || 'Delete assignment error' })
   }
 })
+
+registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRow, pickFields })
 
 // -------------------------
 // Admin: summary + applications

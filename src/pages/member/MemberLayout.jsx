@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { isMentorRole } from '../../lib/rbac'
 
 function NavItem({ to, end, children, onNavigate }) {
   return (
@@ -24,7 +25,14 @@ function NavItem({ to, end, children, onNavigate }) {
 
 export function MemberLayout() {
   const { user, profile } = useAuth()
+  const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (profile && isMentorRole(profile.role)) {
+      navigate('/mentor', { replace: true })
+    }
+  }, [profile, navigate])
 
   const nav = ({ onNavigate } = {}) => (
     <div className="grid gap-2">

@@ -2,7 +2,7 @@
 
 Production web platform for **The Ember Network (TEN)** — maintained by **Atlantic Catering & Logistics**.
 
-React, Vite, Express, and Supabase power the public site, member area, and admin CMS.
+React, Vite, Express, and Supabase power the public site, **member** area, **mentor** workspace, and **admin** CMS.
 
 ## Getting started
 
@@ -26,7 +26,7 @@ Start **frontend + API** together (recommended):
 npm run dev:all
 ```
 
-Open http://localhost:5173/
+Open the URL Vite prints (usually http://localhost:5173/; if that port is busy it may use 5174, 5175, etc.). Set `FRONTEND_ORIGIN` in `.env` to match (e.g. `http://localhost:5175`) for bootstrap script hints.
 
 ### First-time bootstrap (empty database)
 
@@ -38,6 +38,14 @@ npm run bootstrap:resources  # optional public /resources listings (local/stagin
 ```
 
 Public sign-up is disabled; members join via **Apply** → admin approve → invite. The bootstrap admin is only for your initial staff account.
+
+**Mentor account (optional):**
+
+```bash
+npm run bootstrap:mentor -- --email mentor@company.com --password "YourSecurePass1" --name "Mentor Name"
+```
+
+Then in **Admin → Users**, assign each student’s **Mentor** field to that mentor’s user id. Mentors sign in at `/mentor` (overview, students, courses, assignment reviews).
 
 ```bash
 npm run setup:check   # verify env, tables, CMS hero, staff account, API

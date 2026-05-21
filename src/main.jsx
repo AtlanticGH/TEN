@@ -8,6 +8,7 @@ import { LegacyMemberCourseRedirect, LegacyMemberLessonRedirect } from './compon
 import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import { MentorRoute } from './components/auth/MentorRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
 
 import {
@@ -33,6 +34,11 @@ import {
   LessonPage,
   MemberActivityPage,
   MemberLayout,
+  MentorLayout,
+  MentorDashboardPage,
+  MentorStudentsPage,
+  MentorCoursesPage,
+  MentorAssignmentsPage,
   ChangePasswordPage,
   PageFallback,
   ProfilePage,
@@ -201,6 +207,68 @@ const router = createBrowserRouter([
             ),
           },
           ...memberCourseRoutes,
+        ],
+      },
+      {
+        path: 'mentor',
+        element: (
+          <ProtectedRoute>
+            <MentorRoute>
+              <PageFallback>
+                <MentorLayout />
+              </PageFallback>
+            </MentorRoute>
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <PageFallback>
+                <MentorDashboardPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'students',
+            element: (
+              <PageFallback>
+                <MentorStudentsPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'courses',
+            element: (
+              <PageFallback>
+                <MentorCoursesPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'assignments',
+            element: (
+              <PageFallback>
+                <MentorAssignmentsPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <PageFallback>
+                <ProfilePage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'change-password',
+            element: (
+              <PageFallback>
+                <ChangePasswordPage />
+              </PageFallback>
+            ),
+          },
         ],
       },
       // /dashboard is now a real page (see above). Keep /member as the default authed area.

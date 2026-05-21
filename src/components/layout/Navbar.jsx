@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { dashboardPathForRole } from '../../lib/rbac'
 import { signOut } from '../../services/auth'
 
 function SunIcon({ className }) {
@@ -59,8 +60,9 @@ const NAV_LINKS = [
 
 export function Navbar({ dark, mode = 'scrolled', onToggleTheme }) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { isAuthed } = useAuth()
+  const { isAuthed, profile } = useAuth()
   const navigate = useNavigate()
+  const dashboardTo = dashboardPathForRole(profile?.role)
   const isHero = mode === 'hero'
 
   const closeMobile = () => setMobileOpen(false)
@@ -126,7 +128,7 @@ export function Navbar({ dark, mode = 'scrolled', onToggleTheme }) {
           <div className="hidden items-center gap-2 md:flex">
             {isAuthed ? (
               <>
-                <Link to="/member" className={ghostBtnClass} onClick={closeMobile}>Dashboard</Link>
+                <Link to={dashboardTo} className={ghostBtnClass} onClick={closeMobile}>Dashboard</Link>
                 <button
                   type="button"
                   className={ghostBtnClass}
@@ -203,7 +205,7 @@ export function Navbar({ dark, mode = 'scrolled', onToggleTheme }) {
           <div className="mt-3 flex flex-col gap-2 border-t border-current/10 pt-3">
             {isAuthed ? (
               <>
-                <Link to="/member" className={ghostBtnClass} onClick={closeMobile}>Dashboard</Link>
+                <Link to={dashboardTo} className={ghostBtnClass} onClick={closeMobile}>Dashboard</Link>
                 <button
                   type="button"
                   className={ghostBtnClass}

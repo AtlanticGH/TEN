@@ -10,6 +10,7 @@ import {
 } from '../services/db'
 import { getPublicAssetUrl } from '../services/mediaAssets'
 import { listAssignments } from '../services/assignments'
+import { fetchMyAssignmentSubmission, submitAssignmentWork } from '../services/mentor'
 import { listMyQuizAttempts, listQuizQuestions, submitQuizAttempt } from '../services/quizzes'
 
 function Block({ block }) {
@@ -44,6 +45,105 @@ function Block({ block }) {
     <p className="text-sm text-zinc-700 dark:text-zinc-200 whitespace-pre-wrap">
       {block?.value}
     </p>
+  )
+}
+
+function AssignmentSubmitPanel({ assignment }) {
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [submission, setSubmission] = useState(null)
+  const [notes, setNotes] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      setLoading(true)
+      try {
+        const row = await fetchMyAssignmentSubmission(assignment.id)
+        if (!cancelled) {
+          setSubmission(row)
+          setNotes(row?.notes || '')
+          setLinkUrl(row?.link_url || '')
+        }
+      } catch {
+        if (!cancelled) setSubmission(null)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [assignment.id])
+
+  const status = submission?.status || 'none'
+  const locked = status === 'approved'
+
+  return (
+    <div className="mt-4 rounded-2xl border border-dashed border-zinc-300 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900/40">
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Your submission</p>
+      {loading ? (
+        <p className="mt-2 text-xs text-zinc-500">Loading…</p>
+      ) : (
+        <>
+          {status !== 'none' ? (
+            <p className="mt-2 text-xs font-semibold capitalize text-orange-700 dark:text-orange-300">
+              Status: {status.replace('_', ' ')}
+              {submission?.grade ? ` · ${submission.grade}` : ''}
+            </p>
+          ) : null}
+          {submission?.mentor_feedback ? (
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300 whitespace-pre-wrap">
+              Mentor feedback: {submission.mentor_feedback}
+            </p>
+          ) : null}
+          {!locked ? (
+            <form
+              className="mt-3 space-y-2"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setBusy(true)
+                setError('')
+                try {
+                  const row = await submitAssignmentWork(assignment.id, { notes, link_url: linkUrl })
+                  setSubmission(row)
+                } catch (err) {
+                  setError(err?.message || 'Unable to submit.')
+                } finally {
+                  setBusy(false)
+                }
+              }}
+            >
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+                placeholder="Describe your work or paste your answer…"
+                className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+              />
+              <input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="Link (Google Doc, Drive, portfolio, etc.)"
+                className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+              />
+              {error ? <p className="text-xs text-rose-600 dark:text-rose-300">{error}</p> : null}
+              <button
+                type="submit"
+                disabled={busy}
+                className="rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-400 disabled:opacity-50"
+              >
+                {busy ? 'Submitting…' : submission ? 'Resubmit' : 'Submit for review'}
+              </button>
+            </form>
+          ) : (
+            <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300">Approved — no further edits needed.</p>
+          )}
+        </>
+      )}
+    </div>
   )
 }
 
@@ -282,6 +382,7 @@ export function LessonPage() {
                         Download assignment
                       </a>
                     ) : null}
+                    {enrolled ? <AssignmentSubmitPanel assignment={a} /> : null}
                   </div>
                 ))}
               </div>

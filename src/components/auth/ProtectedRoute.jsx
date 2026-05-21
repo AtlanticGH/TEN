@@ -1,8 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { changePasswordPathForRole } from '../../lib/rbac'
 
 export function ProtectedRoute({ children }) {
-  const { isAuthed, loading, user } = useAuth()
+  const { isAuthed, loading, user, profile } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -21,9 +22,11 @@ export function ProtectedRoute({ children }) {
   }
 
   const needsReset = !!user?.user_metadata?.force_password_reset
-  const isOnChangePw = location.pathname.startsWith('/member/change-password')
+  const changePwPath = changePasswordPathForRole(profile?.role)
+  const isOnChangePw =
+    location.pathname.startsWith('/member/change-password') || location.pathname.startsWith('/mentor/change-password')
   if (needsReset && !isOnChangePw) {
-    return <Navigate to="/member/change-password" replace />
+    return <Navigate to={changePwPath} replace />
   }
 
   return children

@@ -14,6 +14,7 @@ Migrations apply in **filename timestamp** order. Do not insert `ALTER` before `
 | 008 | `20260321130107_realtime_publication.sql` | Realtime publication |
 | 009 | `20260321130108_profiles_role_constraint.sql` | Profile role CHECK alignment |
 | 010 | `20260321130110_ensure_extensions.sql` | Repair remotes that applied empty `20000` placeholder |
+| 011 | `20260321130112_mentor_workspace.sql` | Mentor courses ownership, assignment submissions, mentor RLS |
 
 ## Clean database
 

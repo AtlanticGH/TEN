@@ -84,7 +84,8 @@ export function MainLayout({ children }) {
     } catch { /* ignore */ }
   }
 
-  const isAdminShell = location.pathname.startsWith('/admin')
+  const path = location.pathname
+  const isAppShell = path.startsWith('/admin') || path.startsWith('/mentor')
 
   return (
     // Root wrapper uses CSS variables so the whole page reacts to .dark
@@ -93,11 +94,11 @@ export function MainLayout({ children }) {
       style={{ transition: 'background-color 200ms ease-out, color 200ms ease-out' }}
     >
       <ScrollProgress />
-      {!isAdminShell && (
+      {!isAppShell && (
         <Navbar mode={headerMode} dark={dark} onToggleTheme={toggleTheme} />
       )}
       <div className="flex flex-1 flex-col">{children}</div>
-      {!isAdminShell && <Footer />}
+      {!isAppShell && <Footer />}
       <ChatWidget />
     </div>
   )

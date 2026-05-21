@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { isStaffRole } from '../../lib/rbac'
+import { isMentorRole, isStaffRole } from '../../lib/rbac'
 import { getSupabase } from '@/lib/supabaseClient'
 import { AdminLayout } from './AdminLayout'
 import { AdminLoginPage } from './AdminLogin'
@@ -23,6 +23,10 @@ export function AdminGate() {
         </div>
       </div>
     )
+  }
+
+  if (isAuthed && profile && isMentorRole(profile?.role)) {
+    return <Navigate to="/mentor" replace />
   }
 
   if (isAuthed && profile && !isStaffRole(profile?.role)) {
