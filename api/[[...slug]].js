@@ -15,7 +15,20 @@
 
 import app from '../server/index.js'
 
-export default app
+/** Normalize path before Express routing (Vercel strips /api prefix). */
+function prepareRequest(req) {
+  const raw = req.url || '/'
+  const q = raw.includes('?') ? raw.slice(raw.indexOf('?')) : ''
+  const pathOnly = q ? raw.slice(0, raw.indexOf('?')) : raw
+  if (pathOnly && !pathOnly.startsWith('/api')) {
+    req.url = `/api${pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`}${q}`
+  }
+}
+
+export default function handler(req, res) {
+  prepareRequest(req)
+  return app(req, res)
+}
 
 // Vercel function config. bodyParser:false ensures express.raw/express.json
 // inside the app handle the body themselves (avoids double-parsing).

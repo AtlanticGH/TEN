@@ -19,20 +19,40 @@ dotenv.config({ path: ['.env', '.env.local'], override: true })
 const app = express()
 const PORT = Number(process.env.PORT || '3000')
 
-const frontendOrigin =
-  (process.env.FRONTEND_ORIGIN || process.env.SITE_URL || '')
-    .trim()
-    .replace(/\/$/, '') || null
+function trimOrigin(value) {
+  const v = String(value || '').trim().replace(/\/$/, '')
+  return v || null
+}
+
+function corsOrigins() {
+  const origins = new Set()
+  const configured = trimOrigin(process.env.FRONTEND_ORIGIN || process.env.SITE_URL)
+  if (configured) origins.add(configured)
+  if (process.env.VERCEL_URL) origins.add(`https://${process.env.VERCEL_URL}`)
+  if (process.env.VERCEL_BRANCH_URL) origins.add(`https://${process.env.VERCEL_BRANCH_URL}`)
+  if (origins.size) return [...origins]
+  if (process.env.NODE_ENV === 'production') return false
+  return ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000']
+}
 
 app.set('trust proxy', true)
 
+// Vercel serverless passes /api/foo as /foo to functions under api/ — restore prefix.
+if (process.env.VERCEL) {
+  app.use((req, _res, next) => {
+    const raw = req.url || '/'
+    const q = raw.includes('?') ? raw.slice(raw.indexOf('?')) : ''
+    const pathOnly = q ? raw.slice(0, raw.indexOf('?')) : raw
+    if (pathOnly && !pathOnly.startsWith('/api')) {
+      req.url = `/api${pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`}${q}`
+    }
+    next()
+  })
+}
+
 app.use(
   cors({
-    origin: frontendOrigin
-      ? [frontendOrigin]
-      : process.env.NODE_ENV === 'production'
-        ? false
-        : ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000'],
+    origin: corsOrigins(),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['content-type', 'authorization'],
   }),

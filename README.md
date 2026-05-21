@@ -52,6 +52,8 @@ npm start
 
 If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to `.env`, then restart the dev server.
 
+**Vercel: `/resources` shows `Request failed: 404`:** The Express API runs in `api/[[...slug]].js`. In Vercel project settings, set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FRONTEND_ORIGIN` (your production URL, e.g. `https://your-app.vercel.app`). Leave `VITE_API_URL` **empty** so the browser calls same-origin `/api/*`. Redeploy after env changes. An empty resources list (`No resources published yet.`) is normal until you add items in **Admin → Resources**.
+
 **Password reset / invite links land on a blank login page:** Supabase appends a one-time token in the URL hash. Add these to **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**:
 
 - `http://localhost:5173/reset-password` (local)

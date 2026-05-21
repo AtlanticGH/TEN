@@ -33,7 +33,12 @@ export function ResourcesPage() {
         const data = await listResources({ limit: 200 })
         if (!ignore) setItems(data)
       } catch (err) {
-        if (!ignore) setError(err?.message || 'Unable to load resources.')
+        const msg = err?.message || 'Unable to load resources.'
+        const hint =
+          /404/.test(msg) && !import.meta.env.VITE_API_URL
+            ? ' API routes may be misconfigured on the host — redeploy with server env vars and same-origin /api.'
+            : ''
+        if (!ignore) setError(msg + hint)
       } finally {
         if (!ignore) setLoading(false)
       }
