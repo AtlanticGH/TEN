@@ -64,7 +64,9 @@ Forgot-password, invite, and recovery flows all redirect to `/reset-password` (n
 
 ## Supabase
 
-**Project ref:** `vawqdpalwuoyqntseqni`
+**Project ref:** `vawqdpalwuoyqntseqni` (Ember Network — not Ember Backend)
+
+Wrong database linked? See **`docs/SUPABASE_RECONNECT.md`**.
 
 ```bash
 supabase login

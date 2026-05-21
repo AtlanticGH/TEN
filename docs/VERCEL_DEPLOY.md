@@ -2,6 +2,8 @@
 
 **Production URL:** https://ember-network-qc25.vercel.app
 
+**Use project `vawqdpalwuoyqntseqni` (Ember Network) only.** If Vercel or the CLI was tied to Ember Backend (`lfdttxwvjgypljuhgjeu`), disconnect and reconnect — see `docs/SUPABASE_RECONNECT.md`.
+
 ## 1. Environment variables (required)
 
 Vercel → Project → **Settings** → **Environment Variables** → add for **Production** (and Preview if needed):
