@@ -22,8 +22,15 @@ export async function getSiteContent(key) {
 }
 
 export async function getSiteContentValue(key) {
-  const row = await getSiteContent(key)
-  return extractSiteContentValue(row)
+  try {
+    const row = await getSiteContent(key)
+    return extractSiteContentValue(row)
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[siteContent] Failed to load', key, err?.message || err)
+    }
+    return null
+  }
 }
 
 export async function upsertSiteContent({ key, value }) {

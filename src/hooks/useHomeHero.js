@@ -16,12 +16,15 @@ export function homeHeroQueryOptions() {
     queryFn: () => getSiteContentValue(HOME_HERO_KEY),
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 30,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 3000),
+    refetchOnMount: true,
   }
 }
 
 /** Home hero: show defaults immediately, refresh from CMS without a loading skeleton. */
 export function useHomeHero() {
-  const { data, isError, error, isFetching } = useQuery(homeHeroQueryOptions())
+  const { data, isFetching, isFetched } = useQuery(homeHeroQueryOptions())
 
   const heroCopy = useMemo(() => mergeHero(data ?? null), [data])
 
@@ -48,9 +51,8 @@ export function useHomeHero() {
     heroCopy,
     bg,
     bgReady,
-    hasError: isError,
-    errorMessage: error?.message || null,
-    isRefreshing: isFetching && data !== undefined,
+    cmsLoaded: isFetched && data !== null,
+    isRefreshing: isFetching && isFetched,
   }
 }
 

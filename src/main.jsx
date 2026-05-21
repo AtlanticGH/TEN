@@ -41,15 +41,31 @@ import {
   ResourcesPage,
 } from './router/lazyPages'
 import { queryClient } from './lib/queryClient'
+import { apiUrl } from './lib/apiBase'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
 import { HomePage } from './pages/HomePage'
 import { homeHeroQueryOptions } from './hooks/useHomeHero'
 import { DEFAULT_HOME_HERO } from './config/siteContentDefaults'
 
-if (supabaseIsConfigured) {
-  void queryClient.prefetchQuery(homeHeroQueryOptions())
+/** Prefetch hero after API is up (avoids caching a failed request during server startup). */
+function scheduleHomeHeroPrefetch() {
+  const run = () => {
+    void queryClient.prefetchQuery(homeHeroQueryOptions())
+  }
+  fetch(apiUrl('/healthz'))
+    .then((res) => {
+      if (res.ok) run()
+    })
+    .catch(() => {
+      window.setTimeout(run, 1500)
+    })
 }
+
+if (supabaseIsConfigured) {
+  scheduleHomeHeroPrefetch()
+}
+
 if (DEFAULT_HOME_HERO.background_image) {
   const link = document.createElement('link')
   link.rel = 'preload'
