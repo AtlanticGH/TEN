@@ -1,11 +1,8 @@
-import { useAuth } from '../../hooks/useAuth'
 import { useMentorDashboard } from '../../hooks/useMentorDashboard'
 import {
   DashboardAlert,
-  DashboardAvatar,
   DashboardButton,
   DashboardEmpty,
-  DashboardHero,
   DashboardListItem,
   DashboardPage,
   DashboardPanel,
@@ -17,44 +14,14 @@ import {
 } from '@/components/dashboard/DashboardChrome'
 
 export function MentorDashboardPage() {
-  const { profile, user } = useAuth()
   const { data, isLoading, isError, error, refetch } = useMentorDashboard()
 
   const summary = data?.summary || {}
   const students = data?.students || []
   const pending = data?.pendingSubmissions || []
 
-  const name = profile?.full_name || user?.email || 'Mentor'
-
   return (
     <DashboardPage>
-      <DashboardHero
-        label="Mentor workspace"
-        title={`Welcome back, ${name}`}
-        description="Manage courses, track mentee progress, and review assignment submissions from one place."
-        avatar={
-          <DashboardAvatar
-            name={profile?.full_name}
-            email={user?.email}
-            imageUrl={profile?.profile_image_url}
-            size="lg"
-          />
-        }
-        badges={[
-          { label: 'Mentees', value: isLoading ? '…' : String(summary.mentees ?? 0) },
-          { label: 'Courses', value: isLoading ? '…' : String(summary.my_courses ?? 0) },
-          { label: 'Pending reviews', value: isLoading ? '…' : String(summary.pending_reviews ?? 0) },
-        ]}
-        actions={
-          <>
-            <DashboardButton to="/mentor/profile" variant="secondary">
-              Profile
-            </DashboardButton>
-            <DashboardButton to="/mentor/courses">Add a course</DashboardButton>
-          </>
-        }
-      />
-
       {isError ? (
         <DashboardAlert message={error?.message || 'Unable to load mentor dashboard.'} onRetry={() => refetch()} />
       ) : null}

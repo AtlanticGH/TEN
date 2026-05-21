@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { DashboardPage, DashboardPageIntro } from '../../components/dashboard/DashboardChrome'
 import { Dialog } from '../../components/ui/Dialog'
 import { listMembers, listMentors, updateMember } from '../../services/adminMembers'
 
@@ -52,29 +53,29 @@ export function AdminMembersPage() {
   const selected = useMemo(() => items.find((x) => x.user_id === openId) || null, [items, openId])
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Members</p>
-          <h2 className="mt-2 text-2xl font-semibold">Member directory</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Search, assign roles, suspend users, and set mentors.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-10 w-full rounded-full border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30 md:w-64"
-            placeholder="Search name, email, role…"
-          />
-          <button
-            type="button"
-            onClick={() => refresh()}
-            className="h-10 rounded-full border border-zinc-300 px-4 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Members"
+        title="Member directory"
+        description="Search, assign roles, suspend users, and set mentors."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="h-10 w-full rounded-full border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30 md:w-64"
+              placeholder="Search name, email, role…"
+            />
+            <button
+              type="button"
+              onClick={() => refresh()}
+              className="h-10 rounded-full border border-zinc-300 px-4 text-sm font-semibold text-zinc-700 transition-all duration-200 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
+            >
+              Refresh
+            </button>
+          </div>
+        }
+      />
 
       {loading ? (
         <p className="mt-6 text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
@@ -248,7 +249,7 @@ export function AdminMembersPage() {
           </div>
         ) : null}
       </Dialog>
-    </div>
+    </DashboardPage>
   )
 }
 

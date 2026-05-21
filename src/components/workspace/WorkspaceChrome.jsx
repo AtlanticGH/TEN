@@ -1,12 +1,19 @@
 import { useId } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  SITE_BODY_SM,
+  SITE_BTN_PRIMARY,
+  SITE_CARD,
+  SITE_EYEBROW_RELAXED,
+  SITE_HEADING_PAGE,
+  SITE_SURFACE_MUTED,
+} from '../ui/siteDesignTokens'
 
-/** Shared layout chrome for member + mentor app shells (matches Dashboard shapes). */
+/** Shared layout chrome for member + mentor sub-pages (uses main-site tokens). */
 export function WorkspacePage({ children, className = '' }) {
   return <div className={['w-full min-w-0 space-y-6', className].filter(Boolean).join(' ')}>{children}</div>
 }
 
-/** Two-column mentor/member workspace layout — equal width columns on large screens. */
 export function WorkspaceSplit({ children, className = '' }) {
   return (
     <div className={['grid w-full min-w-0 gap-6 lg:grid-cols-2', className].filter(Boolean).join(' ')}>
@@ -15,7 +22,6 @@ export function WorkspaceSplit({ children, className = '' }) {
   )
 }
 
-/** Full-width stat / action row inside a workspace page. */
 export function WorkspaceRow({ children, className = '' }) {
   return <div className={['grid w-full min-w-0 gap-4', className].filter(Boolean).join(' ')}>{children}</div>
 }
@@ -23,19 +29,16 @@ export function WorkspaceRow({ children, className = '' }) {
 export function WorkspaceHeader({ label, title, description, actions }) {
   const titleId = useId()
   return (
-    <section
-      aria-labelledby={titleId}
-      className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60"
-    >
+    <section aria-labelledby={titleId} className={[SITE_CARD, 'relative overflow-hidden'].join(' ')}>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/[0.06] via-transparent to-amber-400/[0.04]" />
       <div className="relative p-6 md:p-8">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
-        <div className="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">{label}</p>
-            <h1 id={titleId} className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl">{title}</h1>
-            {description ? (
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{description}</p>
-            ) : null}
+            <p className={SITE_EYEBROW_RELAXED}>{label}</p>
+            <h1 id={titleId} className={`mt-2 ${SITE_HEADING_PAGE}`}>
+              {title}
+            </h1>
+            {description ? <p className={`mt-2 ${SITE_BODY_SM}`}>{description}</p> : null}
           </div>
           {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
         </div>
@@ -45,29 +48,11 @@ export function WorkspaceHeader({ label, title, description, actions }) {
 }
 
 export function WorkspacePanel({ children, className = '' }) {
-  return (
-    <div
-      className={[
-        'rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60',
-        className,
-      ].join(' ')}
-    >
-      {children}
-    </div>
-  )
+  return <div className={[SITE_CARD, 'p-6 md:p-7', className].join(' ')}>{children}</div>
 }
 
 export function WorkspaceMutedPanel({ children, className = '' }) {
-  return (
-    <div
-      className={[
-        'rounded-[28px] border border-zinc-200 bg-zinc-50 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40',
-        className,
-      ].join(' ')}
-    >
-      {children}
-    </div>
-  )
+  return <div className={[SITE_SURFACE_MUTED, 'p-6 md:p-7', className].join(' ')}>{children}</div>
 }
 
 export function WorkspaceAlert({ message, tone = 'error', onRetry }) {
@@ -77,10 +62,10 @@ export function WorkspaceAlert({ message, tone = 'error', onRetry }) {
       ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200'
       : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200'
   return (
-    <div className={['rounded-[28px] border p-4 text-sm', toneClass].join(' ')}>
+    <div className={['rounded-2xl border p-4 text-sm', toneClass].join(' ')}>
       {message}
       {onRetry ? (
-        <button type="button" onClick={onRetry} className="ml-3 font-semibold underline">
+        <button type="button" onClick={onRetry} className={`ml-3 ${SITE_BTN_PRIMARY} !inline !px-4 !py-2 text-xs`}>
           Retry
         </button>
       ) : null}
@@ -97,19 +82,19 @@ export function WorkspaceStatCard({ label, value, sublabel, href, tone = 'orange
   const inner = (
     <div
       className={[
-        'rounded-3xl border bg-gradient-to-br p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md',
+        'rounded-2xl border bg-gradient-to-br p-5 shadow-sm ring-1 ring-zinc-100/40 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md dark:ring-zinc-800/40',
         toneClass,
       ].join(' ')}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
+      <p className={SITE_EYEBROW_RELAXED}>{label}</p>
       <p className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{value}</p>
-      {sublabel ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{sublabel}</p> : null}
+      {sublabel ? <p className={`mt-2 ${SITE_BODY_SM}`}>{sublabel}</p> : null}
     </div>
   )
 
   if (href) {
     return (
-      <Link to={href} className="block">
+      <Link to={href} className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
         {inner}
       </Link>
     )

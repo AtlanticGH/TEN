@@ -3,8 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { InnerPageHero } from '../components/shared/InnerPageHero'
 import { getSupabase } from '@/lib/supabaseClient'
 import { updateMyPassword } from '../services/auth'
-import { useAuth } from '../hooks/useAuth'
-import { dashboardPathForRole } from '../lib/rbac'
 
 function isRecoveryHash() {
   const hash = window.location.hash.replace(/^#/, '')
@@ -14,9 +12,8 @@ function isRecoveryHash() {
 
 export function ResetPasswordPage() {
   const navigate = useNavigate()
-  const { profile } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [recoveryReady, setRecoveryReady] = useState(() => isRecoveryHash())
+  const [recoveryReady, setRecoveryReady] = useState(false)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -25,6 +22,10 @@ export function ResetPasswordPage() {
 
   useEffect(() => {
     let ignore = false
+
+    if (isRecoveryHash()) {
+      setRecoveryReady(true)
+    }
 
     const init = async () => {
       await getSupabase().auth.getSession()
@@ -66,7 +67,7 @@ export function ResetPasswordPage() {
     try {
       await updateMyPassword(password)
       setSuccess('Your password has been updated. Redirecting…')
-      window.setTimeout(() => navigate(dashboardPathForRole(profile?.role), { replace: true }), 1200)
+      window.setTimeout(() => navigate('/member', { replace: true }), 1200)
     } catch (err) {
       setError(err?.message || 'Unable to update password. Please try again.')
     } finally {

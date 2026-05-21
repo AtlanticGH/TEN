@@ -6,12 +6,12 @@ import { useMemberDashboard } from '../hooks/useMemberDashboard'
 import { useTeams } from '../hooks/useTeams'
 import { TeamList } from '../components/dashboard/TeamList'
 import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
+import { SITE_CARD, siteNavPillClass } from '../components/ui/siteDesignTokens'
 import {
   DashboardAlert,
   DashboardAvatar,
   DashboardButton,
   DashboardEmpty,
-  DashboardHero,
   DashboardPage as DashboardShell,
   DashboardPanel,
   DashboardProgressBar,
@@ -47,37 +47,23 @@ function useCountUp(value, { durationMs = 650 } = {}) {
   return shown
 }
 
-function MemberNav({ onNavigate, profileTo = '/member/profile' }) {
+function MemberNav({ onNavigate, profileTo = '/member/profile', activePath = '' }) {
+  const items = [
+    { to: '/member', label: 'Overview', end: true },
+    { to: '/member/courses', label: 'Courses' },
+    { to: profileTo, label: 'Profile' },
+    { to: '/member/activity', label: 'Activity' },
+  ]
   return (
     <div className="grid gap-2">
-      <Link
-        to="/member"
-        onClick={() => onNavigate?.()}
-        className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm font-semibold text-zinc-900 hover:border-orange-400 hover:bg-orange-50 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-100"
-      >
-        Overview
-      </Link>
-      <Link
-        to="/member/courses"
-        onClick={() => onNavigate?.()}
-        className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-200"
-      >
-        Courses
-      </Link>
-      <Link
-        to={profileTo}
-        onClick={() => onNavigate?.()}
-        className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-200"
-      >
-        Profile
-      </Link>
-      <Link
-        to="/member/activity"
-        onClick={() => onNavigate?.()}
-        className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-200"
-      >
-        Activity
-      </Link>
+      {items.map(({ to, label, end }) => {
+        const isActive = end ? activePath === to || activePath === `${to}/` : activePath.startsWith(to)
+        return (
+          <Link key={to} to={to} onClick={() => onNavigate?.()} className={siteNavPillClass(isActive)}>
+            {label}
+          </Link>
+        )
+      })}
     </div>
   )
 }
@@ -255,7 +241,7 @@ export function DashboardPage() {
       <div className={inMemberShell ? 'space-y-6' : 'grid gap-6 lg:grid-cols-[280px_1fr]'}>
         {!inMemberShell ? (
           <aside className="hidden lg:block">
-            <div className="sticky top-24 rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+            <div className={`sticky top-24 ${SITE_CARD} p-5`}>
               <div className="flex items-center gap-4">
                 {profile?.profile_image_url ? (
                   <img
@@ -273,7 +259,7 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="mt-5">
-                <MemberNav profileTo={profileTo} />
+                <MemberNav profileTo={profileTo} activePath={location.pathname} />
               </div>
             </div>
           </aside>
@@ -321,32 +307,27 @@ export function DashboardPage() {
             </div>
           )}
 
-          <DashboardHero
-            label="Student dashboard"
-            title={`Welcome back, ${name}`}
-            description="Track enrolled programs, mentorship sessions, and your latest activity in one place."
-            avatar={
-              <DashboardAvatar
-                name={profile?.full_name}
-                email={user?.email}
-                imageUrl={profile?.profile_image_url}
-                size="lg"
-              />
-            }
-            badges={[
-              { label: 'Status', value: statusLabel },
-              { label: 'Member ID', value: memberId },
-              { label: 'Joined', value: joinedAtLabel },
-            ]}
-            actions={
-              <>
+          {inMemberShell ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
+                <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 dark:border-zinc-700 dark:bg-zinc-950/40">
+                  Status: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{statusLabel}</span>
+                </span>
+                <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 dark:border-zinc-700 dark:bg-zinc-950/40">
+                  Member ID: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{memberId}</span>
+                </span>
+                <span className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 dark:border-zinc-700 dark:bg-zinc-950/40">
+                  Joined: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{joinedAtLabel}</span>
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <DashboardButton to="/member/courses">Browse courses</DashboardButton>
                 <DashboardButton to={profileTo} variant="secondary">
                   Edit profile
                 </DashboardButton>
-              </>
-            }
-          />
+              </div>
+            </div>
+          ) : null}
 
           {loading ? (
             <>
@@ -549,7 +530,11 @@ export function DashboardPage() {
               </button>
             </div>
             <div className="mt-2">
-              <MemberNav profileTo={profileTo} onNavigate={() => setMobileNavOpen(false)} />
+              <MemberNav
+                profileTo={profileTo}
+                activePath={location.pathname}
+                onNavigate={() => setMobileNavOpen(false)}
+              />
             </div>
           </div>
         </div>

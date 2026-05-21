@@ -7,13 +7,10 @@ import App from './App.jsx'
 import { LegacyMemberCourseRedirect, LegacyMemberLessonRedirect } from './components/routing/LegacyMemberRedirects'
 import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
-import { ThemeProvider } from './context/ThemeContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
-import { MentorRoute } from './components/auth/MentorRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
 
 import {
-  HomePage,
   AboutPage,
   AdminAnnouncementsPage,
   AdminApplicationsPage,
@@ -33,15 +30,10 @@ import {
   CourseDetailsPage,
   CoursesPage,
   DashboardPage,
+  HomePage,
   LessonPage,
   MemberActivityPage,
   MemberLayout,
-  MentorLayout,
-  MentorDashboardPage,
-  MentorStudentsPage,
-  MentorCoursesPage,
-  MentorCourseEditorPage,
-  MentorAssignmentsPage,
   ChangePasswordPage,
   PageFallback,
   ProfilePage,
@@ -50,37 +42,8 @@ import {
   ResourcesPage,
 } from './router/lazyPages'
 import { queryClient } from './lib/queryClient'
-import { apiUrl } from './lib/apiBase'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
-import { homeHeroQueryOptions } from './hooks/useHomeHero'
-import { DEFAULT_HOME_HERO } from './config/siteContentDefaults'
-
-/** Prefetch hero after API is up (avoids caching a failed request during server startup). */
-function scheduleHomeHeroPrefetch() {
-  const run = () => {
-    void queryClient.prefetchQuery(homeHeroQueryOptions())
-  }
-  fetch(apiUrl('/healthz'))
-    .then((res) => {
-      if (res.ok) run()
-    })
-    .catch(() => {
-      window.setTimeout(run, 1500)
-    })
-}
-
-if (supabaseIsConfigured) {
-  scheduleHomeHeroPrefetch()
-}
-
-if (DEFAULT_HOME_HERO.background_image) {
-  const link = document.createElement('link')
-  link.rel = 'preload'
-  link.as = 'image'
-  link.href = DEFAULT_HOME_HERO.background_image
-  document.head.appendChild(link)
-}
 
 const memberCourseRoutes = [
   {
@@ -211,76 +174,6 @@ const router = createBrowserRouter([
           ...memberCourseRoutes,
         ],
       },
-      {
-        path: 'mentor',
-        element: (
-          <ProtectedRoute>
-            <MentorRoute>
-              <PageFallback>
-                <MentorLayout />
-              </PageFallback>
-            </MentorRoute>
-          </ProtectedRoute>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <PageFallback>
-                <MentorDashboardPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'students',
-            element: (
-              <PageFallback>
-                <MentorStudentsPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'courses',
-            element: (
-              <PageFallback>
-                <MentorCoursesPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'courses/:courseId',
-            element: (
-              <PageFallback>
-                <MentorCourseEditorPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'assignments',
-            element: (
-              <PageFallback>
-                <MentorAssignmentsPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'profile',
-            element: (
-              <PageFallback>
-                <ProfilePage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'change-password',
-            element: (
-              <PageFallback>
-                <ChangePasswordPage />
-              </PageFallback>
-            ),
-          },
-        ],
-      },
       // /dashboard is now a real page (see above). Keep /member as the default authed area.
       { path: 'profile', element: <Navigate to="/member/profile" replace /> },
       { path: 'courses', element: <Navigate to="/member/courses" replace /> },
@@ -337,11 +230,9 @@ const router = createBrowserRouter([
 ])
 
 const appTree = supabaseIsConfigured ? (
-  <ThemeProvider>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  </ThemeProvider>
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
 ) : (
   <SupabaseConfigRequired />
 )

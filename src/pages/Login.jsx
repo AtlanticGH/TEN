@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { InnerPageHero } from '../components/shared/InnerPageHero'
 import { signInWithEmail } from '../services/auth'
 import { useAuth } from '../hooks/useAuth'
-import { changePasswordPathForRole, resolvePostLoginPath } from '../lib/rbac'
 
 const LOCKOUT_SECONDS = 30
 const MAX_ATTEMPTS = 4
@@ -53,10 +52,14 @@ export function LoginPage() {
   useEffect(() => {
     if (!isAuthed) return
     if (user?.user_metadata?.force_password_reset) {
-      navigate(changePasswordPathForRole(profile?.role), { replace: true })
+      navigate('/member/change-password', { replace: true })
       return
     }
-    navigate(resolvePostLoginPath(profile?.role, nextPath), { replace: true })
+    const role = profile?.role
+    const isStaff = ['admin', 'super_admin', 'staff'].includes(role)
+    const requestedAdmin = String(nextPath || '').startsWith('/admin')
+    const dest = isStaff ? (requestedAdmin ? nextPath : '/admin/dashboard') : requestedAdmin ? '/member' : nextPath
+    navigate(dest, { replace: true })
   }, [isAuthed, navigate, nextPath, profile?.role, user?.user_metadata?.force_password_reset])
 
   const submit = async ({ email: e, password: p }) => {
@@ -79,11 +82,14 @@ export function LoginPage() {
       setAttemptCount(0)
       setLockoutRemaining(0)
       if (res?.user?.user_metadata?.force_password_reset) {
-        navigate(changePasswordPathForRole(res?.profile?.role || profile?.role), { replace: true })
+        navigate('/member/change-password', { replace: true })
         return
       }
       const role = res?.profile?.role || profile?.role
-      navigate(resolvePostLoginPath(role, nextPath), { replace: true })
+      const isStaff = ['admin', 'super_admin', 'staff'].includes(role)
+      const requestedAdmin = String(nextPath || '').startsWith('/admin')
+      const dest = isStaff ? (requestedAdmin ? nextPath : '/admin/dashboard') : requestedAdmin ? '/member' : nextPath
+      navigate(dest, { replace: true })
     } catch (err) {
       const nextAttempts = attemptCount + 1
       setAttemptCount(nextAttempts)

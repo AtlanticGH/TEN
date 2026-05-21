@@ -1,9 +1,42 @@
 import { Link } from 'react-router-dom'
 import { Reveal } from '../components/shared/Reveal'
-import { useHomeHero } from '../hooks/useHomeHero'
+import { getSiteContent } from '../services/siteContent'
+import { EMPTY_HOME_HERO, HOME_HERO_FIELD_KEYS } from '../config/siteContentDefaults'
+import { mergeSiteContentDefaults, siteContentFieldsEqual } from '../utils/mergeSiteContent'
+import { useEffect, useMemo, useState } from 'react'
+
+const HOME_HERO_KEY = 'home.hero.v1'
+
+function mergeHero(override) {
+  return mergeSiteContentDefaults(EMPTY_HOME_HERO, override)
+}
 
 export function HomePage() {
-  const { heroCopy, bg, bgReady, isRefreshing } = useHomeHero()
+  const [hero, setHero] = useState(EMPTY_HOME_HERO)
+  const [heroLoaded, setHeroLoaded] = useState(false)
+
+  useEffect(() => {
+    let alive = true
+    getSiteContent(HOME_HERO_KEY)
+      .then((row) => {
+        if (!alive) return
+        if (row?.value) {
+          const merged = mergeHero(row.value)
+          setHero((prev) =>
+            siteContentFieldsEqual(prev, merged, HOME_HERO_FIELD_KEYS) ? prev : merged,
+          )
+        }
+        setHeroLoaded(true)
+      })
+      .catch(() => {
+        if (alive) setHeroLoaded(true)
+      })
+    return () => { alive = false }
+  }, [])
+
+  const heroCopy = useMemo(() => mergeHero(hero), [hero])
+
+  const bg = heroCopy.background_image
 
   return (
     <main id="page-main" data-component="page-main" className="overflow-x-hidden">
@@ -18,10 +51,7 @@ export function HomePage() {
         {bg ? (
           <div
             aria-hidden="true"
-            className={[
-              'absolute inset-0 bg-cover bg-center transition-opacity duration-700 ease-out',
-              bgReady ? 'opacity-100' : 'opacity-0',
-            ].join(' ')}
+            className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url('${bg}')` }}
           />
         ) : (
@@ -35,52 +65,66 @@ export function HomePage() {
 
         {/* Content */}
         <div className="relative mx-auto flex min-h-[100dvh] max-w-7xl flex-col justify-center px-6 pb-20 pt-32 sm:px-8 md:px-12 md:pb-24 lg:px-10">
-          <div
-            className={[
-              'ten-hero-content max-w-6xl transition-opacity duration-300 ease-out',
-              isRefreshing ? 'opacity-[0.98]' : 'opacity-100',
-            ].join(' ')}
-          >
+          <div className="ten-hero-content max-w-6xl">
+
+            {/* Badge */}
+            {!heroLoaded ? (
+              <p className="text-sm text-zinc-400">Loading…</p>
+            ) : (
+              <>
             {heroCopy.badge ? (
-                  <p className="mb-6 inline-block w-fit rounded-full border border-white/25 bg-white/[0.07] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-300/90 backdrop-blur-sm">
-                    {heroCopy.badge}
-                  </p>
-                ) : null}
+            <p className="mb-6 inline-block w-fit rounded-full border border-white/25 bg-white/[0.07] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-300/90 backdrop-blur-sm">
+              {heroCopy.badge}
+            </p>
+            ) : null}
 
-                <h1 className="text-[clamp(2rem,6vw,4rem)] font-extrabold leading-[1.08] tracking-[-0.025em] text-white ten-hero-text-shadow">
-                  {heroCopy.headline_before ? (
-                    <span className="block text-white">{heroCopy.headline_before}</span>
-                  ) : null}
-                  {heroCopy.headline_emphasis ? (
-                    <span className="mt-1 block bg-gradient-to-r from-orange-300 via-amber-200 to-orange-400 bg-clip-text text-orange-300">
-                      {heroCopy.headline_emphasis}
-                    </span>
-                  ) : null}
-                </h1>
+            {/* Headline */}
+            {(heroCopy.headline_before || heroCopy.headline_emphasis) ? (
+            <h1 className="text-[clamp(2rem,6vw,4rem)] font-extrabold leading-[1.04] tracking-[-0.025em] text-white ten-hero-text-shadow">
+              {heroCopy.headline_before ? (
+              <span className="block text-white">{heroCopy.headline_before}</span>
+              ) : null}
+              {heroCopy.headline_emphasis ? (
+              <span className="ten-hero-emphasis mt-1 block">
+                {heroCopy.headline_emphasis}
+              </span>
+              ) : null}
+            </h1>
+            ) : (
+              <h1 className="text-3xl font-bold text-white">The Ember Network</h1>
+            )}
 
-                {heroCopy.description ? (
-                  <p className="mt-6 max-w-5xl text-balance text-[15px] leading-snug text-zinc-200/85 md:text-[17px] md:leading-snug">
-                    {heroCopy.description}
-                  </p>
-                ) : null}
+            {/* Description */}
+            {heroCopy.description ? (
+            <p className="mt-6 max-w-5xl text-balance text-[15px] leading-snug text-zinc-200/85 md:text-[17px] md:leading-snug">
+              {heroCopy.description}
+            </p>
+            ) : null}
 
-                <div className="mt-10 flex flex-wrap items-center gap-3">
-                  <Link
-                    to={heroCopy.cta_primary_href || '/apply'}
-                    className="inline-flex min-h-[48px] min-w-[11rem] items-center justify-center rounded-full bg-orange-500 px-7 py-3 text-[15px] font-semibold text-white shadow-glow ring-1 ring-white/10 transition-all duration-200 ease-out hover:bg-orange-400 hover:shadow-[0_0_0_1px_rgba(249,115,22,0.2),0_12px_32px_rgba(249,115,22,0.35)] active:scale-[0.98]"
-                  >
-                    {heroCopy.cta_primary_label}
-                  </Link>
-                  <Link
-                    to={heroCopy.cta_secondary_href || '/about'}
-                    className="inline-flex min-h-[48px] items-center gap-1.5 justify-center rounded-full border border-white/30 bg-transparent px-6 py-3 text-[14px] font-medium text-white/80 backdrop-blur-sm transition-all duration-200 ease-out hover:border-white/50 hover:bg-white/[0.07] hover:text-white active:scale-[0.98]"
-                  >
-                    {heroCopy.cta_secondary_label}
-                    <svg className="h-3.5 w-3.5 opacity-70" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </Link>
-                </div>
+            {/* CTAs */}
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              {heroCopy.cta_primary_label ? (
+              <Link
+                to={heroCopy.cta_primary_href || '/apply'}
+                className="inline-flex min-h-[48px] min-w-[11rem] items-center justify-center rounded-full bg-orange-500 px-7 py-3 text-[15px] font-semibold text-white shadow-glow ring-1 ring-white/10 transition-all duration-200 ease-out hover:bg-orange-400 hover:shadow-[0_0_0_1px_rgba(249,115,22,0.2),0_12px_32px_rgba(249,115,22,0.35)] active:scale-[0.98]"
+              >
+                {heroCopy.cta_primary_label}
+              </Link>
+              ) : null}
+              {heroCopy.cta_secondary_label ? (
+              <Link
+                to={heroCopy.cta_secondary_href || '/about'}
+                className="inline-flex min-h-[48px] items-center gap-1.5 justify-center rounded-full border border-white/30 bg-transparent px-6 py-3 text-[14px] font-medium text-white/80 backdrop-blur-sm transition-all duration-200 ease-out hover:border-white/50 hover:bg-white/[0.07] hover:text-white active:scale-[0.98]"
+              >
+                {heroCopy.cta_secondary_label}
+                <svg className="h-3.5 w-3.5 opacity-70" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              ) : null}
+            </div>
+              </>
+            )}
           </div>
         </div>
 

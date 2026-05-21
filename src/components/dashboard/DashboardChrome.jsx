@@ -1,32 +1,52 @@
 import { useId } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  SITE_BODY_SM,
+  SITE_BTN_PRIMARY,
+  SITE_BTN_SECONDARY,
+  SITE_CARD,
+  SITE_CARD_COMPACT,
+  SITE_EYEBROW,
+  SITE_EYEBROW_RELAXED,
+  SITE_HEADING_PAGE,
+  SITE_HEADING_SECTION,
+  SITE_SURFACE_MUTED,
+} from '../ui/siteDesignTokens'
 
 export function DashboardPage({ children, className = '' }) {
   return <div className={['w-full min-w-0 space-y-6', className].filter(Boolean).join(' ')}>{children}</div>
 }
 
+/** In-page intro for admin sub-routes (replaces ad-hoc h2 blocks). */
+export function DashboardPageIntro({ label, title, description, actions }) {
+  return (
+    <header className="flex flex-wrap items-end justify-between gap-4">
+      <div className="min-w-0">
+        {label ? <p className={SITE_EYEBROW_RELAXED}>{label}</p> : null}
+        <h2 className={`mt-2 ${SITE_HEADING_PAGE}`}>{title}</h2>
+        {description ? <p className={`mt-2 ${SITE_BODY_SM}`}>{description}</p> : null}
+      </div>
+      {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+    </header>
+  )
+}
+
 export function DashboardHero({ label, title, description, avatar, badges = [], actions }) {
   const titleId = useId()
   return (
-    <section
-      aria-labelledby={titleId}
-      className="relative overflow-hidden rounded-[28px] border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-    >
+    <section aria-labelledby={titleId} className={[SITE_CARD, 'relative overflow-hidden'].join(' ')}>
       <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-orange-400/20 blur-3xl dark:bg-orange-500/15" />
-      <div className="pointer-events-none absolute -bottom-24 left-1/3 h-48 w-48 rounded-full bg-amber-300/15 blur-3xl" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/[0.08] via-transparent to-amber-400/[0.04]" />
       <div className="relative p-6 md:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start">
             {avatar ? <div className="shrink-0">{avatar}</div> : null}
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">{label}</p>
+              <p className={SITE_EYEBROW}>{label}</p>
               <h1 id={titleId} className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl lg:text-4xl">
                 {title}
               </h1>
-              {description ? (
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{description}</p>
-              ) : null}
+              {description ? <p className={`mt-3 max-w-2xl ${SITE_BODY_SM}`}>{description}</p> : null}
               {badges.length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {badges.map((b) => (
@@ -62,16 +82,16 @@ export function DashboardStatCard({ label, value, sublabel, href, tone = 'orange
   const inner = (
     <div
       className={[
-        'group relative overflow-hidden rounded-[24px] border bg-gradient-to-br p-5 shadow-sm transition duration-200',
-        'hover:-translate-y-0.5 hover:shadow-md',
+        'group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-sm ring-1 ring-zinc-100/40 transition-all duration-200 ease-out',
+        'hover:-translate-y-0.5 hover:shadow-md dark:ring-zinc-800/40',
         toneClass,
       ].join(' ')}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">{label}</p>
+          <p className={SITE_EYEBROW_RELAXED}>{label}</p>
           <p className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{value}</p>
-          {sublabel ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{sublabel}</p> : null}
+          {sublabel ? <p className={`mt-2 ${SITE_BODY_SM}`}>{sublabel}</p> : null}
         </div>
         {icon ? (
           <div className="grid h-11 w-11 shrink-0 place-content-center rounded-2xl border border-white/60 bg-white/80 text-lg shadow-sm backdrop-blur-sm dark:border-zinc-700/60 dark:bg-zinc-950/60">
@@ -81,7 +101,13 @@ export function DashboardStatCard({ label, value, sublabel, href, tone = 'orange
       </div>
     </div>
   )
-  if (href) return <Link to={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 rounded-[24px]">{inner}</Link>
+  if (href) {
+    return (
+      <Link to={href} className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
+        {inner}
+      </Link>
+    )
+  }
   return inner
 }
 
@@ -90,16 +116,7 @@ export function DashboardStatsRow({ children, className = '' }) {
 }
 
 export function DashboardPanel({ children, className = '' }) {
-  return (
-    <section
-      className={[
-        'rounded-[28px] border border-zinc-200/90 bg-white p-6 shadow-sm md:p-7 dark:border-zinc-800 dark:bg-zinc-900/70',
-        className,
-      ].join(' ')}
-    >
-      {children}
-    </section>
-  )
+  return <section className={[SITE_CARD, 'p-6 md:p-7', className].join(' ')}>{children}</section>
 }
 
 export function DashboardSectionHeader({ label, title, description, href, hrefLabel = 'View all', bordered = true }) {
@@ -111,12 +128,15 @@ export function DashboardSectionHeader({ label, title, description, href, hrefLa
       ].join(' ')}
     >
       <div>
-        {label ? <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">{label}</p> : null}
-        <h2 className="mt-1 text-xl font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
-        {description ? <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{description}</p> : null}
+        {label ? <p className={SITE_EYEBROW_RELAXED}>{label}</p> : null}
+        <h2 className={`mt-1 ${SITE_HEADING_SECTION}`}>{title}</h2>
+        {description ? <p className={`mt-1 ${SITE_BODY_SM}`}>{description}</p> : null}
       </div>
       {href ? (
-        <Link to={href} className="text-sm font-semibold text-orange-600 hover:underline dark:text-orange-300">
+        <Link
+          to={href}
+          className="text-sm font-semibold text-orange-600 transition-colors duration-200 hover:text-orange-500 hover:underline dark:text-orange-300"
+        >
           {hrefLabel} →
         </Link>
       ) : null}
@@ -129,7 +149,7 @@ export function DashboardListItem({ children, className = '', active = false, as
   return (
     <Comp
       className={[
-        'flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 transition',
+        'flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3.5 transition-all duration-200 ease-out',
         active
           ? 'border-orange-400/80 bg-orange-50/80 shadow-sm dark:border-orange-500/40 dark:bg-orange-950/25'
           : 'border-zinc-200/90 bg-zinc-50/80 hover:border-orange-300/60 hover:bg-white dark:border-zinc-800 dark:bg-zinc-950/40 dark:hover:border-orange-500/30',
@@ -144,7 +164,12 @@ export function DashboardListItem({ children, className = '', active = false, as
 
 export function DashboardEmpty({ children }) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 px-5 py-8 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950/30 dark:text-zinc-400">
+    <div
+      className={[
+        SITE_SURFACE_MUTED,
+        'border-dashed px-5 py-8 text-center text-sm text-zinc-600 dark:text-zinc-400',
+      ].join(' ')}
+    >
       {children}
     </div>
   )
@@ -155,7 +180,7 @@ export function DashboardProgressBar({ value }) {
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200/90 dark:bg-zinc-800">
       <div
-        className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-600 transition-all duration-500"
+        className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-600 transition-all duration-500 ease-out"
         style={{ width: `${v}%` }}
       />
     </div>
@@ -194,14 +219,7 @@ export function DashboardAvatar({ name, email, imageUrl, size = 'md' }) {
 }
 
 export function DashboardButton({ to, onClick, children, variant = 'primary', className = '' }) {
-  const base =
-    'inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400'
-  const variants = {
-    primary: 'bg-orange-500 text-white hover:bg-orange-400 hover:shadow-md',
-    secondary:
-      'border border-zinc-300 bg-white/80 text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-600 dark:bg-zinc-950/40 dark:text-zinc-200',
-  }
-  const cls = [base, variants[variant] || variants.primary, className].join(' ')
+  const cls = [(variant === 'secondary' ? SITE_BTN_SECONDARY : SITE_BTN_PRIMARY), className].join(' ')
   if (to) {
     return (
       <Link to={to} className={cls}>
@@ -221,7 +239,7 @@ export function DashboardSplit({ children, className = '' }) {
 }
 
 export function DashboardSkeleton({ className = '' }) {
-  return <div className={['animate-pulse rounded-[24px] bg-zinc-200/70 dark:bg-zinc-800/60', className].join(' ')} />
+  return <div className={['animate-pulse rounded-2xl bg-zinc-200/70 dark:bg-zinc-800/60', className].join(' ')} />
 }
 
 export function DashboardAlert({ message, onRetry }) {
@@ -229,14 +247,25 @@ export function DashboardAlert({ message, onRetry }) {
     <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
       <p>{message}</p>
       {onRetry ? (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-3 rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-400"
-        >
+        <button type="button" onClick={onRetry} className={`mt-3 ${SITE_BTN_PRIMARY} !px-4 !py-2 text-xs`}>
           Retry
         </button>
       ) : null}
     </div>
   )
+}
+
+/** Muted stat tile — matches home “Mentorship Sessions” blocks */
+export function DashboardMetricTile({ label, value, className = '' }) {
+  return (
+    <div className={[SITE_SURFACE_MUTED, 'p-5 text-center md:text-left', className].join(' ')}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">{label}</p>
+      <p className="mt-2 text-3xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">{value}</p>
+    </div>
+  )
+}
+
+/** Compact content card for admin tables/lists */
+export function DashboardInsetCard({ children, className = '' }) {
+  return <div className={[SITE_CARD_COMPACT, className].join(' ')}>{children}</div>
 }
