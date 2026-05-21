@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { updateMyPassword } from '../../services/auth'
 import { useAuth } from '../../hooks/useAuth'
+import { dashboardPathForRole } from '../../lib/rbac'
 
 export function ChangePasswordPage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -74,7 +75,7 @@ export function ChangePasswordPage() {
                 if (pw.length < 10) throw new Error('Password must be at least 10 characters.')
                 await updateMyPassword(pw)
                 setOk('Password updated.')
-                navigate('/member', { replace: true })
+                navigate(dashboardPathForRole(profile?.role), { replace: true })
               } catch (err) {
                 setError(err?.message || 'Unable to update password.')
               } finally {

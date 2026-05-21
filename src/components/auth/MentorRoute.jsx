@@ -23,5 +23,13 @@ export function MentorRoute({ children }) {
     return <Navigate to="/member" replace />
   }
 
+  if (isAuthed && !profile) {
+    return (
+      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+        <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading mentor profile…</p>
+      </div>
+    )
+  }
+
   return children
 }

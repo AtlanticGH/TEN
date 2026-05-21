@@ -12,6 +12,7 @@ import { MentorRoute } from './components/auth/MentorRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
 
 import {
+  HomePage,
   AboutPage,
   AdminAnnouncementsPage,
   AdminApplicationsPage,
@@ -50,7 +51,6 @@ import { queryClient } from './lib/queryClient'
 import { apiUrl } from './lib/apiBase'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
-import { HomePage } from './pages/HomePage'
 import { homeHeroQueryOptions } from './hooks/useHomeHero'
 import { DEFAULT_HOME_HERO } from './config/siteContentDefaults'
 
@@ -113,7 +113,7 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <RouterErrorBoundary />,
     children: [
-      { index: true, element: <HomePage /> },
+      { index: true, element: <PageFallback><HomePage /></PageFallback> },
       { path: 'about', element: <PageFallback><AboutPage /></PageFallback> },
       { path: 'programs', element: <PageFallback><ProgramsPage /></PageFallback> },
       { path: 'program-components', element: <PageFallback><ProgramComponentsPage /></PageFallback> },

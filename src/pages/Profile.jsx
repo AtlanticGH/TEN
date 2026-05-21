@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { dashboardPathForRole } from '../lib/rbac'
+import { dashboardPathForRole, isMentorRole } from '../lib/rbac'
 import { uploadMyAvatar } from '@/lib/avatars'
 import { updateMyProfile } from '../services/db'
 
@@ -24,8 +24,7 @@ function InitialsAvatar({ name, email }) {
 export function ProfilePage() {
   const location = useLocation()
   const inMemberShell = location.pathname.startsWith('/member')
-  const inMentorShell = location.pathname.startsWith('/mentor')
-  const inAppShell = inMemberShell || inMentorShell
+  const inAppShell = inMemberShell || location.pathname.startsWith('/mentor')
   const dashboardTo = dashboardPathForRole(profile?.role)
 
   const { profile, refreshProfile, user } = useAuth()
@@ -120,7 +119,7 @@ export function ProfilePage() {
                   >
                     Dashboard
                   </Link>
-                  {!inMentorShell && profile?.role !== 'mentor' ? (
+                  {!inAppShell && !isMentorRole(profile?.role) ? (
                     <Link
                       to="/member/courses"
                       className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"

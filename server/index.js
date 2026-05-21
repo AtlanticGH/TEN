@@ -33,7 +33,14 @@ function corsOrigins() {
   if (process.env.VERCEL_BRANCH_URL) origins.add(`https://${process.env.VERCEL_BRANCH_URL}`)
   if (origins.size) return [...origins]
   if (process.env.NODE_ENV === 'production') return false
-  return ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000']
+  return [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176',
+    'http://localhost:4173',
+    'http://localhost:3000',
+  ]
 }
 
 app.set('trust proxy', true)

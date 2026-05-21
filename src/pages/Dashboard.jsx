@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { dashboardPathForRole, isMentorRole, isStaffRole } from '../lib/rbac'
 import { useMemberDashboard } from '../hooks/useMemberDashboard'
 import { useTeams } from '../hooks/useTeams'
 import { TeamList } from '../components/dashboard/TeamList'
@@ -163,9 +164,17 @@ function TimelineItem({ title, meta, body, tone = 'zinc' }) {
 
 export function DashboardPage() {
   const location = useLocation()
+  const navigate = useNavigate()
   const inMemberShell = location.pathname.startsWith('/member')
-  const { profile, user } = useAuth()
+  const { profile, user, loading: authLoading } = useAuth()
   const { data, isLoading, isError, error, refetch } = useMemberDashboard()
+
+  useEffect(() => {
+    if (authLoading || !profile?.role) return
+    if (isMentorRole(profile.role) || isStaffRole(profile.role)) {
+      navigate(dashboardPathForRole(profile.role), { replace: true })
+    }
+  }, [authLoading, navigate, profile?.role])
   const teamsQuery = useTeams()
 
   const loading = isLoading
