@@ -1,9 +1,24 @@
 import { getSupabase } from '@/lib/supabaseClient'
 import { apiUrl } from '@/lib/apiBase'
 
+const API_TIMEOUT_MS = 20_000
+
+async function fetchWithTimeout(url, init = {}) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS)
+  try {
+    return await fetch(url, { ...init, signal: controller.signal })
+  } catch (err) {
+    if (err?.name === 'AbortError') throw new Error('Request timed out — is the API server running? (npm run dev:all)')
+    throw err
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function publicApiFetch(path, init = {}) {
   const url = apiUrl(path)
-  const res = await fetch(url, init)
+  const res = await fetchWithTimeout(url, init)
   const json = await res.json().catch(() => null)
   if (!res.ok) {
     const msg = json?.error || json?.message || `Request failed: ${res.status}`
@@ -33,7 +48,7 @@ export async function apiFetch(path, init = {}) {
   }
 
   const url = apiUrl(path)
-  const res = await fetch(url, { ...init, headers })
+  const res = await fetchWithTimeout(url, { ...init, headers })
 
   const json = await res.json().catch(() => null)
   if (!res.ok) {

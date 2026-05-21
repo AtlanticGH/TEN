@@ -2,20 +2,18 @@ import { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { isStaffRole } from '../../lib/rbac'
-import { AdminLayout } from '../../router/lazyPages'
+import { getSupabase } from '@/lib/supabaseClient'
+import { AdminLayout } from './AdminLayout'
 import { AdminLoginPage } from './AdminLogin'
 
 export function AdminGate() {
-  const { loading, isAuthed, profile, refreshProfile } = useAuth()
+  const { loading, isAuthed, profile, profileError, refreshProfile } = useAuth()
   const location = useLocation()
 
   useEffect(() => {
-    if (!isAuthed) return
-    if (profile) return
-    queueMicrotask(() => {
-      refreshProfile().catch(() => {})
-    })
-  }, [isAuthed, profile, refreshProfile])
+    if (!isAuthed || profile || profileError) return
+    refreshProfile().catch(() => {})
+  }, [isAuthed, profile, profileError, refreshProfile])
 
   if (loading) {
     return (
@@ -27,32 +25,40 @@ export function AdminGate() {
     )
   }
 
-  // If a logged-in non-staff user tries /admin, send them back to their dashboard.
   if (isAuthed && profile && !isStaffRole(profile?.role)) {
     return <Navigate to="/member" replace />
   }
 
-  // If unauthenticated, show the admin-only login page at /admin (no public links anywhere).
   if (!isAuthed) {
     return <AdminLoginPage />
   }
 
-  // If the user is authenticated but profile hasn't resolved yet, show a small loader.
-  if (!profile) {
+  if (profileError || !profile) {
     return (
       <div className="mx-auto max-w-7xl px-8 pb-16 pt-28 md:px-12 lg:px-10">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading profile…</p>
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 dark:border-rose-900/40 dark:bg-rose-950/30">
+          <p className="text-sm font-semibold text-rose-800 dark:text-rose-100">Could not load your admin profile</p>
+          <p className="mt-2 text-sm text-rose-700 dark:text-rose-200">
+            {profileError ||
+              'Your session may be outdated after a database change. Sign out, then log in again. For local dev, run npm run dev:all.'}
+          </p>
+          <button
+            type="button"
+            className="mt-4 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-zinc-900"
+            onClick={async () => {
+              await getSupabase().auth.signOut()
+              window.location.href = '/admin'
+            }}
+          >
+            Sign out and retry
+          </button>
         </div>
       </div>
     )
   }
 
-  // If staff, render the admin shell + nested routes.
   if (isStaffRole(profile?.role)) return <AdminLayout />
 
-  // Fallback: keep behavior predictable.
   const next = encodeURIComponent(location.pathname + location.search + location.hash)
   return <Navigate to={`/login?next=${next}`} replace />
 }
-

@@ -12,11 +12,12 @@ export function AuthProvider({ children }) {
   const [authReady, setAuthReady] = useState(!supabaseIsConfigured)
 
   const profileQuery = useQuery({
-    queryKey: ['profile'],
+    queryKey: ['profile', user?.id],
     queryFn: () => getMyProfile(),
     enabled: !!user && supabaseIsConfigured,
     staleTime: 30_000,
     retry: 1,
+    refetchOnWindowFocus: false,
   })
 
   useEffect(() => {
@@ -66,8 +67,7 @@ export function AuthProvider({ children }) {
     return result.data ?? null
   }, [user, profileQuery])
 
-  const loading =
-    !authReady || (!!user && profileQuery.isLoading && !profileQuery.data && !profileQuery.isError)
+  const loading = !authReady || (!!user && profileQuery.isPending && !profileQuery.isError)
 
   const value = useMemo(
     () => ({

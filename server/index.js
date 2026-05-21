@@ -239,7 +239,7 @@ function validateUpload(req) {
 async function requireStaff(req, res, next) {
   try {
     if (!supabase) return res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
-    const actor = await getMyProfileRow(req.user.id)
+    const actor = await getMyProfileRow(req.user.id, req.user)
     if (!actor || actor.status !== 'active' || !isStaffRole(actor.role)) {
       return res.status(403).json({ error: 'Forbidden' })
     }
