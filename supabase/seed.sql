@@ -1,4 +1,16 @@
--- Production: no demo seed data.
--- Configure public marketing copy via Admin → Website content (site_content keys).
--- Promote your account after signup:
---   UPDATE public.profiles SET role = 'super_admin' WHERE email = 'your@email.com';
+-- Ember Network — optional reference seed (no auth users; use bootstrap scripts instead).
+--
+-- Recommended local setup (from repo root):
+--   npm run bootstrap:cms
+--   npm run bootstrap:admin -- --email you@example.com --password 'YourSecurePass10'
+--   npm run bootstrap:mentor -- --email mentor@example.com --password 'YourSecurePass10'
+--   npm run bootstrap:sample
+--   npm run bootstrap:resources
+--
+-- This file is intentionally minimal so `supabase db reset` does not fail.
+-- Add only idempotent reference data below if needed.
+
+-- Example: ensure home hero key exists when not using bootstrap:cms
+-- INSERT INTO public.site_content (key, value)
+-- VALUES ('home.hero.v1', '{"headline":"The Ember Network"}'::jsonb)
+-- ON CONFLICT (key) DO NOTHING;
