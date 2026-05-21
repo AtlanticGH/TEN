@@ -1,3 +1,5 @@
+import { LAYOUT_CONTAINER, SITE_HERO_OFFSET } from '../layout/headerTokens'
+
 /**
  * InnerPageHero — reusable hero for inner pages (About, Programs, Resources, Contact…)
  * Replaces the repeated copy-paste hero pattern across inner pages.
@@ -29,7 +31,7 @@ export function InnerPageHero({ badge, heading, description, image, className = 
         className="absolute inset-0 bg-gradient-to-b from-zinc-950/72 via-zinc-950/60 to-zinc-950/88"
       />
 
-      <div className="relative mx-auto max-w-7xl px-6 pb-16 pt-32 sm:px-8 md:pb-20 md:pt-36 lg:px-10">
+      <div className={`relative ${LAYOUT_CONTAINER} pb-16 md:pb-20 ${SITE_HERO_OFFSET}`}>
         {badge && (
           <p className="mb-5 inline-flex rounded-full border border-white/25 bg-white/[0.08] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-200/90 backdrop-blur">
             {badge}

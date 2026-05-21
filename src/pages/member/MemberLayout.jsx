@@ -1,28 +1,14 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { AppShellTopBar } from '../../components/layout/AppShellTopBar'
+import { Outlet, useNavigate } from 'react-router-dom'
+import {
+  APP_SHELL_MAIN_OFFSET,
+  AppShellHeader,
+  AppShellMobileMenu,
+  AppShellNavLink,
+  LAYOUT_CONTAINER,
+} from '../../components/layout/Header'
 import { useAuth } from '../../hooks/useAuth'
 import { isMentorRole } from '../../lib/rbac'
-
-function NavItem({ to, end, children, onNavigate }) {
-  return (
-    <NavLink
-      to={to}
-      end={!!end}
-      onClick={() => onNavigate?.()}
-      className={({ isActive }) =>
-        [
-          'rounded-2xl border px-4 py-3 text-sm font-semibold transition',
-          isActive
-            ? 'border-orange-400 bg-orange-50 text-orange-800 dark:border-orange-500/50 dark:bg-orange-950/30 dark:text-orange-200'
-            : 'border-zinc-200 bg-white text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-200',
-        ].join(' ')
-      }
-    >
-      {children}
-    </NavLink>
-  )
-}
 
 export function MemberLayout() {
   const { user, profile } = useAuth()
@@ -35,29 +21,31 @@ export function MemberLayout() {
     }
   }, [profile, navigate])
 
+  const closeMenu = () => setMenuOpen(false)
+
   const nav = ({ onNavigate } = {}) => (
     <div className="grid gap-2">
-      <NavItem to="/member" end onNavigate={onNavigate}>
+      <AppShellNavLink to="/member" end onNavigate={onNavigate}>
         Overview
-      </NavItem>
-      <NavItem to="/member/courses" onNavigate={onNavigate}>
+      </AppShellNavLink>
+      <AppShellNavLink to="/member/courses" onNavigate={onNavigate}>
         Courses
-      </NavItem>
-      <NavItem to="/member/profile" onNavigate={onNavigate}>
+      </AppShellNavLink>
+      <AppShellNavLink to="/member/profile" onNavigate={onNavigate}>
         Profile
-      </NavItem>
-      <NavItem to="/member/change-password" onNavigate={onNavigate}>
+      </AppShellNavLink>
+      <AppShellNavLink to="/member/change-password" onNavigate={onNavigate}>
         Password
-      </NavItem>
-      <NavItem to="/member/activity" onNavigate={onNavigate}>
+      </AppShellNavLink>
+      <AppShellNavLink to="/member/activity" onNavigate={onNavigate}>
         Activity
-      </NavItem>
+      </AppShellNavLink>
     </div>
   )
 
   return (
-    <main id="page-main" data-component="page-main" className="mx-auto max-w-7xl px-8 pb-20 pt-8 md:px-12 lg:px-10">
-      <AppShellTopBar
+    <main id="page-main" data-component="page-main" className={`${LAYOUT_CONTAINER} pb-20 ${APP_SHELL_MAIN_OFFSET}`}>
+      <AppShellHeader
         roleLabel="Student workspace"
         name={profile?.full_name || 'Member'}
         email={user?.email}
@@ -80,28 +68,9 @@ export function MemberLayout() {
         </section>
       </div>
 
-      {menuOpen ? (
-        <div
-          className="fixed inset-0 z-[90] bg-black/60 px-4 py-8 lg:hidden"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setMenuOpen(false)
-          }}
-        >
-          <div className="mx-auto w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-4 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-center justify-between gap-3 px-2 py-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Member</p>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(false)}
-                className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 dark:border-zinc-700 dark:text-zinc-200"
-              >
-                Close
-              </button>
-            </div>
-            <div className="mt-2 px-2 pb-2">{nav({ onNavigate: () => setMenuOpen(false) })}</div>
-          </div>
-        </div>
-      ) : null}
+      <AppShellMobileMenu open={menuOpen} title="Student navigation" onClose={closeMenu}>
+        {nav({ onNavigate: closeMenu })}
+      </AppShellMobileMenu>
     </main>
   )
 }

@@ -5,6 +5,7 @@ import { dashboardPathForRole, isMentorRole, isStaffRole } from '../lib/rbac'
 import { useMemberDashboard } from '../hooks/useMemberDashboard'
 import { useTeams } from '../hooks/useTeams'
 import { TeamList } from '../components/dashboard/TeamList'
+import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 import {
   DashboardAlert,
   DashboardAvatar,
@@ -242,9 +243,7 @@ export function DashboardPage() {
   const statOverallPct = useCountUp(overallPct)
   const statNotifs = useCountUp(notifications.length)
 
-  const outerMainClass = inMemberShell
-    ? 'pb-8'
-    : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const outerMainClass = inMemberShell ? 'pb-8' : `${LAYOUT_CONTAINER} pb-20 ${SITE_HEADER_OFFSET}`
 
   const PageTag = inMemberShell ? 'div' : 'main'
   const pageProps = inMemberShell

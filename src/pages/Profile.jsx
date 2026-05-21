@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { dashboardPathForRole, isMentorRole } from '../lib/rbac'
 import { uploadMyAvatar } from '@/lib/avatars'
 import { updateMyProfile } from '../services/db'
+import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 
 function InitialsAvatar({ name, email }) {
   const initials = useMemo(() => {
@@ -70,7 +71,7 @@ export function ProfilePage() {
   const memberId = user?.id ? String(user.id).slice(0, 8).toUpperCase() : '—'
   const statusLabel = profile?.status === 'suspended' ? 'Suspended' : 'Active'
 
-  const shellClass = inAppShell ? 'w-full min-w-0 space-y-6' : 'mx-auto max-w-7xl space-y-6 px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const shellClass = inAppShell ? 'w-full min-w-0 space-y-6' : `${LAYOUT_CONTAINER} space-y-6 pb-20 ${SITE_HEADER_OFFSET}`
 
   const body = (
     <>

@@ -14,6 +14,7 @@ import { fetchMyAssignmentSubmission, submitAssignmentWork } from '../services/m
 import { listMyQuizAttempts, listQuizQuestions, submitQuizAttempt } from '../services/quizzes'
 import { useAuth } from '../hooks/useAuth'
 import { dashboardPathForRole } from '../lib/rbac'
+import { LAYOUT_CONTAINER_NARROW, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 
 function Block({ block }) {
   const type = block?.type || 'text'
@@ -256,7 +257,7 @@ export function LessonPage() {
     queueMicrotask(() => refresh())
   }, [refresh])
 
-  const pageClass = inMemberShell ? 'space-y-6' : 'mx-auto max-w-4xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const pageClass = inMemberShell ? 'space-y-6' : `${LAYOUT_CONTAINER_NARROW} pb-20 ${SITE_HEADER_OFFSET}`
   const PageTag = inMemberShell ? 'div' : 'main'
   const pageProps = inMemberShell
     ? { className: pageClass }

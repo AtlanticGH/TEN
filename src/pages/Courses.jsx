@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { enrollInCourse } from '../services/db'
 import { useMemberCourses } from '../hooks/useMemberCourses'
 import { queryClient } from '@/lib/queryClient'
+import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 
 function ProgressPill({ value }) {
   const v = Math.max(0, Math.min(100, Number(value) || 0))
@@ -53,7 +54,7 @@ export function CoursesPage() {
     })
   }, [courses, query])
 
-  const pageClass = inMemberShell ? 'space-y-6' : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const pageClass = inMemberShell ? 'space-y-6' : `${LAYOUT_CONTAINER} pb-20 ${SITE_HEADER_OFFSET}`
   const PageTag = inMemberShell ? 'div' : 'main'
   const pageProps = inMemberShell
     ? { className: pageClass }

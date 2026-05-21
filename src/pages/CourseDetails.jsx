@@ -8,6 +8,7 @@ import {
   listMyLessonCompletionsForCourse,
   listMyModuleCompletionsForCourse,
 } from '../services/db'
+import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 
 function pct(completed, total) {
   if (!total) return 0
@@ -70,7 +71,7 @@ export function CourseDetailsPage() {
   const percentage = pct(completedCount, totalCount)
 
   return (
-    <main id="page-main" data-component="page-main" className="mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10">
+    <main id="page-main" data-component="page-main" className={`${LAYOUT_CONTAINER} pb-20 ${SITE_HEADER_OFFSET}`}>
       {loading ? (
         <div className="grid gap-4">
           <div className="animate-pulse rounded-[28px] border border-zinc-200 bg-zinc-100/70 p-10 dark:border-zinc-800 dark:bg-zinc-900/40" />

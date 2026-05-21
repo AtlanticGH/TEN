@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import {
+  APP_SHELL_MAIN_OFFSET,
+  AppShellHeader,
+  AppShellMobileMenu,
+  LAYOUT_CONTAINER,
+} from '../../components/layout/Header'
 import { useAuth } from '../../hooks/useAuth'
 import { signOut } from '../../services/auth'
 
@@ -69,43 +75,39 @@ export function AdminLayout() {
     </div>
   )
 
+  const closeMenu = () => setMenuOpen(false)
+
   return (
-    <main id="page-main" data-component="page-main" className="min-h-screen bg-zinc-50/80 pb-20 pt-24 dark:bg-zinc-950/80">
-      <div className="border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/90">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-8 py-3 md:px-12 lg:px-10">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-orange-500">CMS</p>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">The Ember Network</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="hidden rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 sm:inline dark:border-zinc-800 dark:text-zinc-300">
-              {profile?.full_name || user?.email || 'Staff'}
-            </span>
-            <button
-              type="button"
-              onClick={() => setMenuOpen(true)}
-              className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:border-orange-400 lg:hidden dark:border-zinc-700 dark:bg-zinc-950/40 dark:text-zinc-200"
-            >
-              Menu
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  await signOut()
-                } finally {
-                  navigate('/', { replace: true })
-                }
-              }}
-              className="rounded-full bg-zinc-900 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-            >
-              Sign out
-            </button>
-          </div>
+    <main id="page-main" data-component="page-main" className={`min-h-screen bg-zinc-50/80 pb-20 ${APP_SHELL_MAIN_OFFSET} dark:bg-zinc-950/80`}>
+      <div className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/90">
+        <div className={`${LAYOUT_CONTAINER} py-3`}>
+          <AppShellHeader
+            variant="bar"
+            roleLabel="CMS"
+            name="The Ember Network"
+            email={profile?.full_name || user?.email || 'Staff'}
+            siteTo="/"
+            onOpenMenu={() => setMenuOpen(true)}
+            trailing={
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await signOut()
+                  } finally {
+                    navigate('/', { replace: true })
+                  }
+                }}
+                className="rounded-full bg-zinc-900 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              >
+                Sign out
+              </button>
+            }
+          />
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-8 pt-8 md:px-12 lg:px-10">
+      <div className={`${LAYOUT_CONTAINER} pt-8`}>
         <header className="rounded-[28px] border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
           <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Admin</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Platform management</h1>
@@ -125,28 +127,9 @@ export function AdminLayout() {
         </div>
       </div>
 
-      {menuOpen ? (
-        <div
-          className="fixed inset-0 z-[90] bg-black/60 px-4 py-8 lg:hidden"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setMenuOpen(false)
-          }}
-        >
-          <div className="mx-auto w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-4 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-center justify-between gap-3 px-2 py-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Navigation</p>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(false)}
-                className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-              >
-                Close
-              </button>
-            </div>
-            <div className="mt-2">{nav({ onNavigate: () => setMenuOpen(false) })}</div>
-          </div>
-        </div>
-      ) : null}
+      <AppShellMobileMenu open={menuOpen} title="Admin navigation" onClose={closeMenu}>
+        {nav({ onNavigate: closeMenu })}
+      </AppShellMobileMenu>
     </main>
   )
 }

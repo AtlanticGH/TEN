@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { signInWithEmail } from '../../services/auth'
+import { APP_SHELL_MAIN_OFFSET, LAYOUT_CONTAINER } from '../../components/layout/headerTokens'
 
 export function AdminLoginPage() {
   const navigate = useNavigate()
@@ -41,7 +42,7 @@ export function AdminLoginPage() {
   }
 
   return (
-    <main id="page-main" data-component="page-main" className="mx-auto max-w-7xl px-8 pb-16 pt-32 md:px-12 lg:px-10">
+    <main id="page-main" data-component="page-main" className={`${LAYOUT_CONTAINER} pb-16 ${APP_SHELL_MAIN_OFFSET}`}>
       <div className="mx-auto max-w-xl rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
         <div className="flex items-start justify-between gap-4">
           <div>

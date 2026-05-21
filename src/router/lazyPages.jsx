@@ -1,4 +1,7 @@
 import { Suspense, lazy } from 'react'
+import { useLocation } from 'react-router-dom'
+import { isAppShellPath } from '../lib/layoutPaths'
+import { APP_SHELL_MAIN_OFFSET, LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
 
 export const HomePage = lazy(() => import('../pages/HomePage').then((m) => ({ default: m.HomePage })))
 export const AboutPage = lazy(() => import('../pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -45,10 +48,12 @@ export const MentorCourseEditorPage = lazy(() =>
 export const MentorAssignmentsPage = lazy(() => import('../pages/mentor/MentorAssignments').then((m) => ({ default: m.MentorAssignmentsPage })))
 
 export function PageFallback({ children }) {
+  const location = useLocation()
+  const topPad = isAppShellPath(location.pathname) ? APP_SHELL_MAIN_OFFSET : SITE_HEADER_OFFSET
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-7xl px-6 pb-16 pt-32 sm:px-8 md:px-12 lg:px-10">
+        <div className={`${LAYOUT_CONTAINER} pb-16 ${topPad}`}>
           <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-orange-500 dark:border-zinc-700 dark:border-t-orange-400" />
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>
