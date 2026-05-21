@@ -77,7 +77,7 @@ export function MentorCoursesPage() {
               setBusyId('create')
               setError('')
               try {
-                await createMentorCourse({
+                const created = await createMentorCourse({
                   title: form.title.trim(),
                   description: form.description.trim(),
                   instructor: form.instructor.trim(),
@@ -95,6 +95,10 @@ export function MentorCoursesPage() {
                   difficulty: 'beginner',
                   published: false,
                 })
+                if (created?.id) {
+                  window.location.assign(`/mentor/courses/${created.id}`)
+                  return
+                }
                 await refresh()
               } catch (err) {
                 setError(err?.message || 'Unable to create course.')

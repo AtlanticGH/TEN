@@ -60,6 +60,7 @@ export function MentorCourseEditorPage() {
   const [fileTitle, setFileTitle] = useState('')
   const [fileObj, setFileObj] = useState(null)
   const [coverFile, setCoverFile] = useState(null)
+  const [coverPreview, setCoverPreview] = useState('')
   const [fileLessonId, setFileLessonId] = useState('')
 
   const refresh = useCallback(async () => {
@@ -86,15 +87,6 @@ export function MentorCourseEditorPage() {
     queueMicrotask(() => refresh())
   }, [refresh])
 
-  useEffect(() => {
-    if (!lessonOptions.length) return
-    const id = fileLessonId && lessonOptions.some((o) => o.id === fileLessonId) ? fileLessonId : lessonOptions[0].id
-    if (id !== fileLessonId) setFileLessonId(id)
-    listLessonFiles(id)
-      .then(setFiles)
-      .catch(() => setFiles([]))
-  }, [lessonOptions, fileLessonId])
-
   const totalLessons = useMemo(
     () => Object.values(lessonsByModule).reduce((acc, ls) => acc + (ls?.length || 0), 0),
     [lessonsByModule],
@@ -110,9 +102,25 @@ export function MentorCourseEditorPage() {
     return rows
   }, [modules, lessonsByModule])
 
-  const coverPreview = useMemo(() => {
-    if (coverFile) return URL.createObjectURL(coverFile)
-    return course?.thumbnail_url || ''
+  useEffect(() => {
+    if (!lessonOptions.length) {
+      setFiles([])
+      return
+    }
+    const id = fileLessonId && lessonOptions.some((o) => o.id === fileLessonId) ? fileLessonId : lessonOptions[0].id
+    if (id !== fileLessonId) setFileLessonId(id)
+    listLessonFiles(id)
+      .then(setFiles)
+      .catch(() => setFiles([]))
+  }, [lessonOptions, fileLessonId])
+
+  useEffect(() => {
+    if (coverFile) {
+      const url = URL.createObjectURL(coverFile)
+      setCoverPreview(url)
+      return () => URL.revokeObjectURL(url)
+    }
+    setCoverPreview(course?.thumbnail_url || '')
   }, [coverFile, course?.thumbnail_url])
 
   if (loading) return <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
