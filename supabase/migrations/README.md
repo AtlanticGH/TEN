@@ -1,0 +1,27 @@
+# Migration chain (deterministic order)
+
+Migrations apply in **filename timestamp** order. Do not insert `ALTER` before `CREATE` for the same table.
+
+| Order | File | Purpose |
+|------:|------|---------|
+| 001 | `20260321120000_extensions.sql` | `uuid-ossp`, `pgcrypto`, `pg_trgm`, `citext` |
+| 002 | `20260321130101_profiles_create.sql` | `profiles` CREATE → legacy ALTER → core tables → RLS |
+| 003 | `20260321130102_teams.sql` | Teams (FK → `profiles.user_id`) |
+| 004 | `20260321130103_courses.sql` | Applications, lessons, resources, helpers |
+| 005 | `20260321130104_storage.sql` | Storage buckets + policies |
+| 006 | `20260321130105_cms_rls.sql` | CMS tables + `is_staff` guards |
+| 007 | `20260321130106_schema_cache.sql` | PostgREST reload + additive columns |
+| 008 | `20260321130107_realtime_publication.sql` | Realtime publication |
+| 009 | `20260321130108_profiles_role_constraint.sql` | Profile role CHECK alignment |
+| 010 | `20260321130110_ensure_extensions.sql` | Repair remotes that applied empty `20000` placeholder |
+
+## Clean database
+
+```bash
+supabase db reset    # local only
+supabase db push --linked --yes
+```
+
+## Broken pattern (fixed)
+
+Previously `20260321130101_profiles.sql` ran `ALTER TABLE public.profiles` **before** `CREATE TABLE public.profiles`, which fails on an empty database.

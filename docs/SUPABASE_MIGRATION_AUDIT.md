@@ -2,9 +2,10 @@
 
 **Project ref:** `vawqdpalwuoyqntseqni`  
 **Remote pull:** Not executed in CI — requires `npx supabase login` then `supabase link` + `supabase db pull`.  
-**Baseline file:** `supabase/migrations/20260321120000_remote_schema.sql` (placeholder until pull).  
-**Canonical migrations:** `supabase/migrations/20260321130101–08_*.sql` (split from legacy `supabase/legacy/*.sql`).  
-**Remote status (2026-05-21):** All migrations applied — `supabase migration list` shows local/remote in sync.
+**Extensions:** `supabase/migrations/20260321120000_extensions.sql`  
+**Profiles (fixed order):** `supabase/migrations/20260321130101_profiles_create.sql` — `CREATE TABLE` before `ALTER TABLE`  
+**Canonical migrations:** `20260321130102–08` (teams, courses, storage, cms, cache, realtime, role constraint).  
+See `supabase/migrations/README.md` for the full chain.
 
 ## A) Tables — expected vs actual (app + legacy SQL)
 

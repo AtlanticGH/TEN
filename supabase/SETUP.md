@@ -26,7 +26,7 @@ Dashboard → Project Settings → Database.
 supabase db pull --schema public,storage,auth
 ```
 
-Replaces `migrations/20260321120000_remote_schema.sql` with the live snapshot.
+Optional: `supabase db pull` to snapshot remote into a new baseline migration.
 
 ## Apply local migrations
 
@@ -48,8 +48,9 @@ supabase db push
 
 | File | Contents |
 |------|----------|
-| `20260321120000_remote_schema.sql` | Pulled baseline (placeholder until `db pull`) |
-| `20260321130101_profiles.sql` | Extensions, profiles, courses/modules/enrollments, base RLS |
+| `20260321120000_extensions.sql` | Postgres extensions |
+| `20260321130101_profiles_create.sql` | Profiles CREATE → updates → core tables → RLS |
+| `20260321130110_ensure_extensions.sql` | Repair if empty 20000 placeholder was applied |
 | `20260321130102_teams.sql` | Teams + team_members |
 | `20260321130103_courses.sql` | Platform (lessons, apps, sessions), learning CMS |
 | `20260321130104_storage.sql` | Storage buckets + policies |
