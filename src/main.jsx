@@ -30,7 +30,6 @@ import {
   CourseDetailsPage,
   CoursesPage,
   DashboardPage,
-  HomePage,
   LessonPage,
   MemberActivityPage,
   MemberLayout,
@@ -44,6 +43,20 @@ import {
 import { queryClient } from './lib/queryClient'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
+import { HomePage } from './pages/HomePage'
+import { homeHeroQueryOptions } from './hooks/useHomeHero'
+import { DEFAULT_HOME_HERO } from './config/siteContentDefaults'
+
+if (supabaseIsConfigured) {
+  void queryClient.prefetchQuery(homeHeroQueryOptions())
+}
+if (DEFAULT_HOME_HERO.background_image) {
+  const link = document.createElement('link')
+  link.rel = 'preload'
+  link.as = 'image'
+  link.href = DEFAULT_HOME_HERO.background_image
+  document.head.appendChild(link)
+}
 
 const memberCourseRoutes = [
   {
@@ -78,7 +91,7 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <RouterErrorBoundary />,
     children: [
-      { index: true, element: <PageFallback><HomePage /></PageFallback> },
+      { index: true, element: <HomePage /> },
       { path: 'about', element: <PageFallback><AboutPage /></PageFallback> },
       { path: 'programs', element: <PageFallback><ProgramsPage /></PageFallback> },
       { path: 'program-components', element: <PageFallback><ProgramComponentsPage /></PageFallback> },

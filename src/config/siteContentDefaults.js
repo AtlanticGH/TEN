@@ -1,3 +1,5 @@
+export const HOME_HERO_KEY = 'home.hero.v1'
+
 /** Canonical home hero copy — used as merge fallback and CMS bootstrap default. */
 export const DEFAULT_HOME_HERO = {
   badge: 'A COMMUNITY OF IGNITION & EMPOWERMENT',

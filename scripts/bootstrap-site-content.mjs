@@ -5,7 +5,7 @@
  */
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
-import { DEFAULT_HOME_HERO } from '../src/config/siteContentDefaults.js'
+import { DEFAULT_HOME_HERO, HOME_HERO_KEY } from '../src/config/siteContentDefaults.js'
 
 dotenv.config({ path: ['.env', '.env.local'], override: true })
 
@@ -21,7 +21,7 @@ const supabase = createClient(url, key, {
   auth: { persistSession: false, autoRefreshToken: false },
 })
 
-const rows = [{ key: 'home.hero.v1', value: DEFAULT_HOME_HERO }]
+const rows = [{ key: HOME_HERO_KEY, value: DEFAULT_HOME_HERO }]
 
 for (const row of rows) {
   const { error } = await supabase.from('site_content').upsert(

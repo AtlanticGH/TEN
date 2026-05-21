@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO } from '../../config/siteContentDefaults'
+import { useQueryClient } from '@tanstack/react-query'
+import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO, HOME_HERO_KEY } from '../../config/siteContentDefaults'
 import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
 import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
-
-const HOME_HERO_KEY = 'home.hero.v1'
 
 function Field({ label, children, hint }) {
   return (
@@ -16,6 +15,7 @@ function Field({ label, children, hint }) {
 }
 
 export function AdminContentPage() {
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -82,6 +82,7 @@ export function AdminContentPage() {
             setNotice('')
             try {
               await upsertSiteContent({ key: HOME_HERO_KEY, value })
+              await queryClient.invalidateQueries({ queryKey: ['site-content', HOME_HERO_KEY] })
               setNotice('Saved.')
             } catch (err) {
               setError(err?.message || 'Unable to save.')
