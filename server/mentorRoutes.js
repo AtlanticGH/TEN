@@ -538,6 +538,52 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
     }
   })
 
+  app.post('/api/mentor/lessons/:lessonId/files', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const lessonId = String(req.params.lessonId || '')
+      if (!(await ownsLesson(req.user.id, lessonId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const p = req.body && typeof req.body === 'object' ? req.body : {}
+      const { data, error } = await supabase
+        .from('lesson_files')
+        .insert({
+          lesson_id: lessonId,
+          title: p.title || null,
+          bucket: p.bucket || 'public',
+          path: p.path || null,
+          file_url: p.file_url || null,
+          mime_type: p.mime_type || null,
+          size_bytes: p.size_bytes || null,
+          file_type: p.file_type || null,
+          position: p.position != null ? Number(p.position) : 1,
+        })
+        .select('*')
+        .single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Create lesson file error' })
+    }
+  })
+
+  app.delete('/api/mentor/lesson-files/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      const { data: row, error: getErr } = await supabase.from('lesson_files').select('*').eq('id', id).single()
+      if (getErr) throw getErr
+      if (!(await ownsLesson(req.user.id, row.lesson_id))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      if (row?.path) await supabase.storage.from(row.bucket || 'public').remove([row.path]).catch(() => {})
+      const { error } = await supabase.from('lesson_files').delete().eq('id', id)
+      if (error) throw error
+      res.json({ ok: true })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Delete lesson file error' })
+    }
+  })
+
   // Student: submit / view own work
   app.get('/api/assignments/:assignmentId/my-submission', verifyUser, async (req, res) => {
     try {

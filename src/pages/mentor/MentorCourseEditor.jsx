@@ -4,6 +4,7 @@ import { Dialog } from '@/components/ui/Dialog'
 import { WorkspaceHeader, WorkspacePage, WorkspacePanel, WorkspaceMutedPanel, WorkspaceAlert } from '@/components/workspace/WorkspaceChrome'
 import { listAssignments } from '@/services/assignments'
 import { createMentorAssignment, deleteMentorAssignment } from '@/services/mentorAssignments'
+import { deleteMentorLessonFile, listLessonFiles, uploadMentorLessonFile } from '@/services/mentorLessonFiles'
 import {
   createMentorLesson,
   createMentorModule,
@@ -46,6 +47,10 @@ export function MentorCourseEditorPage() {
   const [assignmentLesson, setAssignmentLesson] = useState(null)
   const [assignments, setAssignments] = useState([])
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', file: null })
+  const [filesLesson, setFilesLesson] = useState(null)
+  const [files, setFiles] = useState([])
+  const [fileTitle, setFileTitle] = useState('')
+  const [fileObj, setFileObj] = useState(null)
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -85,7 +90,7 @@ export function MentorCourseEditorPage() {
       <WorkspaceHeader
         label="Course builder"
         title={course.title}
-        description={`${modules.length} modules • ${totalLessons} lessons • ${course.published ? 'Published' : 'Draft'}. Add modules, lessons, content blocks, and assignments.`}
+        description={`${modules.length} modules • ${totalLessons} lessons • ${course.published ? 'Published' : 'Draft'}. Add modules, lessons, downloadable files, content, and assignments.`}
         actions={
           <Link
             to="/mentor/courses"
@@ -172,6 +177,18 @@ export function MentorCourseEditorPage() {
                     setError(err?.message || 'Unable to load assignments.')
                   }
                 }}
+                onEditFiles={async (lesson) => {
+                  setError('')
+                  setFilesLesson(lesson)
+                  setFileTitle('')
+                  setFileObj(null)
+                  try {
+                    setFiles(await listLessonFiles(lesson.id))
+                  } catch (err) {
+                    setFiles([])
+                    setError(err?.message || 'Unable to load lesson files.')
+                  }
+                }}
                 onMoveModule={async (dir) => {
                   const next = modules.slice()
                   const j = dir === 'up' ? idx - 1 : idx + 1
@@ -196,6 +213,118 @@ export function MentorCourseEditorPage() {
           )}
         </div>
       </div>
+
+      <Dialog
+        open={!!filesLesson}
+        onClose={() => setFilesLesson(null)}
+        title={filesLesson ? `Downloads: ${filesLesson.title}` : 'Lesson downloads'}
+        footer={
+          filesLesson ? (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-zinc-500">
+                {files.length} file{files.length === 1 ? '' : 's'} — students can download after the lesson is published.
+              </p>
+              <button
+                type="button"
+                disabled={busy === `lesson:files:${filesLesson.id}` || !fileObj}
+                onClick={async () => {
+                  if (!fileObj) return
+                  setBusy(`lesson:files:${filesLesson.id}`)
+                  setError('')
+                  try {
+                    await uploadMentorLessonFile({ lessonId: filesLesson.id, title: fileTitle, file: fileObj })
+                    setFiles(await listLessonFiles(filesLesson.id))
+                    setFileTitle('')
+                    setFileObj(null)
+                  } catch (err) {
+                    setError(err?.message || 'Unable to upload file.')
+                  } finally {
+                    setBusy('')
+                  }
+                }}
+                className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-50"
+              >
+                {busy === `lesson:files:${filesLesson.id}` ? 'Uploading…' : 'Upload'}
+              </button>
+            </div>
+          ) : null
+        }
+      >
+        {filesLesson ? (
+          <div className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-[1fr_1.2fr]">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">File title (optional)</label>
+                <input
+                  value={fileTitle}
+                  onChange={(e) => setFileTitle(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+                  placeholder="e.g. Workbook PDF"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Upload file</label>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.gif,.zip,application/pdf"
+                  onChange={(e) => setFileObj(e.target.files?.[0] || null)}
+                  className="mt-2 block w-full text-sm"
+                />
+                {fileObj ? <p className="mt-2 text-xs text-zinc-500">Selected: {fileObj.name}</p> : null}
+              </div>
+            </div>
+            {files.length ? (
+              <ul className="space-y-2">
+                {files.map((f) => (
+                  <li
+                    key={f.id}
+                    className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-zinc-200 p-3 dark:border-zinc-800"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold">{f.title || f.path}</p>
+                      <p className="mt-1 text-xs text-zinc-500">
+                        {f.file_type || 'file'}
+                        {f.mime_type ? ` • ${f.mime_type}` : ''}
+                        {f.size_bytes ? ` • ${(f.size_bytes / (1024 * 1024)).toFixed(1)} MB` : ''}
+                      </p>
+                      {f.download_url ? (
+                        <a
+                          href={f.download_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block text-sm font-semibold text-orange-600 dark:text-orange-300"
+                        >
+                          Preview download link
+                        </a>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      className="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white"
+                      onClick={async () => {
+                        if (!confirm('Delete this file?')) return
+                        setBusy(`lesson:file:delete:${f.id}`)
+                        try {
+                          await deleteMentorLessonFile(f)
+                          setFiles(await listLessonFiles(filesLesson.id))
+                        } catch (err) {
+                          setError(err?.message || 'Unable to delete file.')
+                        } finally {
+                          setBusy('')
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-zinc-500">No downloadable files yet. Upload PDFs, docs, or images for students.</p>
+            )}
+          </div>
+        ) : null}
+      </Dialog>
 
       <Dialog
         open={!!assignmentLesson}
@@ -366,7 +495,7 @@ export function MentorCourseEditorPage() {
   )
 }
 
-function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, onEditContent, onEditAssignments, onMoveModule }) {
+function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, onEditContent, onEditFiles, onEditAssignments, onMoveModule }) {
   const [editing, setEditing] = useState(false)
   const [local, setLocal] = useState({ title: module.title || '', description: module.description || '' })
   const [lessonForm, setLessonForm] = useState({ title: '', description: '' })
@@ -505,6 +634,7 @@ function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, o
             onRefresh={onRefresh}
             onEditContent={() => onEditContent(l)}
             onEditAssignments={() => onEditAssignments(l)}
+            onEditFiles={() => onEditFiles(l)}
             onMove={async (dir) => {
               const next = lessons.slice()
               const j = dir === 'up' ? i - 1 : i + 1
@@ -527,7 +657,7 @@ function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, o
   )
 }
 
-function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditContent, onEditAssignments, onMove }) {
+function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditContent, onEditFiles, onEditAssignments, onMove }) {
   const [editing, setEditing] = useState(false)
   const [local, setLocal] = useState({ title: lesson.title || '', description: lesson.description || '' })
   const isPublished = lesson.status === 'published'
@@ -578,6 +708,7 @@ function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditConte
           <>
             <IconButton onClick={() => setEditing(true)}>Edit</IconButton>
             <IconButton onClick={onEditContent}>Content</IconButton>
+            <IconButton onClick={onEditFiles}>Downloads</IconButton>
             <IconButton onClick={onEditAssignments}>Assignments</IconButton>
             <button
               type="button"
