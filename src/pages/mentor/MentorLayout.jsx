@@ -51,6 +51,9 @@ export function MentorLayout() {
       <NavItem to="/mentor/profile" onNavigate={onNavigate}>
         Profile
       </NavItem>
+      <NavItem to="/mentor/change-password" onNavigate={onNavigate}>
+        Password
+      </NavItem>
     </div>
   )
 
@@ -63,6 +66,12 @@ export function MentorLayout() {
           <p className="text-xs text-zinc-500">{user?.email}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/mentor/profile"
+            className="hidden rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:border-orange-400 sm:inline-flex dark:border-zinc-700 dark:text-zinc-200"
+          >
+            Profile
+          </Link>
           <Link
             to="/"
             className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-200"

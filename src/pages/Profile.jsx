@@ -23,11 +23,13 @@ function InitialsAvatar({ name, email }) {
 
 export function ProfilePage() {
   const location = useLocation()
-  const inMemberShell = location.pathname.startsWith('/member')
-  const inAppShell = inMemberShell || location.pathname.startsWith('/mentor')
-  const dashboardTo = dashboardPathForRole(profile?.role)
-
   const { profile, refreshProfile, user } = useAuth()
+  const inMemberShell = location.pathname.startsWith('/member')
+  const inMentorShell = location.pathname.startsWith('/mentor')
+  const inAppShell = inMemberShell || inMentorShell
+  const isMentor = isMentorRole(profile?.role)
+  const dashboardTo = dashboardPathForRole(profile?.role)
+  const changePasswordTo = inMentorShell ? '/mentor/change-password' : '/member/change-password'
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -68,10 +70,10 @@ export function ProfilePage() {
   const memberId = user?.id ? String(user.id).slice(0, 8).toUpperCase() : '—'
   const statusLabel = profile?.status === 'suspended' ? 'Suspended' : 'Active'
 
-  const pageClass = inAppShell ? 'space-y-6' : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const shellClass = inAppShell ? 'space-y-6' : 'mx-auto max-w-7xl space-y-6 px-8 pb-20 pt-28 md:px-12 lg:px-10'
 
-  return (
-    <main id="page-main" data-component="page-main" className={pageClass}>
+  const body = (
+    <>
       <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
         <div className="relative p-8">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
@@ -105,36 +107,42 @@ export function ProfilePage() {
                   </span>
                 </div>
                 <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">
-                  Keep your profile up to date so mentors can personalize your support.
+                  {isMentor
+                    ? 'Keep your mentor profile current so students and staff can reach you easily.'
+                    : 'Keep your profile up to date so mentors can personalize your support.'}
                 </p>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {!inAppShell ? (
-                <>
-                  <Link
-                    to={dashboardTo}
-                    className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-                  >
-                    Dashboard
-                  </Link>
-                  {!inAppShell && !isMentorRole(profile?.role) ? (
-                    <Link
-                      to="/member/courses"
-                      className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
-                    >
-                      Courses
-                    </Link>
-                  ) : null}
-                </>
+              <Link
+                to={dashboardTo}
+                className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
+              >
+                Dashboard
+              </Link>
+              {inAppShell ? (
+                <Link
+                  to={changePasswordTo}
+                  className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
+                >
+                  Change password
+                </Link>
+              ) : null}
+              {!inAppShell && !isMentor ? (
+                <Link
+                  to="/member/courses"
+                  className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
+                >
+                  Courses
+                </Link>
               ) : null}
             </div>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto mt-8 max-w-3xl rounded-[28px] border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+      <div className="rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm md:p-8 dark:border-zinc-800 dark:bg-zinc-900/60">
         <form
           className="space-y-4"
           onSubmit={async (e) => {
@@ -259,9 +267,18 @@ export function ProfilePage() {
 
           <div className="grid gap-3 rounded-3xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Pro tips</p>
-            <ul className="text-sm text-zinc-600 dark:text-zinc-300 space-y-1">
-              <li>- Add a clear bio so mentors can tailor support.</li>
-              <li>- Keep your goals measurable (30/60/90-day outcomes).</li>
+            <ul className="space-y-1 text-sm text-zinc-600 dark:text-zinc-300">
+              {isMentor ? (
+                <>
+                  <li>Add a short bio so mentees know your focus areas.</li>
+                  <li>Publish lessons only when content and assignments are ready.</li>
+                </>
+              ) : (
+                <>
+                  <li>Add a clear bio so mentors can tailor support.</li>
+                  <li>Keep your goals measurable (30/60/90-day outcomes).</li>
+                </>
+              )}
             </ul>
           </div>
 
@@ -286,6 +303,16 @@ export function ProfilePage() {
           </button>
         </form>
       </div>
+    </>
+  )
+
+  if (inAppShell) {
+    return <div className={shellClass}>{body}</div>
+  }
+
+  return (
+    <main id="page-main" data-component="page-main" className={shellClass}>
+      {body}
     </main>
   )
 }

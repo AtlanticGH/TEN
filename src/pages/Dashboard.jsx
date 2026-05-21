@@ -84,7 +84,7 @@ function StatCard({ label, value, sublabel, tone = 'orange', icon }) {
   )
 }
 
-function MemberNav({ onNavigate }) {
+function MemberNav({ onNavigate, profileTo = '/member/profile' }) {
   return (
     <div className="grid gap-2">
       <Link
@@ -102,7 +102,7 @@ function MemberNav({ onNavigate }) {
         Courses
       </Link>
       <Link
-        to="/member/profile"
+        to={profileTo}
         onClick={() => onNavigate?.()}
         className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-200"
       >
@@ -167,6 +167,7 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const inMemberShell = location.pathname.startsWith('/member')
   const { profile, user, loading: authLoading } = useAuth()
+  const profileTo = isMentorRole(profile?.role) ? '/mentor/profile' : '/member/profile'
   const { data, isLoading, isError, error, refetch } = useMemberDashboard()
 
   useEffect(() => {
@@ -306,7 +307,7 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="mt-5">
-                <MemberNav />
+                <MemberNav profileTo={profileTo} />
               </div>
             </div>
           </aside>
@@ -332,7 +333,7 @@ export function DashboardPage() {
                 Alerts ({notifications.length})
               </button>
               <Link
-                to="/member/profile"
+                to={profileTo}
                 className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400"
                 title="Open profile"
               >
@@ -382,7 +383,7 @@ export function DashboardPage() {
                     Browse courses
                   </Link>
                   <Link
-                    to="/member/profile"
+                    to={profileTo}
                     className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
                     title="Edit your profile"
                   >
@@ -582,7 +583,7 @@ export function DashboardPage() {
               </button>
             </div>
             <div className="mt-2">
-              <MemberNav onNavigate={() => setMobileNavOpen(false)} />
+              <MemberNav profileTo={profileTo} onNavigate={() => setMobileNavOpen(false)} />
             </div>
           </div>
         </div>

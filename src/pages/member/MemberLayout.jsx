@@ -45,6 +45,9 @@ export function MemberLayout() {
       <NavItem to="/member/profile" onNavigate={onNavigate}>
         Profile
       </NavItem>
+      <NavItem to="/member/change-password" onNavigate={onNavigate}>
+        Password
+      </NavItem>
       <NavItem to="/member/activity" onNavigate={onNavigate}>
         Activity
       </NavItem>

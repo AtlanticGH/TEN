@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Dialog } from '@/components/ui/Dialog'
+import { WorkspaceHeader, WorkspacePage, WorkspacePanel, WorkspaceMutedPanel, WorkspaceAlert } from '@/components/workspace/WorkspaceChrome'
 import { listAssignments } from '@/services/assignments'
 import { createMentorAssignment, deleteMentorAssignment } from '@/services/mentorAssignments'
 import {
@@ -80,35 +81,25 @@ export function MentorCourseEditorPage() {
   if (!course) return null
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Course builder</p>
-          <h2 className="mt-2 text-2xl font-semibold">{course.title}</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-            {modules.length} modules • {totalLessons} lessons • {course.published ? 'Published' : 'Draft'}
-          </p>
-        </div>
-        <Link
-          to="/mentor/courses"
-          className="h-fit rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-        >
-          Back to courses
-        </Link>
-      </div>
+    <WorkspacePage>
+      <WorkspaceHeader
+        label="Course builder"
+        title={course.title}
+        description={`${modules.length} modules • ${totalLessons} lessons • ${course.published ? 'Published' : 'Draft'}. Add modules, lessons, content blocks, and assignments.`}
+        actions={
+          <Link
+            to="/mentor/courses"
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-200"
+          >
+            Back to courses
+          </Link>
+        }
+      />
 
-      {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
-
-      <p className="text-sm text-zinc-600 dark:text-zinc-300">
-        Add modules, lessons, content blocks, and assignments. Quizzes and lesson file libraries remain in the admin editor.
-      </p>
+      <WorkspaceAlert message={error} />
 
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+        <WorkspaceMutedPanel>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Add module</p>
           <form
             className="mt-4 space-y-3"
@@ -153,7 +144,7 @@ export function MentorCourseEditorPage() {
               {busy === 'module:create' ? 'Creating…' : 'Create module'}
             </button>
           </form>
-        </div>
+        </WorkspaceMutedPanel>
 
         <div className="space-y-4">
           {modules.length ? (
@@ -371,7 +362,7 @@ export function MentorCourseEditorPage() {
           </div>
         ) : null}
       </Dialog>
-    </div>
+    </WorkspacePage>
   )
 }
 
@@ -381,7 +372,7 @@ function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, o
   const [lessonForm, setLessonForm] = useState({ title: '', description: '' })
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
+    <WorkspacePanel>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           {editing ? (
@@ -532,7 +523,7 @@ function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, o
           />
         ))}
       </ul>
-    </div>
+    </WorkspacePanel>
   )
 }
 

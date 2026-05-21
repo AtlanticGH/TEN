@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
 import { listMentorSubmissions, reviewMentorSubmission } from '@/services/mentor'
+import {
+  WorkspaceAlert,
+  WorkspaceHeader,
+  WorkspaceMutedPanel,
+  WorkspacePage,
+  WorkspacePanel,
+} from '@/components/workspace/WorkspaceChrome'
 
 const STATUS_OPTIONS = [
   { value: 'submitted', label: 'Pending' },
@@ -65,12 +72,14 @@ export function MentorAssignmentsPage() {
   }
 
   return (
-    <div>
-      <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Assignments</p>
-      <h2 className="mt-2 text-2xl font-semibold">Review & mark work</h2>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Approve submissions or request revisions with feedback and a grade.</p>
+    <WorkspacePage>
+      <WorkspaceHeader
+        label="Assignments"
+        title="Review & mark work"
+        description="Approve submissions or request revisions with feedback and a grade."
+      />
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -88,14 +97,10 @@ export function MentorAssignmentsPage() {
         ))}
       </div>
 
-      {error ? (
-        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      <WorkspaceAlert message={error} />
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/60">
+      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <WorkspacePanel className="p-4 md:p-6">
           {loading ? (
             <p className="text-sm text-zinc-500">Loading…</p>
           ) : items.length ? (
@@ -130,9 +135,9 @@ export function MentorAssignmentsPage() {
           ) : (
             <p className="text-sm text-zinc-600 dark:text-zinc-300">No submissions in this filter.</p>
           )}
-        </div>
+        </WorkspacePanel>
 
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+        <WorkspaceMutedPanel>
           {!selected ? (
             <p className="text-sm text-zinc-600 dark:text-zinc-300">Select a submission to review.</p>
           ) : (
@@ -204,8 +209,8 @@ export function MentorAssignmentsPage() {
               </div>
             </div>
           )}
-        </div>
+        </WorkspaceMutedPanel>
       </div>
-    </div>
+    </WorkspacePage>
   )
 }

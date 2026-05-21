@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { createMentorCourse, listMentorCourses, updateMentorCourse } from '@/services/mentor'
+import {
+  WorkspaceAlert,
+  WorkspaceHeader,
+  WorkspaceMutedPanel,
+  WorkspacePage,
+  WorkspacePanel,
+} from '@/components/workspace/WorkspaceChrome'
 
 export function MentorCoursesPage() {
   const [loading, setLoading] = useState(true)
@@ -40,30 +47,26 @@ export function MentorCoursesPage() {
     setForm((v) => ({ ...v, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Courses</p>
-          <h2 className="mt-2 text-2xl font-semibold">Your courses</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create learning tracks and build modules and lessons for your mentees.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => refresh()}
-          className="h-fit rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-        >
-          Refresh
-        </button>
-      </div>
+    <WorkspacePage>
+      <WorkspaceHeader
+        label="Courses"
+        title="Your courses"
+        description="Create learning tracks and build modules and lessons for your mentees."
+        actions={
+          <button
+            type="button"
+            onClick={() => refresh()}
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-200"
+          >
+            Refresh
+          </button>
+        }
+      />
 
-      {error ? (
-        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      <WorkspaceAlert message={error} />
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <WorkspaceMutedPanel>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Create course</p>
           <form
             className="mt-4 space-y-3"
@@ -129,9 +132,9 @@ export function MentorCoursesPage() {
               {busyId === 'create' ? 'Creating…' : 'Create course'}
             </button>
           </form>
-        </div>
+        </WorkspaceMutedPanel>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <WorkspacePanel>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Your list</p>
           {loading ? (
             <p className="mt-4 text-sm text-zinc-500">Loading…</p>
@@ -181,8 +184,8 @@ export function MentorCoursesPage() {
           ) : (
             <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">No courses yet. Create your first course.</p>
           )}
-        </div>
+        </WorkspacePanel>
       </div>
-    </div>
+    </WorkspacePage>
   )
 }
