@@ -81,5 +81,6 @@ Full guide: `supabase/SETUP.md`. Verify SQL: `scripts/verify-supabase-schema.sql
 
 ## Documentation
 
+- `docs/VERCEL_DEPLOY.md` — Vercel env vars + production verify
 - `docs/PRODUCTION_AUDIT.md` — deployment and security checklist
 - `docs/CMS_ARCHITECTURE.md` — admin CMS architecture
