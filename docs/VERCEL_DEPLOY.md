@@ -1,8 +1,9 @@
 # Vercel deployment checklist
 
+**Supabase project:** `lfdttxwvjgypljuhgjeu` — https://lfdttxwvjgypljuhgjeu.supabase.co  
 **Production URL:** https://ember-network-qc25.vercel.app
 
-**Use project `vawqdpalwuoyqntseqni` (Ember Network) only.** If Vercel or the CLI was tied to Ember Backend (`lfdttxwvjgypljuhgjeu`), disconnect and reconnect — see `docs/SUPABASE_RECONNECT.md`.
+> After switching Supabase projects, update **all** Vercel env vars to match local `.env` (URL + anon + service_role from the **same** project).
 
 ## 1. Environment variables (required)
 
@@ -10,7 +11,7 @@ Vercel → Project → **Settings** → **Environment Variables** → add for **
 
 | Variable | Notes |
 |----------|--------|
-| `VITE_SUPABASE_URL` | `https://vawqdpalwuoyqntseqni.supabase.co` |
+| `VITE_SUPABASE_URL` | `https://lfdttxwvjgypljuhgjeu.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | Supabase Dashboard → API → anon |
 | `SUPABASE_URL` | Same as `VITE_SUPABASE_URL` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (secret) — server only |
@@ -34,11 +35,11 @@ Deployments → latest → **Redeploy** → enable **Use existing Build Cache** 
 The server env is set but Supabase rejected the key. In Vercel, fix:
 
 1. `SUPABASE_SERVICE_ROLE_KEY` must be the **service_role** secret (not `anon`).
-2. `SUPABASE_URL` must be `https://vawqdpalwuoyqntseqni.supabase.co` (same project as local `.env`).
+2. `SUPABASE_URL` must be `https://lfdttxwvjgypljuhgjeu.supabase.co` (same project as local `.env`).
 3. No quotes or trailing spaces in values.
 4. **Redeploy** after editing env vars.
 
-Get keys: Supabase Dashboard → Project **vawqdpalwuoyqntseqni** → Settings → API.
+Get keys: Supabase Dashboard → Project **lfdttxwvjgypljuhgjeu** → Settings → API.
 
 ## 4. Verify
 

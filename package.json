@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "start": "node server/index.js",
     "supabase:login": "supabase login",
-    "supabase:link": "supabase link --project-ref vawqdpalwuoyqntseqni",
+    "supabase:link": "supabase link --project-ref lfdttxwvjgypljuhgjeu",
     "supabase:pull": "supabase db pull --schema public,storage,auth",
     "supabase:push": "supabase db push",
     "supabase:push:dry-run": "supabase db push --dry-run",

@@ -1,6 +1,6 @@
 # Supabase migration audit (Phase 2)
 
-**Project ref:** `vawqdpalwuoyqntseqni`  
+**Project ref:** `lfdttxwvjgypljuhgjeu`  
 **Remote pull:** Not executed in CI — requires `npx supabase login` then `supabase link` + `supabase db pull`.  
 **Extensions:** `supabase/migrations/20260321120000_extensions.sql`  
 **Profiles (fixed order):** `supabase/migrations/20260321130101_profiles_create.sql` — `CREATE TABLE` before `ALTER TABLE`  
@@ -63,6 +63,6 @@ Enabled on all public app tables in legacy files. Policies use `is_staff()` / `i
 ## Next steps for operators
 
 1. `npx supabase login`
-2. `npx supabase link --project-ref vawqdpalwuoyqntseqni`
+2. `npx supabase link --project-ref lfdttxwvjgypljuhgjeu`
 3. `npx supabase db pull --schema public,storage,auth` → replaces `20260321120000_remote_schema.sql`
 4. `npx supabase db push` (or `db push --dry-run` first)
