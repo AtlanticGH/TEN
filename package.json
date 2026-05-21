@@ -17,7 +17,8 @@
     "supabase:pull": "supabase db pull --schema public,storage,auth",
     "supabase:push": "supabase db push",
     "supabase:push:dry-run": "supabase db push --dry-run",
-    "supabase:seed": "supabase db seed"
+    "supabase:seed": "supabase db seed",
+    "bootstrap:cms": "node scripts/bootstrap-site-content.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
