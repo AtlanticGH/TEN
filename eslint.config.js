@@ -8,6 +8,7 @@ export default defineConfig([
   globalIgnores([
     '**/._*',
     'dist',
+    '.vite/**',
     'netlify/**',
     'archive-unused/**',
     // Vercel serverless functions (Node runtime)
@@ -31,11 +32,11 @@ export default defineConfig([
     },
   },
   {
-    files: ['api/**/*.js', 'lib/**/*.js'],
+    files: ['api/**/*.js', 'server/**/*.js', 'scripts/**/*.mjs'],
     extends: [js.configs.recommended],
     languageOptions: {
       globals: globals.node,
-      sourceType: 'commonjs',
+      sourceType: 'module',
     },
   },
 ])

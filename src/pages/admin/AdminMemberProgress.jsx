@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { adminMarkComplete, adminMarkIncomplete } from '../../services/adminProgress'
 import { apiFetch } from '@/lib/apiClient'
 
@@ -82,14 +82,6 @@ export function AdminMemberProgressPage() {
   const courseCompletionById = useMemo(() => new Map(courseCompletions.map((x) => [x.course_id, x])), [courseCompletions])
   const moduleCompletionById = useMemo(() => new Map(moduleCompletions.map((x) => [x.module_id, x])), [moduleCompletions])
   const lessonCompletionById = useMemo(() => new Map(lessonCompletions.map((x) => [x.lesson_id, x])), [lessonCompletions])
-
-  const actorIds = useMemo(() => {
-    const set = new Set()
-    ;(courseCompletions || []).forEach((x) => x.marked_by && set.add(x.marked_by))
-    ;(moduleCompletions || []).forEach((x) => x.marked_by && set.add(x.marked_by))
-    ;(lessonCompletions || []).forEach((x) => x.marked_by && set.add(x.marked_by))
-    return Array.from(set)
-  }, [courseCompletions, moduleCompletions, lessonCompletions])
 
   const [actorMap, setActorMap] = useState({})
 

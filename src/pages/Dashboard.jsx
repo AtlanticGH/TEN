@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useMemberDashboard } from '../hooks/useMemberDashboard'
@@ -170,13 +170,13 @@ export function DashboardPage() {
 
   const loading = isLoading
   const loadError = isError ? error?.message || 'Unable to load your dashboard right now.' : ''
-  const courses = data?.courses || []
-  const enrollments = data?.enrollments || []
-  const progress = data?.progress || []
-  const milestones = data?.milestones || []
-  const notifications = data?.notifications || []
-  const sessions = data?.sessions || []
-  const teamMemberships = teamsQuery.data || []
+  const courses = useMemo(() => data?.courses ?? [], [data?.courses])
+  const enrollments = useMemo(() => data?.enrollments ?? [], [data?.enrollments])
+  const progress = useMemo(() => data?.progress ?? [], [data?.progress])
+  const milestones = useMemo(() => data?.milestones ?? [], [data?.milestones])
+  const notifications = useMemo(() => data?.notifications ?? [], [data?.notifications])
+  const sessions = useMemo(() => data?.sessions ?? [], [data?.sessions])
+  const teamMemberships = useMemo(() => teamsQuery.data ?? [], [teamsQuery.data])
 
   const courseById = useMemo(() => {
     const map = new Map()

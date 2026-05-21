@@ -41,10 +41,10 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
       <div className="mt-5">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Navigation</p>
         <div className="mt-4 grid gap-2">
-          <NavItem to="/dashboard">Dashboard</NavItem>
+          <NavItem to="/member">Overview</NavItem>
           <NavItem to="/member/profile">Profile</NavItem>
-          <NavItem to="/dashboard">Teams</NavItem>
-          <NavItem to="/admin/dashboard">Settings</NavItem>
+          <NavItem to="/member/courses">Courses</NavItem>
+          <NavItem to="/member/activity">Activity</NavItem>
         </div>
       </div>
     </div>

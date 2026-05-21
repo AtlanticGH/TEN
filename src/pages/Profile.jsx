@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { dashboardPathForRole } from '../lib/rbac'
 import { uploadMyAvatar } from '@/lib/avatars'
 import { updateMyProfile } from '../services/db'
 
@@ -23,6 +24,9 @@ function InitialsAvatar({ name, email }) {
 export function ProfilePage() {
   const location = useLocation()
   const inMemberShell = location.pathname.startsWith('/member')
+  const inMentorShell = location.pathname.startsWith('/mentor')
+  const inAppShell = inMemberShell || inMentorShell
+  const dashboardTo = dashboardPathForRole(profile?.role)
 
   const { profile, refreshProfile, user } = useAuth()
   const [saving, setSaving] = useState(false)
@@ -49,7 +53,7 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (avatarFile) return
-    setAvatarPreview(profile?.profile_image_url || '')
+    queueMicrotask(() => setAvatarPreview(profile?.profile_image_url || ''))
   }, [profile?.profile_image_url, avatarFile])
 
   const joinedAtLabel = useMemo(() => {
@@ -65,7 +69,7 @@ export function ProfilePage() {
   const memberId = user?.id ? String(user.id).slice(0, 8).toUpperCase() : '—'
   const statusLabel = profile?.status === 'suspended' ? 'Suspended' : 'Active'
 
-  const pageClass = inMemberShell ? 'space-y-6' : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const pageClass = inAppShell ? 'space-y-6' : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
 
   return (
     <main id="page-main" data-component="page-main" className={pageClass}>
@@ -108,20 +112,22 @@ export function ProfilePage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {!inMemberShell ? (
+              {!inAppShell ? (
                 <>
                   <Link
-                    to="/member"
+                    to={dashboardTo}
                     className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
                   >
                     Dashboard
                   </Link>
-                  <Link
-                    to="/member/courses"
-                    className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
-                  >
-                    Courses
-                  </Link>
+                  {!inMentorShell && profile?.role !== 'mentor' ? (
+                    <Link
+                      to="/member/courses"
+                      className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
+                    >
+                      Courses
+                    </Link>
+                  ) : null}
                 </>
               ) : null}
             </div>

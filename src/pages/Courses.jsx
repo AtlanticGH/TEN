@@ -29,9 +29,9 @@ export function CoursesPage() {
 
   const loading = isLoading
   const loadError = isError ? error?.message || 'Unable to load courses.' : ''
-  const courses = data?.courses || []
-  const enrollments = data?.enrollments || []
-  const progress = data?.progress || []
+  const courses = useMemo(() => data?.courses ?? [], [data?.courses])
+  const enrollments = useMemo(() => data?.enrollments ?? [], [data?.enrollments])
+  const progress = useMemo(() => data?.progress ?? [], [data?.progress])
 
   const enrolledCourseIds = useMemo(() => new Set(enrollments.map((e) => e.course_id)), [enrollments])
   const progressByCourse = useMemo(() => {

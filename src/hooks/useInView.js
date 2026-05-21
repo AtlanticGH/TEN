@@ -16,24 +16,15 @@ export function useInView(options) {
 
   // Sync above-the-fold elements before paint to avoid opacity-0 flash
   useLayoutEffect(() => {
-    if (prefersReducedMotion()) {
-      setInView(true)
-      return
-    }
+    if (prefersReducedMotion()) return
     const el = ref.current
-    if (!el) return
-    if (isElementInViewport(el)) {
-      setInView(true)
-    }
+    if (!el || !isElementInViewport(el)) return
+    queueMicrotask(() => setInView(true))
   }, [])
 
   useEffect(() => {
     const el = ref.current
-    if (!el) return
-    if (prefersReducedMotion()) {
-      setInView(true)
-      return
-    }
+    if (!el || prefersReducedMotion()) return
 
     const obs = new IntersectionObserver(
       (entries) => {

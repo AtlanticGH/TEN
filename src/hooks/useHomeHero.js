@@ -28,24 +28,22 @@ export function useHomeHero() {
 
   const heroCopy = useMemo(() => mergeHero(data ?? null), [data])
 
-  const [bgReady, setBgReady] = useState(false)
   const bg = heroCopy.background_image
+  const [loadedBg, setLoadedBg] = useState('')
+  const bgReady = !bg || loadedBg === bg
 
   useEffect(() => {
-    if (!bg) {
-      setBgReady(true)
-      return undefined
-    }
-    setBgReady(false)
+    if (!bg || loadedBg === bg) return undefined
     const img = new Image()
-    img.onload = () => setBgReady(true)
-    img.onerror = () => setBgReady(true)
+    const done = () => setLoadedBg(bg)
+    img.onload = done
+    img.onerror = done
     img.src = bg
     return () => {
       img.onload = null
       img.onerror = null
     }
-  }, [bg])
+  }, [bg, loadedBg])
 
   return {
     heroCopy,

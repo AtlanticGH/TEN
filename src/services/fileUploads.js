@@ -55,7 +55,7 @@ export async function uploadStorageFile({ file, bucket = 'public', folder = 'upl
   const ext = sanitizeFilename(file.name).split('.').pop()
   const base = sanitizeFilename(file.name).replace(/\.[^.]+$/, '')
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const filename = `${base}${ext ? `.${ext}` : ''}`
+  const filename = `${base}-${stamp}${ext ? `.${ext}` : ''}`
   const buf = await file.arrayBuffer()
 
   const upload = await apiFetch(

@@ -29,6 +29,9 @@ export function useRealtime({ enabled = true } = {}) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
         queryClient.invalidateQueries({ queryKey: ['member-dashboard'] })
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'assignment_submissions' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['mentor-dashboard'] })
+      })
       .subscribe()
 
     return () => {

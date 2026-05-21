@@ -132,6 +132,7 @@ export function Navbar({ dark, mode = 'scrolled', onToggleTheme }) {
                 <button
                   type="button"
                   className={ghostBtnClass}
+                  aria-label="Sign out"
                   onClick={async () => {
                     try { await signOut() } finally {
                       closeMobile()
@@ -209,6 +210,7 @@ export function Navbar({ dark, mode = 'scrolled', onToggleTheme }) {
                 <button
                   type="button"
                   className={ghostBtnClass}
+                  aria-label="Sign out"
                   onClick={async () => {
                     try { await signOut() } finally {
                       closeMobile()

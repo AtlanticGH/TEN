@@ -45,16 +45,6 @@ export function MentorAssignmentsPage() {
 
   const selected = items.find((r) => r.id === selectedId)
 
-  useEffect(() => {
-    if (!selected) {
-      setGrade('')
-      setFeedback('')
-      return
-    }
-    setGrade(selected.grade || '')
-    setFeedback(selected.mentor_feedback || '')
-  }, [selected])
-
   const review = async (status) => {
     if (!selectedId) return
     setBusy(true)
@@ -114,7 +104,11 @@ export function MentorAssignmentsPage() {
                 <li key={row.id}>
                   <button
                     type="button"
-                    onClick={() => setSelectedId(row.id)}
+                    onClick={() => {
+                      setSelectedId(row.id)
+                      setGrade(row.grade || '')
+                      setFeedback(row.mentor_feedback || '')
+                    }}
                     className={[
                       'w-full rounded-2xl border px-4 py-3 text-left transition',
                       selectedId === row.id
@@ -142,7 +136,7 @@ export function MentorAssignmentsPage() {
           {!selected ? (
             <p className="text-sm text-zinc-600 dark:text-zinc-300">Select a submission to review.</p>
           ) : (
-            <div className="space-y-4">
+            <div key={selectedId} className="space-y-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Student work</p>
                 <p className="mt-1 font-semibold">{selected.student?.full_name || selected.student?.email}</p>

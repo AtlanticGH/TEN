@@ -13,7 +13,7 @@ function isRecoveryHash() {
 export function ResetPasswordPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
-  const [recoveryReady, setRecoveryReady] = useState(false)
+  const [recoveryReady, setRecoveryReady] = useState(() => isRecoveryHash())
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -22,10 +22,6 @@ export function ResetPasswordPage() {
 
   useEffect(() => {
     let ignore = false
-
-    if (isRecoveryHash()) {
-      setRecoveryReady(true)
-    }
 
     const init = async () => {
       await getSupabase().auth.getSession()

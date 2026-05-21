@@ -9,7 +9,11 @@ async function fetchWithTimeout(url, init = {}) {
   try {
     return await fetch(url, { ...init, signal: controller.signal })
   } catch (err) {
-    if (err?.name === 'AbortError') throw new Error('Request timed out — is the API server running? (npm run dev:all)')
+    if (err?.name === 'AbortError') {
+      const timeoutErr = new Error('Request timed out — is the API server running? (npm run dev:all)')
+      timeoutErr.cause = err
+      throw timeoutErr
+    }
     throw err
   } finally {
     clearTimeout(timer)

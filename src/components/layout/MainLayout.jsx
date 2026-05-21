@@ -46,6 +46,10 @@ export function MainLayout({ children }) {
     let raf = 0
 
     const compute = () => {
+      if (location.pathname !== '/') {
+        setHeaderMode('scrolled')
+        return
+      }
       const hero = document.querySelector(heroSelector)
       if (!hero) {
         setHeaderMode('scrolled')
@@ -62,19 +66,15 @@ export function MainLayout({ children }) {
       raf = requestAnimationFrame(compute)
     }
 
-    compute()
+    raf = requestAnimationFrame(compute)
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', compute)
+    window.addEventListener('resize', onScroll)
     return () => {
       cancelAnimationFrame(raf)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', compute)
     }
   }, [location.pathname, heroSelector])
-
-  useEffect(() => {
-    if (location.pathname === '/') setHeaderMode('hero')
-  }, [location.pathname])
 
   const toggleTheme = () => {
     const next = !dark

@@ -29,10 +29,7 @@ export function MentorStudentsPage() {
   }, [])
 
   useEffect(() => {
-    if (!selectedId) {
-      setDetail(null)
-      return undefined
-    }
+    if (!selectedId) return undefined
     let cancelled = false
     ;(async () => {
       setDetailLoading(true)
