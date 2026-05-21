@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSiteHeaderMode } from '../../hooks/useSiteHeaderMode'
 import { ChatWidget } from '../shared/ChatWidget'
@@ -10,7 +10,7 @@ export function MainLayout({ children }) {
   const location = useLocation()
   const headerMode = useSiteHeaderMode()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [location.pathname])
 

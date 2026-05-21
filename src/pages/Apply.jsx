@@ -78,6 +78,7 @@ export function ApplyPage() {
     <main id="page-main" data-component="page-main" className="overflow-x-hidden">
       <section
         id="home-gateway"
+        data-section="hero-gateway"
         className="relative"
         data-bg="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1800&q=80"
       >

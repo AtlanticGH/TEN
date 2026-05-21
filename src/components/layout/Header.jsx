@@ -118,7 +118,8 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
     <header
       data-site-header
       className={[
-        'fixed inset-x-0 top-0 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out',
+        'fixed inset-x-0 top-0 border-b',
+        'transition-[background-color,border-color,box-shadow,backdrop-filter,-webkit-backdrop-filter] duration-300 ease-out',
         SITE_HEADER_Z,
         styles.headerClass,
       ].join(' ')}

@@ -49,24 +49,28 @@ export function siteHeaderStyles(mode) {
   return {
     isHero,
     headerClass: isHero
-      ? 'border-white/10 bg-zinc-950/45 shadow-[0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md backdrop-saturate-150'
-      : 'border-zinc-200/70 bg-white/92 shadow-[0_1px_12px_rgba(0,0,0,0.06)] backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/92',
+      ? 'border-transparent bg-transparent shadow-none backdrop-blur-none supports-[backdrop-filter]:backdrop-blur-0'
+      : [
+          'border-zinc-200/70 bg-white/90 shadow-[0_1px_12px_rgba(0,0,0,0.06)]',
+          'backdrop-blur-xl backdrop-saturate-150',
+          'dark:border-white/[0.08] dark:bg-zinc-950/75 dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)]',
+        ].join(' '),
     brandTextClass: isHero
-      ? 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]'
+      ? 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)]'
       : 'text-zinc-900 dark:text-zinc-100',
     brandAccentClass: isHero ? 'text-orange-400' : 'text-orange-500',
     navLinkClass: isHero
-      ? `${NAV_LINK_BASE} text-white/90 hover:text-orange-300`
-      : `${NAV_LINK_BASE} text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400`,
+      ? `${NAV_LINK_BASE} text-white/95 hover:text-orange-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]`
+      : `${NAV_LINK_BASE} text-zinc-600 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400`,
     navLinkActiveClass: isHero ? 'text-orange-300' : 'text-orange-500 dark:text-orange-400',
     ghostBtnClass: isHero
-      ? `${GHOST_BTN_BASE} border-white/35 bg-white/10 text-white shadow-sm hover:border-orange-300/80 hover:bg-white/15`
+      ? `${GHOST_BTN_BASE} border-white/40 bg-white/10 text-white shadow-sm backdrop-blur-sm hover:border-orange-300/80 hover:bg-white/15`
       : `${GHOST_BTN_BASE} border-zinc-200 bg-white/80 text-zinc-700 hover:border-orange-400/80 dark:border-zinc-700/80 dark:bg-zinc-900/60 dark:text-zinc-200 dark:hover:border-orange-500/50`,
     iconBtnClass: isHero
-      ? `${ICON_BTN_BASE} border-white/35 bg-white/10 text-white shadow-sm hover:border-orange-300/80 hover:bg-white/15`
+      ? `${ICON_BTN_BASE} border-white/40 bg-white/10 text-white shadow-sm backdrop-blur-sm hover:border-orange-300/80 hover:bg-white/15`
       : `${ICON_BTN_BASE} border-zinc-200 bg-white/80 text-zinc-600 hover:border-orange-400/80 dark:border-zinc-700/80 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:border-orange-500/50`,
     mobileMenuBg: isHero
-      ? 'border-white/10 bg-zinc-950/95 text-white backdrop-blur-lg'
-      : 'border-zinc-200/70 bg-white/98 text-zinc-900 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/98 dark:text-zinc-100',
+      ? 'border-white/10 bg-zinc-950/95 text-white backdrop-blur-xl'
+      : 'border-zinc-200/70 bg-white/98 text-zinc-900 backdrop-blur-xl dark:border-white/[0.08] dark:bg-zinc-950/95 dark:text-zinc-100',
   }
 }
