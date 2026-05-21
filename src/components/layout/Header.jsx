@@ -82,7 +82,8 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
   const navigate = useNavigate()
   const location = useLocation()
   const dashboardTo = dashboardPathForRole(profile?.role)
-  const styles = siteHeaderStyles(mode)
+  const visualMode = mobileOpen ? 'scrolled' : mode
+  const styles = siteHeaderStyles(visualMode)
 
   const closeMobile = useCallback(() => setMobileOpen(false), [])
 
@@ -115,8 +116,9 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
 
   return (
     <header
+      data-site-header
       className={[
-        'fixed inset-x-0 top-0 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-200 ease-out',
+        'fixed inset-x-0 top-0 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out',
         SITE_HEADER_Z,
         styles.headerClass,
       ].join(' ')}
@@ -127,7 +129,7 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
           className={`text-[1.1rem] font-semibold tracking-tight transition-colors duration-200 ease-out ${styles.brandTextClass}`}
           onClick={closeMobile}
         >
-          The <span className="text-orange-500">Ember Network</span>
+          The <span className={styles.brandAccentClass}>Ember Network</span>
         </Link>
 
         <div className="hidden items-center gap-7 md:flex">

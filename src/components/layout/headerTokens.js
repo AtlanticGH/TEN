@@ -16,6 +16,12 @@ export const APP_SHELL_MAIN_OFFSET = 'pt-8'
 
 export const SITE_HEADER_Z = 'z-50'
 
+/** Selector for full-bleed hero sections (home + inner marketing pages). */
+export const HERO_GATEWAY_SELECTOR = '#home-gateway, [data-section="hero-gateway"]'
+
+/** Attribute on the fixed site header for scroll measurements. */
+export const SITE_HEADER_ATTR = 'data-site-header'
+
 export const APP_SHELL_MENU_Z = 'z-[90]'
 
 export const NAV_LINK_BASE =
@@ -43,21 +49,24 @@ export function siteHeaderStyles(mode) {
   return {
     isHero,
     headerClass: isHero
-      ? 'border-transparent bg-transparent'
-      : 'border-zinc-200/70 bg-white/90 shadow-[0_1px_12px_rgba(0,0,0,0.06)] backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/85',
-    brandTextClass: isHero ? 'text-white' : 'text-zinc-900 dark:text-zinc-100',
+      ? 'border-white/10 bg-zinc-950/45 shadow-[0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md backdrop-saturate-150'
+      : 'border-zinc-200/70 bg-white/92 shadow-[0_1px_12px_rgba(0,0,0,0.06)] backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/92',
+    brandTextClass: isHero
+      ? 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]'
+      : 'text-zinc-900 dark:text-zinc-100',
+    brandAccentClass: isHero ? 'text-orange-400' : 'text-orange-500',
     navLinkClass: isHero
-      ? `${NAV_LINK_BASE} text-white/80 hover:text-orange-300`
+      ? `${NAV_LINK_BASE} text-white/90 hover:text-orange-300`
       : `${NAV_LINK_BASE} text-zinc-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400`,
     navLinkActiveClass: isHero ? 'text-orange-300' : 'text-orange-500 dark:text-orange-400',
     ghostBtnClass: isHero
-      ? `${GHOST_BTN_BASE} border-white/30 bg-white/[0.08] text-white hover:border-orange-300/80 hover:bg-white/[0.13]`
+      ? `${GHOST_BTN_BASE} border-white/35 bg-white/10 text-white shadow-sm hover:border-orange-300/80 hover:bg-white/15`
       : `${GHOST_BTN_BASE} border-zinc-200 bg-white/80 text-zinc-700 hover:border-orange-400/80 dark:border-zinc-700/80 dark:bg-zinc-900/60 dark:text-zinc-200 dark:hover:border-orange-500/50`,
     iconBtnClass: isHero
-      ? `${ICON_BTN_BASE} border-white/30 bg-white/[0.08] text-white hover:border-orange-300/80 hover:bg-white/[0.13]`
+      ? `${ICON_BTN_BASE} border-white/35 bg-white/10 text-white shadow-sm hover:border-orange-300/80 hover:bg-white/15`
       : `${ICON_BTN_BASE} border-zinc-200 bg-white/80 text-zinc-600 hover:border-orange-400/80 dark:border-zinc-700/80 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:border-orange-500/50`,
     mobileMenuBg: isHero
-      ? 'border-white/10 bg-zinc-950/80 text-white backdrop-blur-md'
-      : 'border-zinc-200/70 bg-white/95 text-zinc-900 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/92 dark:text-zinc-100',
+      ? 'border-white/10 bg-zinc-950/95 text-white backdrop-blur-lg'
+      : 'border-zinc-200/70 bg-white/98 text-zinc-900 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/98 dark:text-zinc-100',
   }
 }
