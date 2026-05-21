@@ -7,6 +7,7 @@ import App from './App.jsx'
 import { LegacyMemberCourseRedirect, LegacyMemberLessonRedirect } from './components/routing/LegacyMemberRedirects'
 import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
 
@@ -231,7 +232,9 @@ const router = createBrowserRouter([
 
 const appTree = supabaseIsConfigured ? (
   <AuthProvider>
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </AuthProvider>
 ) : (
   <SupabaseConfigRequired />
