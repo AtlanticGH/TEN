@@ -129,9 +129,6 @@ export function ProgramsPage() {
           <Link to="/apply" className="inline-flex rounded-full bg-orange-500 px-5 py-2 font-medium text-white">
             Apply for Mentorship
           </Link>
-          <Link to="/community" className="inline-flex rounded-full border border-zinc-300 px-5 py-2 font-medium text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
-            Join Community
-          </Link>
           <Link to="/resources" className="inline-flex rounded-full border border-zinc-300 px-5 py-2 font-medium text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
             Learning Resources
           </Link>

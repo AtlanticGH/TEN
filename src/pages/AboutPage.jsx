@@ -18,7 +18,7 @@ export function AboutPage() {
       fallback: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80',
     },
     {
-      title: 'Community Manager',
+      title: 'Member Engagement Lead',
       desc: 'Cultivates engagement across circles, events, and founder collaboration touchpoints.',
       image: '/assets/images/profiles/team-community-manager.jpg',
       fallback: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?auto=format&fit=crop&w=800&q=80',
@@ -96,7 +96,7 @@ export function AboutPage() {
               <h2 className="mt-3 text-3xl font-semibold md:text-4xl">What members gain at TEN</h2>
               <ul className="mt-5 grid gap-2 text-sm text-zinc-600 dark:text-zinc-300 md:grid-cols-2">
                 <li className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">Access to Mentorship</li>
-                <li className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">Collaborative Community</li>
+                <li className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">Collaborative Network</li>
                 <li className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">Increased Visibility &amp; Business Exposure</li>
                 <li className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">Access to Exclusive Resources</li>
                 <li className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">Access to Funding &amp; Opportunities</li>

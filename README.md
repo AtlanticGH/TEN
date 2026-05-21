@@ -39,6 +39,13 @@ npm start
 
 If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to `.env`, then restart the dev server.
 
+**Password reset / invite links land on a blank login page:** Supabase appends a one-time token in the URL hash. Add these to **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**:
+
+- `http://localhost:5173/reset-password` (local)
+- `https://<your-production-domain>/reset-password` (production)
+
+Forgot-password, invite, and recovery flows all redirect to `/reset-password` (not `/login`).
+
 ## Supabase (optional)
 
 Apply SQL in order under `supabase/`, then seed development users:

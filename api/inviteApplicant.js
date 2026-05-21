@@ -81,7 +81,7 @@ export default async function handler(req, res) {
   if (app.invited_user_id) return json(res, 409, { ok: false, error: 'Application already invited' })
   if (app.status !== 'approved') return json(res, 400, { ok: false, error: 'Application must be approved before inviting' })
 
-  const redirectTo = SITE_URL ? `${SITE_URL.replace(/\/$/, '')}/login` : undefined
+  const redirectTo = SITE_URL ? `${SITE_URL.replace(/\/$/, '')}/reset-password` : undefined
 
   // Invite the user by email; this creates an auth user.
   const { data: inviteRes, error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(app.email, {

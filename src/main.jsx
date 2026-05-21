@@ -31,7 +31,6 @@ import {
   CoursesPage,
   DashboardPage,
   HomePage,
-  JoinCommunityPage,
   LessonPage,
   MemberActivityPage,
   MemberLayout,
@@ -81,15 +80,8 @@ const router = createBrowserRouter([
       { path: 'about', element: <PageFallback><AboutPage /></PageFallback> },
       { path: 'programs', element: <PageFallback><ProgramsPage /></PageFallback> },
       { path: 'program-components', element: <PageFallback><ProgramComponentsPage /></PageFallback> },
-      { path: 'community', element: <PageFallback><JoinCommunityPage /></PageFallback> },
       { path: 'resources', element: <PageFallback><ResourcesPage /></PageFallback> },
-      {
-        path: 'auth',
-        lazy: async () => {
-          const m = await import('./pages/Auth')
-          return { Component: m.AuthPage }
-        },
-      },
+      { path: 'auth', element: <Navigate to="/login" replace /> },
       {
         path: 'dashboard',
         lazy: async () => {
@@ -105,7 +97,7 @@ const router = createBrowserRouter([
           }
         },
       },
-      { path: 'join', element: <Navigate to="/community" replace /> },
+      { path: 'join', element: <Navigate to="/apply" replace /> },
       { path: 'contact', element: <PageFallback><ContactPage /></PageFallback> },
       {
         path: 'login',
@@ -126,6 +118,13 @@ const router = createBrowserRouter([
         lazy: async () => {
           const m = await import('./pages/ForgotPassword')
           return { Component: m.ForgotPasswordPage }
+        },
+      },
+      {
+        path: 'reset-password',
+        lazy: async () => {
+          const m = await import('./pages/ResetPassword')
+          return { Component: m.ResetPasswordPage }
         },
       },
       {
@@ -216,9 +215,10 @@ const router = createBrowserRouter([
       { path: 'about.html', element: <Navigate to="/about" replace /> },
       { path: 'programs.html', element: <Navigate to="/programs" replace /> },
       { path: 'program-components.html', element: <Navigate to="/program-components" replace /> },
-      { path: 'community.html', element: <Navigate to="/community" replace /> },
+      { path: 'community', element: <Navigate to="/apply" replace /> },
+      { path: 'community.html', element: <Navigate to="/apply" replace /> },
       { path: 'resources.html', element: <Navigate to="/resources" replace /> },
-      { path: 'join.html', element: <Navigate to="/community" replace /> },
+      { path: 'join.html', element: <Navigate to="/apply" replace /> },
       { path: 'contact.html', element: <Navigate to="/contact" replace /> },
       { path: 'login.html', element: <Navigate to="/login" replace /> },
       { path: 'signup.html', element: <Navigate to="/apply" replace /> },

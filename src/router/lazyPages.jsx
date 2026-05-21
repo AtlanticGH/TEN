@@ -7,9 +7,6 @@ export const ProgramComponentsPage = lazy(() =>
   import('../pages/ProgramComponentsPage').then((m) => ({ default: m.ProgramComponentsPage })),
 )
 export const ResourcesPage = lazy(() => import('../pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage })))
-export const JoinCommunityPage = lazy(() =>
-  import('../pages/JoinCommunityPage').then((m) => ({ default: m.JoinCommunityPage })),
-)
 export const ContactPage = lazy(() => import('../pages/ContactPage').then((m) => ({ default: m.ContactPage })))
 export const AdminGate = lazy(() => import('../pages/admin/AdminGate').then((m) => ({ default: m.AdminGate })))
 

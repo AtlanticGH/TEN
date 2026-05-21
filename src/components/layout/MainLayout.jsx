@@ -88,13 +88,15 @@ export function MainLayout({ children }) {
 
   return (
     // Root wrapper uses CSS variables so the whole page reacts to .dark
-    <div className="min-h-dvh bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100"
-         style={{ transition: 'background-color 200ms ease-out, color 200ms ease-out' }}>
+    <div
+      className="flex min-h-dvh flex-col bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100"
+      style={{ transition: 'background-color 200ms ease-out, color 200ms ease-out' }}
+    >
       <ScrollProgress />
       {!isAdminShell && (
         <Navbar mode={headerMode} dark={dark} onToggleTheme={toggleTheme} />
       )}
-      {children}
+      <div className="flex flex-1 flex-col">{children}</div>
       {!isAdminShell && <Footer />}
       <ChatWidget />
     </div>

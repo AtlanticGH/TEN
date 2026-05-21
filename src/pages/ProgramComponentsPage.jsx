@@ -147,9 +147,6 @@ export function ProgramComponentsPage() {
           <Link to="/resources" className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
             Explore Resources
           </Link>
-          <Link to="/community" className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
-            Visit Community
-          </Link>
         </div>
       </section>
     </main>

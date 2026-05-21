@@ -56,7 +56,7 @@ function playNotification() {
 function getAIReply(input) {
   const value = input.toLowerCase()
   if (value.includes('hello') || value.includes('hi')) return 'Hello! Welcome to The Ember Network.'
-  if (value.includes('join') || value.includes('membership')) return 'You can join from the Join Community page. We will review your application and onboard you.'
+  if (value.includes('join') || value.includes('membership')) return 'You can apply from the Apply page. We will review your application and onboard you.'
   if (value.includes('program')) return 'Explore the Programs page for modules and the Program Components page for the full breakdown.'
   if (value.includes('idea')) return 'Start by defining one urgent problem, validate with real users, and iterate quickly with mentor feedback.'
   if (value.includes('help')) return "I can help with joining the network, programs, and startup guidance. Ask me anything."
@@ -81,7 +81,7 @@ export function ChatWidget() {
   const widgetRef = useRef(null)
   const messagesRef = useRef(null)
 
-  const quickReplies = useMemo(() => ['Join Network', 'Get Help', 'See Programs'], [])
+  const quickReplies = useMemo(() => ['Apply', 'Get Help', 'See Programs'], [])
   const [open, setOpen] = useState(() => localStorage.getItem(storageKeys.chatOpen) === '1')
   const [soundOn, setSoundOn] = useState(() => localStorage.getItem(storageKeys.chatSound) !== 'off')
   const [value, setValue] = useState('')

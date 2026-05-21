@@ -265,7 +265,7 @@ export function HomePage() {
           {[
             { num: '01', title: 'Understand Your Stage', body: 'Share your current stage and goals so we can align the right mentorship structure.' },
             { num: '02', title: 'Join Guided Programs',  body: 'Access practical tracks, weekly accountability, and mentor-led growth sessions.' },
-            { num: '03', title: 'Build With Community',  body: 'Grow alongside founders, experts, and peers focused on meaningful impact.' },
+            { num: '03', title: 'Build With the Network',  body: 'Grow alongside founders, experts, and peers focused on meaningful impact.' },
           ].map(({ num, title, body }) => (
             <Reveal
               key={num}
@@ -303,7 +303,7 @@ export function HomePage() {
         id="highlights-ticker"
         data-section="highlights-ticker"
         className="overflow-hidden border-y border-zinc-200 bg-zinc-50 py-4 dark:border-zinc-800 dark:bg-zinc-900/50"
-        aria-label="Community highlights"
+        aria-label="Network highlights"
       >
         <div className="animate-marquee whitespace-nowrap text-sm font-medium text-zinc-500/80 dark:text-zinc-400/70">
           {[
