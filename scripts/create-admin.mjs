@@ -41,18 +41,41 @@ const supabase = createClient(url, serviceKey, {
 
 const { data: existing } = await supabase.from('profiles').select('user_id,email,role').eq('email', email).maybeSingle()
 if (existing?.user_id) {
-  const { error: upErr } = await supabase
+  let role = 'super_admin'
+  let { error: upErr } = await supabase
     .from('profiles')
-    .update({ role: 'super_admin', status: 'active', full_name: fullName })
+    .update({ role, status: 'active', full_name: fullName })
     .eq('user_id', existing.user_id)
+  if (upErr?.message?.includes('profiles_role_check')) {
+    role = 'admin'
+    ;({ error: upErr } = await supabase
+      .from('profiles')
+      .update({ role, status: 'active', full_name: fullName })
+      .eq('user_id', existing.user_id))
+  }
   if (upErr) {
     console.error('Profile update failed:', upErr.message)
     process.exit(1)
   }
-  console.log(`Promoted existing user to super_admin: ${email}`)
+  console.log(`Promoted existing user to ${role}: ${email}`)
   console.log('Login at http://localhost:5173/login → http://localhost:5173/admin/dashboard')
   process.exit(0)
 }
+
+async function findAuthUserByEmail(targetEmail) {
+  let page = 1
+  const perPage = 200
+  while (true) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage })
+    if (error) return { user: null, error }
+    const user = data.users.find((u) => u.email?.toLowerCase() === targetEmail)
+    if (user) return { user, error: null }
+    if (data.users.length < perPage) return { user: null, error: null }
+    page += 1
+  }
+}
+
+let userId
 
 const { data: created, error: createErr } = await supabase.auth.admin.createUser({
   email,
@@ -61,30 +84,51 @@ const { data: created, error: createErr } = await supabase.auth.admin.createUser
   user_metadata: { full_name: fullName },
 })
 if (createErr) {
-  console.error('Create user failed:', createErr.message)
-  process.exit(1)
+  const alreadyRegistered =
+    createErr.message?.includes('already been registered') ||
+    createErr.message?.includes('already registered')
+  if (!alreadyRegistered) {
+    console.error('Create user failed:', createErr.message)
+    process.exit(1)
+  }
+  const { user, error: findErr } = await findAuthUserByEmail(email)
+  if (findErr || !user?.id) {
+    console.error('User exists in Auth but could not be loaded:', findErr?.message || 'not found')
+    process.exit(1)
+  }
+  userId = user.id
+  const { error: pwdErr } = await supabase.auth.admin.updateUserById(userId, { password })
+  if (pwdErr) console.warn('Note: could not update password:', pwdErr.message)
+  console.log(`Auth user already exists; linking profile for ${email}`)
+} else {
+  userId = created.user?.id
+  if (!userId) {
+    console.error('No user id returned')
+    process.exit(1)
+  }
 }
 
-const userId = created.user?.id
-if (!userId) {
-  console.error('No user id returned')
-  process.exit(1)
+const profileRow = {
+  user_id: userId,
+  email,
+  full_name: fullName,
+  status: 'active',
 }
 
-const { error: profErr } = await supabase.from('profiles').upsert(
-  {
-    user_id: userId,
-    email,
-    full_name: fullName,
-    role: 'super_admin',
-    status: 'active',
-  },
-  { onConflict: 'user_id' },
-)
+async function upsertProfile(role) {
+  return supabase.from('profiles').upsert({ ...profileRow, role }, { onConflict: 'user_id' })
+}
+
+let { error: profErr } = await upsertProfile('super_admin')
+if (profErr?.message?.includes('profiles_role_check')) {
+  console.warn('Database role constraint is legacy — using admin. Run: supabase db push')
+  ;({ error: profErr } = await upsertProfile('admin'))
+}
 if (profErr) {
   console.error('Profile upsert failed:', profErr.message)
   process.exit(1)
 }
 
-console.log(`Created super_admin: ${email}`)
+const { data: saved } = await supabase.from('profiles').select('role').eq('user_id', userId).single()
+console.log(`Created ${saved?.role ?? 'admin'}: ${email}`)
 console.log('Login at http://localhost:5173/login → http://localhost:5173/admin/dashboard')
