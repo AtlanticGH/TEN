@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { createMentorCourse, listMentorCourses, updateMentorCourse } from '@/services/mentor'
 import {
   WorkspaceAlert,
@@ -11,6 +11,7 @@ import {
 } from '@/components/workspace/WorkspaceChrome'
 
 export function MentorCoursesPage() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [items, setItems] = useState([])
@@ -96,7 +97,7 @@ export function MentorCoursesPage() {
                   published: false,
                 })
                 if (created?.id) {
-                  window.location.assign(`/mentor/courses/${created.id}`)
+                  navigate(`/mentor/courses/${created.id}`)
                   return
                 }
                 await refresh()
