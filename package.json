@@ -11,7 +11,13 @@
     "lint": "eslint .",
     "repo:doctor": "node scripts/repo-doctor.mjs",
     "preview": "vite preview",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "supabase:login": "supabase login",
+    "supabase:link": "supabase link --project-ref vawqdpalwuoyqntseqni",
+    "supabase:pull": "supabase db pull --schema public,storage,auth",
+    "supabase:push": "supabase db push",
+    "supabase:push:dry-run": "supabase db push --dry-run",
+    "supabase:seed": "supabase db seed"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",

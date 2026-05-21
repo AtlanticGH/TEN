@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 export async function signUpWithEmail({ email, password, fullName }) {
   // Public signup is intentionally disabled. Accounts are created only after an approved application.
@@ -10,25 +10,25 @@ export async function signUpWithEmail({ email, password, fullName }) {
 }
 
 export async function signInWithEmail({ email, password }) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await getSupabase().auth.signInWithPassword({ email, password })
   if (error) throw error
   return data
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
+  const { error } = await getSupabase().auth.signOut()
   if (error) throw error
 }
 
 export async function sendPasswordReset(email) {
   const redirectTo = `${window.location.origin}/reset-password`
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+  const { data, error } = await getSupabase().auth.resetPasswordForEmail(email, { redirectTo })
   if (error) throw error
   return data
 }
 
 export async function updateMyPassword(newPassword) {
-  const { data, error } = await supabase.auth.updateUser({
+  const { data, error } = await getSupabase().auth.updateUser({
     password: newPassword,
     data: { force_password_reset: false },
   })

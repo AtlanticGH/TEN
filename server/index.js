@@ -43,9 +43,6 @@ app.use(express.json({ limit: '2mb' }))
 
 const SUPABASE_URL = process.env.SUPABASE_URL || ''
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-const APP_MODE = String(process.env.APP_MODE || process.env.VITE_APP_MODE || '')
-  .trim()
-  .toLowerCase()
 
 const supabase =
   SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
@@ -54,27 +51,15 @@ const supabase =
       })
     : null
 
-const isDemoMode = APP_MODE === 'demo' && !supabase
-
 if (!supabase) {
-  if (isDemoMode) {
-    // eslint-disable-next-line no-console
-    console.log('[server] APP_MODE=demo — public API stubs active (no Supabase)')
-  } else {
-    // Don’t crash import-time in tooling, but do fail at request-time.
-    // eslint-disable-next-line no-console
-    console.warn('[server] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
-  }
+  // eslint-disable-next-line no-console
+  console.warn('[server] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
 }
 
-/** Respond when Supabase is unavailable; demo mode returns safe stubs. */
-function respondWithoutSupabase(res, demoBody) {
-  if (isDemoMode) {
-    res.json(demoBody)
-    return true
-  }
+function requireSupabase(res) {
+  if (supabase) return true
   res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
-  return true
+  return false
 }
 
 async function verifyUser(req, res, next) {
@@ -299,7 +284,7 @@ app.get('/api/courses', verifyUser, async (_req, res) => {
 
 app.get('/api/public/site-content/:key', async (req, res) => {
   try {
-    if (!supabase && respondWithoutSupabase(res, null)) return
+    if (!requireSupabase(res)) return
     const key = String(req.params.key || '')
     const { data, error } = await supabase.from('site_content').select('key,value,updated_at').eq('key', key).maybeSingle()
     if (error) throw error
@@ -311,7 +296,7 @@ app.get('/api/public/site-content/:key', async (req, res) => {
 
 app.get('/api/public/cms-content', async (req, res) => {
   try {
-    if (!supabase && respondWithoutSupabase(res, [])) return
+    if (!requireSupabase(res)) return
     const includeDrafts = String(req.query?.includeDrafts || '') === 'true'
     let q = supabase.from('cms_content').select('*').order('page_key').order('section_key')
     if (!includeDrafts) q = q.eq('published', true)
@@ -325,7 +310,7 @@ app.get('/api/public/cms-content', async (req, res) => {
 
 app.get('/api/public/resources', async (req, res) => {
   try {
-    if (!supabase && respondWithoutSupabase(res, [])) return
+    if (!requireSupabase(res)) return
     const limit = Math.max(1, Math.min(500, Number(req.query?.limit || 200)))
     const { data, error } = await supabase.from('resources').select('*').order('created_at', { ascending: false }).limit(limit)
     if (error) throw error
@@ -337,7 +322,7 @@ app.get('/api/public/resources', async (req, res) => {
 
 app.post('/api/public/contact', async (req, res) => {
   try {
-    if (!supabase && respondWithoutSupabase(res, { ok: true, demo: true })) return
+    if (!requireSupabase(res)) return
     const payload = req.body && typeof req.body === 'object' ? req.body : {}
     const row = {
       name: payload.name,
@@ -356,7 +341,7 @@ app.post('/api/public/contact', async (req, res) => {
 
 app.post('/api/public/applications', async (req, res) => {
   try {
-    if (!supabase && respondWithoutSupabase(res, { ok: true, demo: true })) return
+    if (!requireSupabase(res)) return
     const payload = req.body && typeof req.body === 'object' ? req.body : {}
     const row = {
       full_name: payload.full_name,
@@ -433,7 +418,7 @@ app.get('/api/public/storage/public-url', (req, res) => {
   try {
     const bucket = String(req.query?.bucket || 'public')
     const path = String(req.query?.path || '')
-    if (!SUPABASE_URL && respondWithoutSupabase(res, { publicUrl: '' })) return
+    if (!requireSupabase(res)) return
     if (!path) return res.status(400).json({ error: 'Missing path' })
     res.json({ publicUrl: publicObjectUrl(bucket, path) })
   } catch (err) {

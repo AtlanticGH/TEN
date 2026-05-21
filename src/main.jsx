@@ -42,6 +42,8 @@ import {
   ResourcesPage,
 } from './router/lazyPages'
 import { queryClient } from './lib/queryClient'
+import { supabaseIsConfigured } from './lib/supabaseClient'
+import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
 
 const memberCourseRoutes = [
   {
@@ -227,12 +229,16 @@ const router = createBrowserRouter([
   },
 ])
 
+const appTree = supabaseIsConfigured ? (
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
+) : (
+  <SupabaseConfigRequired />
+)
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{appTree}</QueryClientProvider>
   </StrictMode>,
 )

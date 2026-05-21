@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 import { queryClient } from '@/lib/queryClient'
 
 export function useRealtime() {
   useEffect(() => {
-    const channel = supabase
+    const channel = getSupabase()
       .channel('realtime-db')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
         queryClient.invalidateQueries({ queryKey: ['profile'] })
@@ -18,7 +18,7 @@ export function useRealtime() {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      getSupabase().removeChannel(channel)
     }
   }, [])
 }

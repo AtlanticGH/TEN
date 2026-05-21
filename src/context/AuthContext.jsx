@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getMyProfile } from '../services/db'
 import { AuthContext } from './AuthContextBase'
-import { flushQueuedApplications } from '../services/applications'
-import { supabase, supabaseIsConfigured } from '@/lib/supabaseClient'
+import { getSupabase, supabaseIsConfigured } from '@/lib/supabaseClient'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
@@ -36,7 +35,7 @@ export function AuthProvider({ children }) {
         return
       }
 
-      const { data, error } = await supabase.auth.getSession()
+      const { data, error } = await getSupabase().auth.getSession()
       if (ignore) return
       if (!error) {
         setSession(data.session || null)
@@ -46,14 +45,12 @@ export function AuthProvider({ children }) {
     }
 
     init()
-    // Public/offline intake sync (safe no-op if none queued)
-    flushQueuedApplications().catch(() => {})
 
     if (!supabaseIsConfigured) {
       return () => { ignore = true }
     }
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: sub } = getSupabase().auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       setUser(nextSession?.user || null)
     })

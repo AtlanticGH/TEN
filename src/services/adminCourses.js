@@ -1,7 +1,7 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 export async function listAdminCourses() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('courses')
     .select('*')
     .order('created_at', { ascending: false })
@@ -10,7 +10,7 @@ export async function listAdminCourses() {
 }
 
 export async function createCourse(payload) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('courses')
     .insert(payload)
     .select('*')
@@ -20,7 +20,7 @@ export async function createCourse(payload) {
 }
 
 export async function updateCourse(id, patch) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('courses')
     .update(patch)
     .eq('id', id)
@@ -31,7 +31,7 @@ export async function updateCourse(id, patch) {
 }
 
 export async function deleteCourse(id) {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('courses')
     .delete()
     .eq('id', id)

@@ -1,7 +1,7 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 export async function listAnnouncements() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('announcements')
     .select('*')
     .order('created_at', { ascending: false })
@@ -10,7 +10,7 @@ export async function listAnnouncements() {
 }
 
 export async function createAnnouncement(payload) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('announcements')
     .insert(payload)
     .select('*')
@@ -20,7 +20,7 @@ export async function createAnnouncement(payload) {
 }
 
 export async function publishAnnouncement(id) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('announcements')
     .update({ published_at: new Date().toISOString() })
     .eq('id', id)

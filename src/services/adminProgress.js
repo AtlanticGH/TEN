@@ -1,8 +1,8 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 import { apiUrl } from '@/lib/apiBase'
 
 async function getToken() {
-  const { data, error } = await supabase.auth.getSession()
+  const { data, error } = await getSupabase().auth.getSession()
   if (error) throw error
   const token = data?.session?.access_token
   if (!token) throw new Error('Not authenticated')

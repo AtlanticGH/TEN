@@ -69,9 +69,7 @@ export function ApplyPage() {
     setState({
       status: 'success',
       error: '',
-      notice: res?.queued
-        ? "You're offline. Your application was saved locally and will sync when you're back online."
-        : 'Application submitted successfully.',
+      notice: 'Application submitted successfully.',
     })
     setValues({ full_name: '', email: '', phone: '', address: '', interest_role: '', message: '' })
   }

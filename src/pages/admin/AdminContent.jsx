@@ -1,21 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { EMPTY_HOME_HERO } from '../../config/siteContentDefaults'
 import { getSiteContent, upsertSiteContent } from '../../services/siteContent'
 
 const HOME_HERO_KEY = 'home.hero.v1'
-
-const DEFAULT_HOME_HERO = {
-  badge: 'A COMMUNITY OF IGNITION & EMPOWERMENT',
-  headline_before: 'Small Sparks Ignite',
-  headline_emphasis: 'Big Dreams',
-  description:
-    'We help aspiring entrepreneurs and early-stage founders transform bold ideas into lasting ventures through mentorship, structured learning, and meaningful connections.',
-  cta_primary_label: 'Apply for Membership',
-  cta_primary_href: '/apply',
-  cta_secondary_label: 'Explore Story',
-  cta_secondary_href: '/about',
-  background_image:
-    'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1600&q=80',
-}
 
 function Field({ label, children, hint }) {
   return (
@@ -32,9 +19,9 @@ export function AdminContentPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [value, setValue] = useState(DEFAULT_HOME_HERO)
+  const [value, setValue] = useState(EMPTY_HOME_HERO)
 
-  const previewBg = useMemo(() => value.background_image || DEFAULT_HOME_HERO.background_image, [value.background_image])
+  const previewBg = useMemo(() => value.background_image, [value.background_image])
 
   useEffect(() => {
     let alive = true

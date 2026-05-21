@@ -43,15 +43,8 @@ export function ContactForm() {
     }
 
     try {
-      const result = await submitSubmission(payload)
-      if (result?.fallback) {
-        setStatus({
-          state: 'success',
-          message: "You're offline. Your message is saved locally and will sync when online.",
-        })
-      } else {
-        setStatus({ state: 'success', message: "Message sent successfully. We'll be in touch shortly." })
-      }
+      await submitSubmission(payload)
+      setStatus({ state: 'success', message: "Message sent successfully. We'll be in touch shortly." })
       setValues({ name: '', email: '', phone: '', subject: '', message: '' })
     } catch (err) {
       setStatus({

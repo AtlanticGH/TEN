@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 // Explicit column list — never use select('*') against profiles. Listing the
 // columns the client actually needs lets us tighten column-level GRANTs
@@ -16,7 +16,7 @@ const PROFILE_COLUMNS =
 export async function ensureProfile(user) {
   if (!user?.id) throw new Error('Missing user')
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('profiles')
     .select(PROFILE_COLUMNS)
     .eq('user_id', user.id)
@@ -29,7 +29,7 @@ export async function ensureProfile(user) {
 
   if (data) return data
 
-  const { data: inserted, error: insErr } = await supabase
+  const { data: inserted, error: insErr } = await getSupabase()
     .from('profiles')
     .insert({
       user_id: user.id,

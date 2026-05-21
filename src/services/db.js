@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/apiClient'
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 export async function getMyProfile() {
   return await apiFetch('/api/profile', { method: 'GET' })
@@ -14,7 +14,7 @@ export async function listCourses() {
 }
 
 export async function getCourse(courseId) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('courses')
     .select('*')
     .eq('id', courseId)
@@ -25,7 +25,7 @@ export async function getCourse(courseId) {
 }
 
 export async function listModules(courseId) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('modules')
     .select('*')
     .eq('course_id', courseId)
@@ -36,7 +36,7 @@ export async function listModules(courseId) {
 }
 
 export async function listLessons(moduleId) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('lessons')
     .select('*')
     .eq('module_id', moduleId)
@@ -46,7 +46,7 @@ export async function listLessons(moduleId) {
 }
 
 export async function getLesson(lessonId) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('lessons')
     .select('*, modules!inner(course_id)')
     .eq('id', lessonId)
@@ -56,7 +56,7 @@ export async function getLesson(lessonId) {
 }
 
 export async function listLessonFiles(lessonId) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('lesson_files')
     .select('*')
     .eq('lesson_id', lessonId)
@@ -67,12 +67,12 @@ export async function listLessonFiles(lessonId) {
 }
 
 export async function listMyLessonCompletionsForCourse(courseId) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
   // Find lessons for course by joining modules → lessons.
-  const { data: lessons, error: lessonsErr } = await supabase
+  const { data: lessons, error: lessonsErr } = await getSupabase()
     .from('lessons')
     .select('id, modules!inner(course_id)')
     .eq('modules.course_id', courseId)
@@ -81,7 +81,7 @@ export async function listMyLessonCompletionsForCourse(courseId) {
   const lessonIds = (lessons || []).map((l) => l.id)
   if (!lessonIds.length) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('lesson_completions')
     .select('*')
     .eq('user_id', user.id)
@@ -102,11 +102,11 @@ export async function uncompleteLesson(lessonId) {
 }
 
 export async function listMyEnrollments() {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('enrollments')
     .select('*')
     .eq('user_id', user.id)
@@ -117,11 +117,11 @@ export async function listMyEnrollments() {
 }
 
 export async function enrollInCourse(courseId) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) throw new Error('Not authenticated')
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('enrollments')
     .insert({ user_id: user.id, course_id: courseId })
     .select('*')
@@ -132,11 +132,11 @@ export async function enrollInCourse(courseId) {
 }
 
 export async function listMyCourseProgress() {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('course_progress')
     .select('*')
     .eq('user_id', user.id)
@@ -146,11 +146,11 @@ export async function listMyCourseProgress() {
 }
 
 export async function listMyModuleCompletionsForCourse(courseId) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
-  const { data: modules, error: modulesErr } = await supabase
+  const { data: modules, error: modulesErr } = await getSupabase()
     .from('modules')
     .select('id')
     .eq('course_id', courseId)
@@ -159,7 +159,7 @@ export async function listMyModuleCompletionsForCourse(courseId) {
   const moduleIds = (modules || []).map((m) => m.id)
   if (!moduleIds.length) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('module_completions')
     .select('*')
     .eq('user_id', user.id)
@@ -180,11 +180,11 @@ export async function uncompleteModule(moduleId) {
 }
 
 export async function listMyMilestones() {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('mentorship_milestones')
     .select('*')
     .eq('user_id', user.id)
@@ -195,11 +195,11 @@ export async function listMyMilestones() {
 }
 
 export async function listMyNotifications({ limit = 10 } = {}) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('notifications')
     .select('*')
     .eq('user_id', user.id)
@@ -211,11 +211,11 @@ export async function listMyNotifications({ limit = 10 } = {}) {
 }
 
 export async function markNotificationRead(notificationId) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) throw new Error('Not authenticated')
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('notifications')
     .update({ read_at: new Date().toISOString() })
     .eq('id', notificationId)
@@ -228,13 +228,13 @@ export async function markNotificationRead(notificationId) {
 }
 
 export async function listMyUpcomingSessions({ limit = 5 } = {}) {
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
+  const { data: { user }, error: userErr } = await getSupabase().auth.getUser()
   if (userErr) throw userErr
   if (!user) return []
 
   // Member sessions are those where they are an attendee.
   const now = new Date().toISOString()
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('session_attendees')
     .select('status, sessions(*)')
     .eq('user_id', user.id)

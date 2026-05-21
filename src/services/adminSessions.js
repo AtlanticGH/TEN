@@ -1,8 +1,8 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 export async function listSessions() {
   const now = new Date().toISOString()
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('sessions')
     .select('*')
     .gte('starts_at', now)
@@ -12,7 +12,7 @@ export async function listSessions() {
 }
 
 export async function createSession(payload) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('sessions')
     .insert(payload)
     .select('*')

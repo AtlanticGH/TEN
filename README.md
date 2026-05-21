@@ -15,8 +15,7 @@ npm install
 Create a local env file:
 
 - Copy `.env.example` → `.env` (or use `.env.local`)
-- For **local UI without Supabase**, set `APP_MODE=demo` and leave Supabase keys blank
-- For full features, configure:
+- Configure (required for all features):
   - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (client)
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server — secret)
   - (Optional) `SITE_URL`, `FRONTEND_ORIGIN` for invites and CORS
@@ -46,15 +45,22 @@ If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `V
 
 Forgot-password, invite, and recovery flows all redirect to `/reset-password` (not `/login`).
 
-## Supabase (optional)
+## Supabase
 
-Apply SQL in order under `supabase/`, then seed development users:
+**Project ref:** `vawqdpalwuoyqntseqni`
 
 ```bash
-node scripts/seed-dev-users.mjs
+supabase login
+npm run supabase:link
+npm run supabase:pull    # optional: snapshot remote baseline
+npm run supabase:push    # apply migrations
 ```
 
-Requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. See `supabase/SETUP.md`.
+Marketing copy is managed in **Admin → Website content** (not SQL seed files).  
+To remove legacy test accounts: `scripts/cleanup-demo-test-data.sql` (review before running).
+
+Set `VITE_SUPABASE_URL=https://vawqdpalwuoyqntseqni.supabase.co` and keys from the dashboard.  
+Full guide: `supabase/SETUP.md`. Verify SQL: `scripts/verify-supabase-schema.sql`.
 
 ## Documentation
 

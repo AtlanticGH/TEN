@@ -21,7 +21,7 @@ import { deleteLessonFile, listLessonFiles, uploadLessonFile } from '../../servi
 import { createAssignment, deleteAssignment, listAssignments } from '../../services/assignments'
 import { createQuizQuestion, deleteQuizQuestion, listQuizQuestions } from '../../services/quizzes'
 import { adminMarkComplete, adminMarkIncomplete } from '../../services/adminProgress'
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 function IconButton({ children, ...props }) {
   return (
@@ -849,7 +849,7 @@ export function AdminCourseEditorPage() {
                   setBusy('progress:bulk')
                   setError('')
                   try {
-                    const { data, error: uErr } = await supabase
+                    const { data, error: uErr } = await getSupabase()
                       .from('profiles')
                       .select('user_id')
                       .eq('email', targetUserEmail.trim())
@@ -886,7 +886,7 @@ export function AdminCourseEditorPage() {
                   setBusy('progress:bulk-incomplete')
                   setError('')
                   try {
-                    const { data, error: uErr } = await supabase
+                    const { data, error: uErr } = await getSupabase()
                       .from('profiles')
                       .select('user_id')
                       .eq('email', targetUserEmail.trim())
@@ -922,7 +922,7 @@ export function AdminCourseEditorPage() {
                 setBusy('progress:complete')
                 setError('')
                 try {
-                  const { data, error: uErr } = await supabase
+                  const { data, error: uErr } = await getSupabase()
                     .from('profiles')
                     .select('user_id')
                     .eq('email', targetUserEmail.trim())
@@ -948,7 +948,7 @@ export function AdminCourseEditorPage() {
                 setBusy('progress:incomplete')
                 setError('')
                 try {
-                  const { data, error: uErr } = await supabase
+                  const { data, error: uErr } = await getSupabase()
                     .from('profiles')
                     .select('user_id')
                     .eq('email', targetUserEmail.trim())

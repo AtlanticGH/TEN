@@ -1,6 +1,18 @@
 node_modules/
 dist/
+dist-ssr/
 .vite/
+*.local
 .DS_Store
+
+# Environment
 .env
-.env.*
+.env.local
+.env.production
+.env.staging
+.env.*.local
+
+# Supabase
+supabase/.branches
+supabase/.temp
+supabase/functions/.env

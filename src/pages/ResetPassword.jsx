@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { InnerPageHero } from '../components/shared/InnerPageHero'
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 import { updateMyPassword } from '../services/auth'
 
 function isRecoveryHash() {
@@ -28,13 +28,13 @@ export function ResetPasswordPage() {
     }
 
     const init = async () => {
-      await supabase.auth.getSession()
+      await getSupabase().auth.getSession()
       if (!ignore) setLoading(false)
     }
 
     init()
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: sub } = getSupabase().auth.onAuthStateChange((event, session) => {
       if (ignore) return
       if (event === 'PASSWORD_RECOVERY' && session) {
         setRecoveryReady(true)

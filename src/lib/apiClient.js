@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient'
+import { getSupabase } from '@/lib/supabaseClient'
 import { apiUrl } from '@/lib/apiBase'
 
 export async function publicApiFetch(path, init = {}) {
@@ -13,7 +13,7 @@ export async function publicApiFetch(path, init = {}) {
 }
 
 export async function apiFetch(path, init = {}) {
-  const { data, error } = await supabase.auth.getSession()
+  const { data, error } = await getSupabase().auth.getSession()
   if (error) throw error
 
   const token = data?.session?.access_token || ''

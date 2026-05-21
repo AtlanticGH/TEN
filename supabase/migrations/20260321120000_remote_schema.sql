@@ -1,0 +1,7 @@
+-- Remote schema baseline (placeholder)
+-- ---------------------------------------------------------------------------
+-- After: npx supabase login && supabase link --project-ref vawqdpalwuoyqntseqni
+-- Run:   npx supabase db pull --schema public,storage,auth
+-- This file will be replaced by the CLI with the live snapshot. Do not edit by hand.
+-- ---------------------------------------------------------------------------
+-- Until then, apply numbered migrations 20260321130101–06 via `supabase db push`.
