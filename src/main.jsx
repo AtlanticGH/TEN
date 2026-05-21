@@ -9,6 +9,7 @@ import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import { MentorRoute } from './components/auth/MentorRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
 
 import {
@@ -19,6 +20,7 @@ import {
   AdminContentPage,
   AdminCourseEditorPage,
   AdminGate,
+  AdminLayout,
   AdminLogsPage,
   AdminMediaPage,
   AdminMembersPage,
@@ -35,6 +37,12 @@ import {
   LessonPage,
   MemberActivityPage,
   MemberLayout,
+  MentorLayout,
+  MentorDashboardPage,
+  MentorStudentsPage,
+  MentorCoursesPage,
+  MentorCourseEditorPage,
+  MentorAssignmentsPage,
   ChangePasswordPage,
   PageFallback,
   ProfilePage,
@@ -175,6 +183,76 @@ const router = createBrowserRouter([
           ...memberCourseRoutes,
         ],
       },
+      {
+        path: 'mentor',
+        element: (
+          <ProtectedRoute>
+            <MentorRoute>
+              <PageFallback>
+                <MentorLayout />
+              </PageFallback>
+            </MentorRoute>
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <PageFallback>
+                <MentorDashboardPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'students',
+            element: (
+              <PageFallback>
+                <MentorStudentsPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'courses',
+            element: (
+              <PageFallback>
+                <MentorCoursesPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'courses/:courseId',
+            element: (
+              <PageFallback>
+                <MentorCourseEditorPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'assignments',
+            element: (
+              <PageFallback>
+                <MentorAssignmentsPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'profile',
+            element: (
+              <PageFallback>
+                <ProfilePage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'change-password',
+            element: (
+              <PageFallback>
+                <ChangePasswordPage />
+              </PageFallback>
+            ),
+          },
+        ],
+      },
       // /dashboard is now a real page (see above). Keep /member as the default authed area.
       { path: 'profile', element: <Navigate to="/member/profile" replace /> },
       { path: 'courses', element: <Navigate to="/member/courses" replace /> },
@@ -189,28 +267,37 @@ const router = createBrowserRouter([
         ),
         children: [
           { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-          { path: 'dashboard', element: <PageFallback><AdminOverviewPage /></PageFallback> },
-          { path: 'applications', element: <PageFallback><AdminApplicationsPage /></PageFallback> },
-          { path: 'users', element: <PageFallback><AdminMembersPage /></PageFallback> },
-          { path: 'courses', element: <PageFallback><AdminCoursesPage /></PageFallback> },
-          { path: 'courses/:courseId', element: <PageFallback><AdminCourseEditorPage /></PageFallback> },
-          { path: 'announcements', element: <PageFallback><AdminAnnouncementsPage /></PageFallback> },
-          { path: 'members', element: <Navigate to="/admin/users" replace /> },
-          { path: 'sessions', element: <PageFallback><AdminSessionsPage /></PageFallback> },
-          { path: 'content', element: <PageFallback><AdminContentPage /></PageFallback> },
-          { path: 'resources', element: <PageFallback><AdminResourcesPage /></PageFallback> },
-          { path: 'progress', element: <PageFallback><AdminMemberProgressPage /></PageFallback> },
-          { path: 'media', element: <PageFallback><AdminMediaPage /></PageFallback> },
-          { path: 'logs', element: <PageFallback><AdminLogsPage /></PageFallback> },
           {
-            path: 'settings',
             element: (
               <PageFallback>
-                <SuperAdminRoute>
-                  <AdminSettingsPage />
-                </SuperAdminRoute>
+                <AdminLayout />
               </PageFallback>
             ),
+            children: [
+              { path: 'dashboard', element: <PageFallback><AdminOverviewPage /></PageFallback> },
+              { path: 'applications', element: <PageFallback><AdminApplicationsPage /></PageFallback> },
+              { path: 'users', element: <PageFallback><AdminMembersPage /></PageFallback> },
+              { path: 'courses', element: <PageFallback><AdminCoursesPage /></PageFallback> },
+              { path: 'courses/:courseId', element: <PageFallback><AdminCourseEditorPage /></PageFallback> },
+              { path: 'announcements', element: <PageFallback><AdminAnnouncementsPage /></PageFallback> },
+              { path: 'members', element: <Navigate to="/admin/users" replace /> },
+              { path: 'sessions', element: <PageFallback><AdminSessionsPage /></PageFallback> },
+              { path: 'content', element: <PageFallback><AdminContentPage /></PageFallback> },
+              { path: 'resources', element: <PageFallback><AdminResourcesPage /></PageFallback> },
+              { path: 'progress', element: <PageFallback><AdminMemberProgressPage /></PageFallback> },
+              { path: 'media', element: <PageFallback><AdminMediaPage /></PageFallback> },
+              { path: 'logs', element: <PageFallback><AdminLogsPage /></PageFallback> },
+              {
+                path: 'settings',
+                element: (
+                  <PageFallback>
+                    <SuperAdminRoute>
+                      <AdminSettingsPage />
+                    </SuperAdminRoute>
+                  </PageFallback>
+                ),
+              },
+            ],
           },
         ],
       },

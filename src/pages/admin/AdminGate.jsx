@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../../components/layout/headerTokens'
+import { SITE_CARD } from '../../components/ui/siteDesignTokens'
 import { isMentorRole, isStaffRole } from '../../lib/rbac'
 import { getSupabase } from '@/lib/supabaseClient'
-import { AdminLayout } from './AdminLayout'
 import { AdminLoginPage } from './AdminLogin'
 
 export function AdminGate() {
@@ -19,7 +19,7 @@ export function AdminGate() {
   if (loading) {
     return (
       <div className={`${LAYOUT_CONTAINER} pb-16 ${SITE_HEADER_OFFSET}`}>
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className={`${SITE_CARD} p-6`}>
           <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export function AdminGate() {
     )
   }
 
-  if (isStaffRole(profile?.role)) return <AdminLayout />
+  if (isStaffRole(profile?.role)) return <Outlet />
 
   const next = encodeURIComponent(location.pathname + location.search + location.hash)
   return <Navigate to={`/login?next=${next}`} replace />

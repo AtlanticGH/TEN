@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DashboardLayout, DashboardNavLink } from '../../components/layout/DashboardLayout'
+import { MainDashboardLayout, DashboardNavLink } from '../../components/layout/MainDashboardLayout'
 import { useAuth } from '../../hooks/useAuth'
 import { isMentorRole } from '../../lib/rbac'
 
@@ -38,7 +38,7 @@ export function MentorLayout() {
   )
 
   return (
-    <DashboardLayout
+    <MainDashboardLayout
       workspaceLabel="Mentor"
       workspaceTitle="Mentor workspace"
       workspaceDescription="Manage courses, monitor mentees, and review assignment submissions."

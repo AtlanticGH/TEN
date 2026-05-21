@@ -1,4 +1,6 @@
 import { Suspense, lazy } from 'react'
+import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../components/layout/headerTokens'
+import { SITE_CARD, SITE_PAGE_BAND } from '../components/ui/siteDesignTokens'
 
 export const HomePage = lazy(() => import('../pages/HomePage').then((m) => ({ default: m.HomePage })))
 export const AboutPage = lazy(() => import('../pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -35,14 +37,25 @@ export const MemberLayout = lazy(() => import('../pages/member/MemberLayout').th
 export const MemberActivityPage = lazy(() => import('../pages/member/MemberActivityPage').then((m) => ({ default: m.MemberActivityPage })))
 export const ChangePasswordPage = lazy(() => import('../pages/member/ChangePasswordPage').then((m) => ({ default: m.ChangePasswordPage })))
 
+export const MentorLayout = lazy(() => import('../pages/mentor/MentorLayout').then((m) => ({ default: m.MentorLayout })))
+export const MentorDashboardPage = lazy(() => import('../pages/mentor/MentorDashboard').then((m) => ({ default: m.MentorDashboardPage })))
+export const MentorStudentsPage = lazy(() => import('../pages/mentor/MentorStudents').then((m) => ({ default: m.MentorStudentsPage })))
+export const MentorCoursesPage = lazy(() => import('../pages/mentor/MentorCourses').then((m) => ({ default: m.MentorCoursesPage })))
+export const MentorCourseEditorPage = lazy(() =>
+  import('../pages/mentor/MentorCourseEditor').then((m) => ({ default: m.MentorCourseEditorPage })),
+)
+export const MentorAssignmentsPage = lazy(() => import('../pages/mentor/MentorAssignments').then((m) => ({ default: m.MentorAssignmentsPage })))
+
 export function PageFallback({ children }) {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-7xl px-6 pb-16 pt-32 sm:px-8 md:px-12 lg:px-10">
-          <div className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-orange-500 dark:border-zinc-700 dark:border-t-orange-400" />
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>
+        <div className={[SITE_PAGE_BAND, SITE_HEADER_OFFSET, 'pb-16'].join(' ')}>
+          <div className={`${LAYOUT_CONTAINER} py-8`}>
+            <div className={`flex items-center gap-3 ${SITE_CARD} p-6`}>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-orange-500 dark:border-zinc-700 dark:border-t-orange-400" />
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading…</p>
+            </div>
           </div>
         </div>
       }

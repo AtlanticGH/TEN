@@ -1,4 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  ADMIN_INPUT_CLASS,
+  ADMIN_TEXTAREA_CLASS,
+  ADMIN_TABLE_CLASS,
+  adminFilterPillClass,
+  DashboardAlert,
+  DashboardEmpty,
+  DashboardInsetCard,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardSkeleton,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { approveApplication, rejectApplication, updateApplication, updateApplicationStatus, listApplications } from '../../services/admin'
 import { Dialog } from '../../components/ui/Dialog'
 
@@ -54,56 +67,37 @@ export function AdminApplicationsPage() {
   const decisionItem = useMemo(() => items.find((x) => x.id === decisionId) || null, [items, decisionId])
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Applications</p>
-          <h2 className="mt-2 text-2xl font-semibold">Review applicants</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-            Approve, reject, or waitlist. Approving creates an account and emails login credentials automatically.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-10 w-full rounded-full border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30 md:w-64"
-            placeholder="Search name, email, phone…"
-          />
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setFilter(s)}
-              className={[
-                'rounded-full px-4 py-2 text-sm font-semibold transition',
-                filter === s
-                  ? 'bg-orange-500 text-white'
-                  : 'border border-zinc-300 text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200',
-              ].join(' ')}
-            >
-              {s}
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Applications"
+        title="Review applicants"
+        description="Approve, reject, or waitlist. Approving creates an account and emails login credentials automatically."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className={`${ADMIN_INPUT_CLASS} md:w-64`}
+              placeholder="Search name, email, phone…"
+            />
+            {STATUSES.map((s) => (
+              <button key={s} type="button" onClick={() => setFilter(s)} className={adminFilterPillClass(filter === s)}>
+                {s}
+              </button>
+            ))}
+            <button type="button" onClick={() => refresh()} className={`${SITE_BTN_SECONDARY} !py-2`}>
+              Refresh
             </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => refresh()}
-            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {loading ? (
-        <div className="mt-6 text-sm text-zinc-600 dark:text-zinc-300">Loading…</div>
+        <DashboardSkeleton className="h-48" />
       ) : error ? (
-        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
+        <DashboardAlert message={error} onRetry={refresh} />
       ) : filtered.length ? (
-        <div className="mt-6 overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800">
+        <div className={ADMIN_TABLE_CLASS}>
           <div className="grid grid-cols-[1.2fr_1fr_0.8fr_1fr] gap-0 bg-zinc-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:bg-zinc-950/40">
             <div>Applicant</div>
             <div>Interest</div>
@@ -178,9 +172,7 @@ export function AdminApplicationsPage() {
           ))}
         </div>
       ) : (
-        <div className="mt-6 rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-          No applications in this status.
-        </div>
+        <DashboardEmpty>No applications in this status.</DashboardEmpty>
       )}
 
       <Dialog
@@ -221,23 +213,23 @@ export function AdminApplicationsPage() {
         {selected ? (
           <div className="space-y-5 text-left">
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
+              <DashboardInsetCard className="p-4">
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Contact</p>
                 <p className="mt-2 text-sm font-semibold">{selected.email}</p>
                 <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{selected.phone || '—'}</p>
-              </div>
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
+              </DashboardInsetCard>
+              <DashboardInsetCard className="p-4">
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Interest</p>
                 <p className="mt-2 text-sm font-semibold">{selected.interest_role || '—'}</p>
                 <p className="mt-1 text-xs text-zinc-500">Submitted: {selected.created_at ? new Date(selected.created_at).toLocaleString() : '—'}</p>
-              </div>
+              </DashboardInsetCard>
             </div>
 
             {selected.message ? (
-              <div className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950/30">
+              <DashboardInsetCard className="p-4">
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Message</p>
                 <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-200 whitespace-pre-wrap">{selected.message}</p>
-              </div>
+              </DashboardInsetCard>
             ) : null}
 
             <div>
@@ -245,7 +237,7 @@ export function AdminApplicationsPage() {
               <textarea
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
-                className="mt-2 min-h-28 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={`mt-2 min-h-28 ${ADMIN_TEXTAREA_CLASS}`}
                 placeholder="Add internal review notes…"
               />
             </div>
@@ -338,7 +330,7 @@ export function AdminApplicationsPage() {
           </div>
         ) : null}
       </Dialog>
-    </div>
+    </DashboardPage>
   )
 }
 

@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import {
+  DashboardAlert,
+  DashboardButton,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardSkeleton,
+} from '../../components/dashboard/DashboardChrome'
 import { Dialog } from '../../components/ui/Dialog'
 import {
   createLesson,
@@ -103,27 +110,34 @@ export function AdminCourseEditorPage() {
     return assets.filter((a) => String(a.title || a.path || '').toLowerCase().includes(q))
   }, [assets, assetQuery])
 
-  if (loading) return <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
-  if (error) return <p className="text-sm text-rose-700 dark:text-rose-200">{error}</p>
+  if (loading) {
+    return (
+      <DashboardPage>
+        <DashboardSkeleton className="h-8 w-64" />
+        <DashboardSkeleton className="h-96" />
+      </DashboardPage>
+    )
+  }
+  if (error) {
+    return (
+      <DashboardPage>
+        <DashboardAlert message={error} />
+      </DashboardPage>
+    )
+  }
   if (!course) return null
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Course Builder</p>
-          <h2 className="mt-2 text-2xl font-semibold">{course.title}</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-            {modules.length} modules • {totalLessons} lessons • {course.published ? 'Published' : 'Draft'}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            to="/admin/courses"
-            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-          >
-            Back to courses
-          </Link>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Course Builder"
+        title={course.title}
+        description={`${modules.length} modules • ${totalLessons} lessons • ${course.published ? 'Published' : 'Draft'}`}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <DashboardButton to="/admin/courses" variant="secondary">
+              Back to courses
+            </DashboardButton>
           <button
             type="button"
             onClick={() => {
@@ -144,8 +158,9 @@ export function AdminCourseEditorPage() {
           >
             View as member
           </button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
@@ -970,7 +985,7 @@ export function AdminCourseEditorPage() {
           </div>
         </div>
       </Dialog>
-    </div>
+    </DashboardPage>
   )
 }
 

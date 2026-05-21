@@ -16,6 +16,7 @@ Migrations apply in **filename timestamp** order. Do not insert `ALTER` before `
 | 010 | `20260321130110_ensure_extensions.sql` | Repair remotes that applied empty `20000` placeholder |
 | 011 | `20260321130112_mentor_workspace.sql` | Mentor courses ownership, assignment submissions, mentor RLS |
 | 012 | `20260321130113_schema_completeness.sql` | View grants, mentor read policies, storage buckets, realtime |
+| 013 | `20260321130114_fix_profiles_rls_recursion.sql` | `SECURITY DEFINER` `is_staff`/`is_admin`; fix profiles RLS recursion |
 
 Full architecture: `docs/DATABASE_ARCHITECTURE.md`
 

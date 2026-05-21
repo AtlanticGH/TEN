@@ -1,4 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  ADMIN_FIELD_LABEL,
+  DashboardAlert,
+  DashboardEmpty,
+  DashboardInsetCard,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardSkeleton,
+  DashboardSplit,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_PRIMARY, SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { createResource, deleteResource, listResources } from '../../services/resources'
 
 export function AdminResourcesPage() {
@@ -32,31 +43,23 @@ export function AdminResourcesPage() {
   const canCreate = useMemo(() => !!title.trim() && !!file && !busy, [title, file, busy])
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Resources</p>
-          <h2 className="mt-2 text-2xl font-semibold">Free downloads</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Upload PDFs/templates for the public Resources page.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => refresh()}
-          className="h-fit rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-        >
-          Refresh
-        </button>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Resources"
+        title="Free downloads"
+        description="Upload PDFs/templates for the public Resources page."
+        actions={
+          <button type="button" onClick={() => refresh()} className={`${SITE_BTN_SECONDARY} !py-2`}>
+            Refresh
+          </button>
+        }
+      />
 
-      {error ? (
-        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Upload resource</p>
+      <DashboardSplit className="lg:grid-cols-[0.9fr_1.1fr]">
+        <DashboardInsetCard>
+          <p className={ADMIN_FIELD_LABEL}>Upload resource</p>
           <form
             className="mt-4 space-y-3"
             onSubmit={async (e) => {
@@ -115,24 +118,20 @@ export function AdminResourcesPage() {
               />
               {file ? <p className="mt-2 text-xs text-zinc-500">Selected: {file.name}</p> : null}
             </label>
-            <button
-              type="submit"
-              disabled={!canCreate}
-              className="w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
-            >
+            <button type="submit" disabled={!canCreate} className={`w-full ${SITE_BTN_PRIMARY} disabled:opacity-60`}>
               {busy ? 'Uploading…' : 'Upload'}
             </button>
           </form>
-        </div>
+        </DashboardInsetCard>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Existing resources</p>
+          <p className={ADMIN_FIELD_LABEL}>Existing resources</p>
           {loading ? (
-            <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
+            <DashboardSkeleton className="mt-4 h-32" />
           ) : items.length ? (
             <div className="mt-4 space-y-3">
               {items.map((r) => (
-                <div key={r.id} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950/30">
+                <DashboardInsetCard key={r.id}>
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold">{r.title}</p>
@@ -170,17 +169,17 @@ export function AdminResourcesPage() {
                       Delete
                     </button>
                   </div>
-                </div>
+                </DashboardInsetCard>
               ))}
             </div>
           ) : (
-            <div className="mt-4 rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-              No resources yet.
+            <div className="mt-4">
+              <DashboardEmpty>No resources yet.</DashboardEmpty>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DashboardSplit>
+    </DashboardPage>
   )
 }
 

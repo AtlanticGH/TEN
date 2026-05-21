@@ -1,4 +1,14 @@
 import { useMemo, useState } from 'react'
+import {
+  ADMIN_INPUT_CLASS,
+  DashboardAlert,
+  DashboardEmpty,
+  DashboardInsetCard,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardPanel,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_PRIMARY } from '../../components/ui/siteDesignTokens'
 import { adminMarkComplete, adminMarkIncomplete } from '../../services/adminProgress'
 import { apiFetch } from '@/lib/apiClient'
 
@@ -86,16 +96,14 @@ export function AdminMemberProgressPage() {
   const [actorMap, setActorMap] = useState({})
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Member progress</p>
-          <h2 className="mt-2 text-2xl font-semibold">Completion overview</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Search a member to view course/module/lesson completion.</p>
-        </div>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Member progress"
+        title="Completion overview"
+        description="Search a member to view course/module/lesson completion."
+      />
 
-      <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+      <DashboardInsetCard>
         <form
           className="flex flex-col gap-3 md:flex-row md:items-center"
           onSubmit={(e) => {
@@ -106,26 +114,18 @@ export function AdminMemberProgressPage() {
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 w-full rounded-full border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30 md:flex-1"
+            className={`${ADMIN_INPUT_CLASS} md:flex-1`}
             placeholder="member email…"
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="h-11 rounded-full bg-orange-500 px-5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className={`${SITE_BTN_PRIMARY} disabled:opacity-60`}>
             {loading ? 'Loading…' : 'View progress'}
           </button>
         </form>
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-            {error}
-          </div>
-        ) : null}
-      </div>
+        {error ? <div className="mt-4"><DashboardAlert message={error} /></div> : null}
+      </DashboardInsetCard>
 
       {profile ? (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950/30">
+        <DashboardPanel>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-sm font-semibold">{profile.full_name || profile.email}</p>
@@ -136,7 +136,7 @@ export function AdminMemberProgressPage() {
               <Badge>{profile.role}</Badge>
             </div>
           </div>
-        </div>
+        </DashboardPanel>
       ) : null}
 
       {userId && enrollments.length ? (
@@ -147,7 +147,7 @@ export function AdminMemberProgressPage() {
             const cDone = courseDone.has(e.course_id)
             const cMeta = courseCompletionById.get(e.course_id) || null
             return (
-              <div key={e.id} className="rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/30">
+              <DashboardPanel key={e.id}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Course</p>
@@ -311,16 +311,14 @@ export function AdminMemberProgressPage() {
                     )
                   })}
                 </div>
-              </div>
+              </DashboardPanel>
             )
           })}
         </div>
       ) : userId && !loading ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-          No enrollments found for this user.
-        </div>
+        <DashboardEmpty>No enrollments found for this user.</DashboardEmpty>
       ) : null}
-    </div>
+    </DashboardPage>
   )
 }
 

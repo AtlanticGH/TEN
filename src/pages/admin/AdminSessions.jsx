@@ -1,4 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  ADMIN_FIELD_LABEL,
+  DashboardAlert,
+  DashboardEmpty,
+  DashboardInsetCard,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardSkeleton,
+  DashboardSplit,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_PRIMARY, SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { createSession, listSessions } from '../../services/adminSessions'
 
 export function AdminSessionsPage() {
@@ -36,30 +47,22 @@ export function AdminSessionsPage() {
   const update = (k) => (e) => setForm((v) => ({ ...v, [k]: e.target.value }))
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Sessions</p>
-          <h2 className="mt-2 text-2xl font-semibold">Mentorship sessions</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create upcoming sessions; attendees can be added next.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => refresh()}
-          className="h-fit rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-        >
-          Refresh
-        </button>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Sessions"
+        title="Mentorship sessions"
+        description="Create upcoming sessions; attendees can be added next."
+        actions={
+          <button type="button" onClick={() => refresh()} className={`${SITE_BTN_SECONDARY} !py-2`}>
+            Refresh
+          </button>
+        }
+      />
 
-      {error ? (
-        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+      <DashboardSplit className="lg:grid-cols-[0.9fr_1.1fr]">
+        <DashboardInsetCard>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Create session</p>
           <form
             className="mt-4 space-y-3"
@@ -127,24 +130,20 @@ export function AdminSessionsPage() {
                 className="mt-2 min-h-24 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
               />
             </label>
-            <button
-              type="submit"
-              disabled={!canCreate || busy}
-              className="w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
-            >
+            <button type="submit" disabled={!canCreate || busy} className={`w-full ${SITE_BTN_PRIMARY} disabled:opacity-60`}>
               {busy ? 'Creating…' : 'Create'}
             </button>
           </form>
-        </div>
+        </DashboardInsetCard>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Upcoming</p>
+          <p className={ADMIN_FIELD_LABEL}>Upcoming</p>
           {loading ? (
-            <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
+            <DashboardSkeleton className="mt-4 h-32" />
           ) : items.length ? (
             <div className="mt-4 space-y-3">
               {items.map((s) => (
-                <div key={s.id} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
+                <DashboardInsetCard key={s.id}>
                   <p className="text-sm font-semibold">{s.title}</p>
                   <p className="mt-1 text-xs text-zinc-500">{new Date(s.starts_at).toLocaleString()}</p>
                   {s.meeting_url ? (
@@ -153,17 +152,17 @@ export function AdminSessionsPage() {
                     </a>
                   ) : null}
                   {s.description ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{s.description}</p> : null}
-                </div>
+                </DashboardInsetCard>
               ))}
             </div>
           ) : (
-            <div className="mt-4 rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-              No sessions yet.
+            <div className="mt-4">
+              <DashboardEmpty>No sessions yet.</DashboardEmpty>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DashboardSplit>
+    </DashboardPage>
   )
 }
 

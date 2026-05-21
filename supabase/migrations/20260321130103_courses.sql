@@ -7,6 +7,8 @@ create or replace function public.is_admin()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1
@@ -21,6 +23,8 @@ create or replace function public.is_staff()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1
@@ -30,6 +34,11 @@ as $$
       and p.status = 'active'
   );
 $$;
+
+revoke all on function public.is_admin() from public;
+revoke all on function public.is_staff() from public;
+grant execute on function public.is_admin() to authenticated;
+grant execute on function public.is_staff() to authenticated;
 
 -- APPLICATIONS (public application intake)
 create table if not exists public.applications (

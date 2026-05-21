@@ -1,4 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  ADMIN_INPUT_CLASS,
+  DashboardAlert,
+  DashboardInsetCard,
+  DashboardNotice,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardPanel,
+  DashboardSkeleton,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { Dialog } from '../../components/ui/Dialog'
 import {
   deleteMediaAsset,
@@ -59,45 +70,30 @@ export function AdminMediaPage() {
   const [edit, setEdit] = useState({ title: '', alt: '', tags: '' })
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Media</p>
-          <h2 className="mt-2 text-2xl font-semibold">Media manager</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-            Upload images/PDFs/videos, edit metadata, and copy public URLs for use across the site.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-10 w-full rounded-full border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30 md:w-64"
-            placeholder="Search title/path/type…"
-          />
-          <button
-            type="button"
-            onClick={() => refresh()}
-            className="h-10 rounded-full border border-zinc-300 px-4 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Media"
+        title="Media manager"
+        description="Upload images/PDFs/videos, edit metadata, and copy public URLs for use across the site."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className={`${ADMIN_INPUT_CLASS} md:w-64`}
+              placeholder="Search title/path/type…"
+            />
+            <button type="button" onClick={() => refresh()} className={`${SITE_BTN_SECONDARY} !py-2`}>
+              Refresh
+            </button>
+          </div>
+        }
+      />
 
-      {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
+      <DashboardNotice message={notice} />
 
-      {notice ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
-          {notice}
-        </div>
-      ) : null}
-
-      <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+      <DashboardPanel>
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Upload</p>
         <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <input
@@ -126,12 +122,11 @@ export function AdminMediaPage() {
             Bucket: <span className="font-semibold">public</span>
           </p>
         </div>
-      </div>
 
       {loading ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
+        <DashboardSkeleton className="mt-6 h-40" />
       ) : filtered.length ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => {
             const url = getPublicAssetUrl({ bucket: a.bucket, path: a.path })
             const isImage = String(a.mime_type || '').startsWith('image/')
@@ -291,7 +286,8 @@ export function AdminMediaPage() {
           </div>
         ) : null}
       </Dialog>
-    </div>
+    </DashboardPanel>
+    </DashboardPage>
   )
 }
 

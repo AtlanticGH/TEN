@@ -269,3 +269,33 @@ export function DashboardMetricTile({ label, value, className = '' }) {
 export function DashboardInsetCard({ children, className = '' }) {
   return <div className={[SITE_CARD_COMPACT, className].join(' ')}>{children}</div>
 }
+
+/** Admin form controls — match marketing site inputs */
+export const ADMIN_INPUT_CLASS =
+  'h-10 w-full rounded-full border border-zinc-300 bg-white px-4 text-sm outline-none transition focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30'
+
+export const ADMIN_TEXTAREA_CLASS =
+  'w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30'
+
+export const ADMIN_FIELD_LABEL = 'text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500'
+
+export const ADMIN_TABLE_CLASS =
+  'overflow-x-auto overflow-hidden rounded-2xl border border-zinc-200/80 ring-1 ring-zinc-100/50 dark:border-zinc-800 dark:ring-zinc-800/50'
+
+export const ADMIN_TABLE_HEAD_CLASS =
+  'border-b border-zinc-200 bg-zinc-50 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/40'
+
+export function adminFilterPillClass(active) {
+  return active
+    ? 'rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-glow-sm transition-all duration-200 ease-out'
+    : `${SITE_BTN_SECONDARY} !py-2`
+}
+
+export function DashboardNotice({ message, tone = 'success' }) {
+  if (!message) return null
+  const toneClass =
+    tone === 'error'
+      ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200'
+      : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200'
+  return <div className={['rounded-2xl border p-4 text-sm', toneClass].join(' ')}>{message}</div>
+}

@@ -1,4 +1,15 @@
 import { useEffect, useState } from 'react'
+import {
+  ADMIN_FIELD_LABEL,
+  ADMIN_TEXTAREA_CLASS,
+  DashboardAlert,
+  DashboardNotice,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardPanel,
+  DashboardSkeleton,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_PRIMARY } from '../../components/ui/siteDesignTokens'
 import { getSiteContent, upsertSiteContent } from '../../services/siteContent'
 
 const SETTINGS_KEY = 'admin.settings.v1'
@@ -35,65 +46,72 @@ export function AdminSettingsPage() {
     }
   }, [])
 
-  if (loading) return <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
+  if (loading) {
+    return (
+      <DashboardPage>
+        <DashboardSkeleton className="h-8 w-48" />
+        <DashboardSkeleton className="h-64 max-w-xl" />
+      </DashboardPage>
+    )
+  }
 
   return (
-    <div>
-      <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Settings</p>
-      <h2 className="mt-2 text-2xl font-semibold">Branding & contact</h2>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Stored in `site_content` (key `{SETTINGS_KEY}`). Extend with email templates and feature flags.</p>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Settings"
+        title="Branding & contact"
+        description={`Stored in site_content (key ${SETTINGS_KEY}). Extend with email templates and feature flags.`}
+      />
 
-      {error ? <p className="mt-4 text-sm text-rose-700 dark:text-rose-200">{error}</p> : null}
-      {notice ? <p className="mt-4 text-sm text-emerald-700 dark:text-emerald-200">{notice}</p> : null}
+      {error ? <DashboardAlert message={error} /> : null}
+      <DashboardNotice message={notice} />
 
-      <form
-        className="mt-6 max-w-xl space-y-4"
-        onSubmit={async (e) => {
-          e.preventDefault()
-          setSaving(true)
-          setError('')
-          setNotice('')
-          try {
-            await upsertSiteContent({
-              key: SETTINGS_KEY,
-              value: {
-                orgName: orgName.trim(),
-                supportEmail: supportEmail.trim(),
-              },
-            })
-            setNotice('Settings saved.')
-          } catch (err) {
-            setError(err?.message || 'Unable to save.')
-          } finally {
-            setSaving(false)
-          }
-        }}
-      >
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Organization name</label>
-          <input
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-            className="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Support email</label>
-          <input
-            type="email"
-            value={supportEmail}
-            onChange={(e) => setSupportEmail(e.target.value)}
-            className="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
+      <DashboardPanel className="max-w-xl">
+        <form
+          className="space-y-4"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            setSaving(true)
+            setError('')
+            setNotice('')
+            try {
+              await upsertSiteContent({
+                key: SETTINGS_KEY,
+                value: {
+                  orgName: orgName.trim(),
+                  supportEmail: supportEmail.trim(),
+                },
+              })
+              setNotice('Settings saved.')
+            } catch (err) {
+              setError(err?.message || 'Unable to save.')
+            } finally {
+              setSaving(false)
+            }
+          }}
         >
-          {saving ? 'Saving…' : 'Save settings'}
-        </button>
-      </form>
-    </div>
+          <div>
+            <label className={`block ${ADMIN_FIELD_LABEL}`}>Organization name</label>
+            <input
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              className={`mt-2 ${ADMIN_TEXTAREA_CLASS}`}
+            />
+          </div>
+          <div>
+            <label className={`block ${ADMIN_FIELD_LABEL}`}>Support email</label>
+            <input
+              type="email"
+              value={supportEmail}
+              onChange={(e) => setSupportEmail(e.target.value)}
+              className={`mt-2 ${ADMIN_TEXTAREA_CLASS}`}
+            />
+          </div>
+          <button type="submit" disabled={saving} className={`${SITE_BTN_PRIMARY} disabled:opacity-60`}>
+            {saving ? 'Saving…' : 'Save settings'}
+          </button>
+        </form>
+      </DashboardPanel>
+    </DashboardPage>
   )
 }

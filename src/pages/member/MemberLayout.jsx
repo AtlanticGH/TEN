@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DashboardLayout, DashboardNavLink } from '../../components/layout/DashboardLayout'
+import { MainDashboardLayout, DashboardNavLink } from '../../components/layout/MainDashboardLayout'
 import { useAuth } from '../../hooks/useAuth'
 import { isMentorRole } from '../../lib/rbac'
 
@@ -35,7 +35,7 @@ export function MemberLayout() {
   )
 
   return (
-    <DashboardLayout
+    <MainDashboardLayout
       workspaceLabel="Student"
       workspaceTitle="Your learning dashboard"
       workspaceDescription="Track enrolled programs, mentorship sessions, and your latest activity in one place."

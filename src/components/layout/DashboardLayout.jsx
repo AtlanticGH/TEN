@@ -26,8 +26,8 @@ export function DashboardNavLink({ to, end, children, onNavigate }) {
 }
 
 /**
- * Shared dashboard shell aligned with Admin layout:
- * site header/footer (via MainLayout) + workspace banner + 280px sidebar + fixed content panel.
+ * Workspace shell: banner + 280px sidebar + content outlet.
+ * Re-exported as MainDashboardLayout. Site header/footer come from MainLayout.
  */
 export function DashboardLayout({
   workspaceLabel,
@@ -44,6 +44,7 @@ export function DashboardLayout({
     <main
       id="page-main"
       data-component="page-main"
+      data-dashboard="workspace"
       className={[DASHBOARD_PAGE_BG, 'pb-16', SITE_HEADER_OFFSET].join(' ')}
     >
       <div className={`${LAYOUT_CONTAINER} py-8`}>

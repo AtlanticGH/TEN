@@ -1,5 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  ADMIN_FIELD_LABEL,
+  DashboardAlert,
+  DashboardEmpty,
+  DashboardInsetCard,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardSkeleton,
+  DashboardSplit,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_PRIMARY, SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { createCourse, deleteCourse, listAdminCourses, updateCourse } from '../../services/adminCourses'
 
 export function AdminCoursesPage() {
@@ -40,31 +51,23 @@ export function AdminCoursesPage() {
   const update = (k) => (e) => setForm((v) => ({ ...v, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Courses</p>
-          <h2 className="mt-2 text-2xl font-semibold">Manage courses</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create and maintain learning tracks.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => refresh()}
-          className="h-fit rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-        >
-          Refresh
-        </button>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Courses"
+        title="Manage courses"
+        description="Create and maintain learning tracks."
+        actions={
+          <button type="button" onClick={() => refresh()} className={`${SITE_BTN_SECONDARY} !py-2`}>
+            Refresh
+          </button>
+        }
+      />
 
-      {error ? (
-        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Create new course</p>
+      <DashboardSplit className="lg:grid-cols-[0.9fr_1.1fr]">
+        <DashboardInsetCard>
+          <p className={ADMIN_FIELD_LABEL}>Create new course</p>
           <form
             className="mt-4 space-y-3"
             onSubmit={async (e) => {
@@ -169,17 +172,17 @@ export function AdminCoursesPage() {
             <button
               type="submit"
               disabled={!canCreate || busyId === 'create'}
-              className="w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60"
+              className={`w-full ${SITE_BTN_PRIMARY} disabled:opacity-60`}
             >
               {busyId === 'create' ? 'Creating…' : 'Create course'}
             </button>
           </form>
-        </div>
+        </DashboardInsetCard>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Existing courses</p>
+          <p className={ADMIN_FIELD_LABEL}>Existing courses</p>
           {loading ? (
-            <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
+            <DashboardSkeleton className="mt-4 h-32" />
           ) : items.length ? (
             <div className="mt-4 space-y-3">
               {items.map((c) => (
@@ -194,13 +197,13 @@ export function AdminCoursesPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-4 rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
-              No courses yet.
+            <div className="mt-4">
+              <DashboardEmpty>No courses yet.</DashboardEmpty>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DashboardSplit>
+    </DashboardPage>
   )
 }
 

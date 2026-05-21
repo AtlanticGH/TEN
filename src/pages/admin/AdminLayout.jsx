@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { DashboardLayout, DashboardNavLink } from '../../components/layout/DashboardLayout'
+import { MainDashboardLayout, DashboardNavLink } from '../../components/layout/MainDashboardLayout'
 import { SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { useAuth } from '../../hooks/useAuth'
 import { signOut } from '../../services/auth'
@@ -50,7 +50,7 @@ export function AdminLayout() {
   )
 
   return (
-    <DashboardLayout
+    <MainDashboardLayout
       workspaceLabel="Admin"
       workspaceTitle="Platform management"
       workspaceDescription="Applications, members, structured content, and operations — optimized for responsive SaaS workflows."

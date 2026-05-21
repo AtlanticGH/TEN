@@ -1,5 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import {
+  ADMIN_FIELD_LABEL,
+  ADMIN_TEXTAREA_CLASS,
+  DashboardAlert,
+  DashboardNotice,
+  DashboardPage,
+  DashboardPageIntro,
+  DashboardPanel,
+  DashboardSkeleton,
+  DashboardSplit,
+} from '../../components/dashboard/DashboardChrome'
+import { SITE_BTN_PRIMARY } from '../../components/ui/siteDesignTokens'
 import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO, HOME_HERO_KEY } from '../../config/siteContentDefaults'
 import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
 import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
@@ -7,7 +19,7 @@ import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
 function Field({ label, children, hint }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{label}</span>
+      <span className={ADMIN_FIELD_LABEL}>{label}</span>
       <div className="mt-2">{children}</div>
       {hint ? <p className="mt-2 text-xs text-zinc-500">{hint}</p> : null}
     </label>
@@ -48,31 +60,27 @@ export function AdminContentPage() {
     }
   }, [])
 
-  if (loading) return <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading…</p>
+  if (loading) {
+    return (
+      <DashboardPage>
+        <DashboardSkeleton className="h-8 w-48" />
+        <DashboardSkeleton className="h-96" />
+      </DashboardPage>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Content CMS</p>
-        <h2 className="mt-2 text-2xl font-semibold">Website content</h2>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-          Edit public site copy without deploying code. Changes apply immediately.
-        </p>
-      </div>
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Content CMS"
+        title="Website content"
+        description="Edit public site copy without deploying code. Changes apply immediately."
+      />
 
-      {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
-        </div>
-      ) : null}
+      {error ? <DashboardAlert message={error} /> : null}
+      <DashboardNotice message={notice} />
 
-      {notice ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
-          {notice}
-        </div>
-      ) : null}
-
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+      <DashboardSplit className="lg:grid-cols-[1fr_0.9fr]">
         <form
           className="space-y-4"
           onSubmit={async (e) => {
@@ -166,17 +174,13 @@ export function AdminContentPage() {
             </Field>
           </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex w-full justify-center rounded-full bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-400 disabled:opacity-60"
-          >
+          <button type="submit" disabled={saving} className={`w-full ${SITE_BTN_PRIMARY} disabled:opacity-60`}>
             {saving ? 'Saving…' : 'Save changes'}
           </button>
         </form>
 
-        <aside className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Preview</p>
+        <DashboardPanel className="lg:sticky lg:top-24 lg:self-start">
+          <p className={ADMIN_FIELD_LABEL}>Preview</p>
           <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800">
             <div
               className="relative h-56 bg-cover bg-center"
@@ -200,9 +204,9 @@ export function AdminContentPage() {
           <p className="mt-3 text-xs text-zinc-500">
             This is a lightweight preview. Check the real homepage after saving.
           </p>
-        </aside>
-      </div>
-    </div>
+        </DashboardPanel>
+      </DashboardSplit>
+    </DashboardPage>
   )
 }
 
