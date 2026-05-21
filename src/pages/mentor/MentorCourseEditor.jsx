@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Dialog } from '@/components/ui/Dialog'
+import { listAssignments } from '@/services/assignments'
+import { createMentorAssignment, deleteMentorAssignment } from '@/services/mentorAssignments'
 import {
   createMentorLesson,
   createMentorModule,
@@ -40,6 +42,9 @@ export function MentorCourseEditorPage() {
   const [moduleForm, setModuleForm] = useState({ title: '', description: '' })
   const [contentLesson, setContentLesson] = useState(null)
   const [sectionsDraft, setSectionsDraft] = useState([])
+  const [assignmentLesson, setAssignmentLesson] = useState(null)
+  const [assignments, setAssignments] = useState([])
+  const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', file: null })
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -99,7 +104,7 @@ export function MentorCourseEditorPage() {
       ) : null}
 
       <p className="text-sm text-zinc-600 dark:text-zinc-300">
-        Add modules and lessons here. For assignments, quizzes, or file uploads, contact staff in the admin course editor.
+        Add modules, lessons, content blocks, and assignments. Quizzes and lesson file libraries remain in the admin editor.
       </p>
 
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
@@ -165,6 +170,17 @@ export function MentorCourseEditorPage() {
                   setContentLesson(lesson)
                   setSectionsDraft(Array.isArray(lesson?.content?.sections) ? lesson.content.sections : [])
                 }}
+                onEditAssignments={async (lesson) => {
+                  setError('')
+                  setAssignmentLesson(lesson)
+                  setAssignmentForm({ title: '', description: '', file: null })
+                  try {
+                    setAssignments(await listAssignments(lesson.id))
+                  } catch (err) {
+                    setAssignments([])
+                    setError(err?.message || 'Unable to load assignments.')
+                  }
+                }}
                 onMoveModule={async (dir) => {
                   const next = modules.slice()
                   const j = dir === 'up' ? idx - 1 : idx + 1
@@ -189,6 +205,112 @@ export function MentorCourseEditorPage() {
           )}
         </div>
       </div>
+
+      <Dialog
+        open={!!assignmentLesson}
+        onClose={() => setAssignmentLesson(null)}
+        title={assignmentLesson ? `Assignments: ${assignmentLesson.title}` : 'Assignments'}
+      >
+        {assignmentLesson ? (
+          <div className="space-y-4">
+            <form
+              className="space-y-2"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!assignmentForm.title.trim()) return
+                setBusy(`lesson:assignment:create:${assignmentLesson.id}`)
+                setError('')
+                try {
+                  await createMentorAssignment({
+                    lessonId: assignmentLesson.id,
+                    title: assignmentForm.title,
+                    description: assignmentForm.description,
+                    file: assignmentForm.file,
+                  })
+                  setAssignmentForm({ title: '', description: '', file: null })
+                  setAssignments(await listAssignments(assignmentLesson.id))
+                } catch (err) {
+                  setError(err?.message || 'Unable to create assignment.')
+                } finally {
+                  setBusy('')
+                }
+              }}
+            >
+              <input
+                value={assignmentForm.title}
+                onChange={(e) => setAssignmentForm((v) => ({ ...v, title: e.target.value }))}
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+                placeholder="Assignment title *"
+              />
+              <textarea
+                value={assignmentForm.description}
+                onChange={(e) => setAssignmentForm((v) => ({ ...v, description: e.target.value }))}
+                rows={3}
+                className="w-full rounded-xl border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950/30"
+                placeholder="Instructions (optional)"
+              />
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,.gif,application/pdf"
+                onChange={(e) => setAssignmentForm((v) => ({ ...v, file: e.target.files?.[0] || null }))}
+                className="block w-full text-sm"
+              />
+              <button
+                type="submit"
+                disabled={busy === `lesson:assignment:create:${assignmentLesson.id}`}
+                className="rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {busy === `lesson:assignment:create:${assignmentLesson.id}` ? 'Saving…' : 'Add assignment'}
+              </button>
+            </form>
+            {assignments.length ? (
+              <ul className="space-y-2">
+                {assignments.map((a) => (
+                  <li
+                    key={a.id}
+                    className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-zinc-200 p-3 dark:border-zinc-800"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold">{a.title}</p>
+                      {a.description ? <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{a.description}</p> : null}
+                      {a.download_url ? (
+                        <a
+                          href={a.download_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block text-sm font-semibold text-orange-600 dark:text-orange-300"
+                        >
+                          Open attachment
+                        </a>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      className="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white"
+                      onClick={async () => {
+                        if (!confirm('Delete this assignment?')) return
+                        setBusy(`lesson:assignment:delete:${a.id}`)
+                        try {
+                          await deleteMentorAssignment(a)
+                          setAssignments(await listAssignments(assignmentLesson.id))
+                        } catch (err) {
+                          setError(err?.message || 'Unable to delete assignment.')
+                        } finally {
+                          setBusy('')
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-zinc-500">No assignments yet.</p>
+            )}
+          </div>
+        ) : null}
+      </Dialog>
 
       <Dialog
         open={!!contentLesson}
@@ -253,7 +375,7 @@ export function MentorCourseEditorPage() {
   )
 }
 
-function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, onEditContent, onMoveModule }) {
+function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, onEditContent, onEditAssignments, onMoveModule }) {
   const [editing, setEditing] = useState(false)
   const [local, setLocal] = useState({ title: module.title || '', description: module.description || '' })
   const [lessonForm, setLessonForm] = useState({ title: '', description: '' })
@@ -391,6 +513,7 @@ function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, o
             onError={onError}
             onRefresh={onRefresh}
             onEditContent={() => onEditContent(l)}
+            onEditAssignments={() => onEditAssignments(l)}
             onMove={async (dir) => {
               const next = lessons.slice()
               const j = dir === 'up' ? i - 1 : i + 1
@@ -413,7 +536,7 @@ function MentorModuleCard({ module, lessons, busy, onBusy, onError, onRefresh, o
   )
 }
 
-function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditContent, onMove }) {
+function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditContent, onEditAssignments, onMove }) {
   const [editing, setEditing] = useState(false)
   const [local, setLocal] = useState({ title: lesson.title || '', description: lesson.description || '' })
   const isPublished = lesson.status === 'published'
@@ -464,6 +587,7 @@ function MentorLessonRow({ lesson, busy, onBusy, onError, onRefresh, onEditConte
           <>
             <IconButton onClick={() => setEditing(true)}>Edit</IconButton>
             <IconButton onClick={onEditContent}>Content</IconButton>
+            <IconButton onClick={onEditAssignments}>Assignments</IconButton>
             <button
               type="button"
               className={`rounded-full px-3 py-1 text-xs font-semibold text-white ${isPublished ? 'bg-zinc-700' : 'bg-emerald-600'}`}

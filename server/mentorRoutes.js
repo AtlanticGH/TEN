@@ -493,6 +493,51 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
     }
   })
 
+  app.post('/api/mentor/lessons/:lessonId/assignments', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const lessonId = String(req.params.lessonId || '')
+      if (!(await ownsLesson(req.user.id, lessonId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const p = req.body && typeof req.body === 'object' ? req.body : {}
+      const title = String(p.title || '').trim()
+      if (!title) return res.status(400).json({ error: 'Title is required' })
+      const { data, error } = await supabase
+        .from('assignments')
+        .insert({
+          lesson_id: lessonId,
+          title,
+          description: (p.description || '').trim() || null,
+          bucket: p.bucket || 'public',
+          path: p.path || null,
+          file_url: p.file_url || null,
+        })
+        .select('*')
+        .single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Create assignment error' })
+    }
+  })
+
+  app.delete('/api/mentor/assignments/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      const { data: row, error: getErr } = await supabase.from('assignments').select('*').eq('id', id).single()
+      if (getErr) throw getErr
+      if (!(await ownsLesson(req.user.id, row.lesson_id))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      if (row?.path) await supabase.storage.from(row.bucket || 'public').remove([row.path]).catch(() => {})
+      const { error } = await supabase.from('assignments').delete().eq('id', id)
+      if (error) throw error
+      res.json({ ok: true })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Delete assignment error' })
+    }
+  })
+
   // Student: submit / view own work
   app.get('/api/assignments/:assignmentId/my-submission', verifyUser, async (req, res) => {
     try {

@@ -45,7 +45,7 @@ Public sign-up is disabled; members join via **Apply** → admin approve → inv
 npm run bootstrap:mentor -- --email mentor@company.com --password "YourSecurePass1" --name "Mentor Name"
 ```
 
-Then in **Admin → Users**, assign each student’s **Mentor** field to that mentor’s user id. Mentors sign in at `/mentor` (overview, students, courses, assignment reviews).
+Then in **Admin → Users**, assign each student’s **Mentor** field to that mentor’s user id. Mentors sign in at `/mentor` (overview, students, courses with module/lesson/assignment builder, submission reviews).
 
 ```bash
 npm run setup:check   # verify env, tables, CMS hero, staff account, API
@@ -65,7 +65,7 @@ If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `V
 
 **Password reset / invite links land on a blank login page:** Supabase appends a one-time token in the URL hash. Add these to **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**:
 
-- `http://localhost:5173/reset-password` (local)
+- `http://localhost:5173/reset-password` (and 5174–5176 if Vite uses another port)
 - `https://<your-production-domain>/reset-password` (production)
 
 Forgot-password, invite, and recovery flows all redirect to `/reset-password` (not `/login`).
@@ -89,6 +89,7 @@ Full guide: `supabase/SETUP.md`. Verify SQL: `scripts/verify-supabase-schema.sql
 
 ## Documentation
 
+- `docs/DATABASE_ARCHITECTURE.md` — Supabase schema map (tables, RLS, storage)
 - `docs/VERCEL_DEPLOY.md` — Vercel env vars + production verify
 - `docs/PRODUCTION_AUDIT.md` — deployment and security checklist
 - `docs/CMS_ARCHITECTURE.md` — admin CMS architecture
