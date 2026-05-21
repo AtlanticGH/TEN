@@ -6,6 +6,8 @@ import {
   WorkspaceHeader,
   WorkspacePage,
   WorkspacePanel,
+  WorkspaceRow,
+  WorkspaceSplit,
   WorkspaceStatCard,
 } from '@/components/workspace/WorkspaceChrome'
 
@@ -45,7 +47,7 @@ export function MentorDashboardPage() {
 
       {isError ? <WorkspaceAlert message={error?.message || 'Unable to load mentor dashboard.'} onRetry={() => refetch()} /> : null}
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <WorkspaceRow className="sm:grid-cols-3">
         <WorkspaceStatCard
           label="Mentees"
           value={isLoading ? '…' : summary.mentees ?? 0}
@@ -64,9 +66,9 @@ export function MentorDashboardPage() {
           sublabel="Submissions awaiting approval"
           href="/mentor/assignments"
         />
-      </div>
+      </WorkspaceRow>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <WorkspaceSplit>
         <WorkspacePanel>
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">Your mentees</h2>
@@ -127,9 +129,9 @@ export function MentorDashboardPage() {
             <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">No pending submissions. Great work!</p>
           )}
         </WorkspacePanel>
-      </div>
+      </WorkspaceSplit>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex w-full flex-wrap gap-3">
         <Link
           to="/mentor/assignments"
           className="rounded-full border border-zinc-300 px-5 py-2.5 text-sm font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-200"

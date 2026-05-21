@@ -80,7 +80,7 @@ export function MentorAssignmentsPage() {
         description="Approve submissions or request revisions with feedback and a grade."
       />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex w-full flex-wrap gap-2">
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -101,7 +101,7 @@ export function MentorAssignmentsPage() {
       <WorkspaceAlert message={error} />
 
       <WorkspaceSplit>
-        <WorkspacePanel className="p-4 md:p-6">
+        <WorkspacePanel>
           {loading ? (
             <p className="text-sm text-zinc-500">Loading…</p>
           ) : items.length ? (

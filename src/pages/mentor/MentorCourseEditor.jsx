@@ -158,7 +158,7 @@ export function MentorCourseEditorPage() {
           </form>
         </WorkspaceMutedPanel>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {modules.length ? (
             modules.map((m, idx) => (
               <MentorModuleCard

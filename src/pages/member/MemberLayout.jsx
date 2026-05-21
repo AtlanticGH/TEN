@@ -87,8 +87,10 @@ export function MemberLayout() {
           </div>
         </aside>
 
-        <section className="min-w-0">
-          <Outlet />
+        <section className="min-w-0 w-full">
+          <div className="w-full min-w-0">
+            <Outlet />
+          </div>
         </section>
       </div>
 

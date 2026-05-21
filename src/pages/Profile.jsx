@@ -4,7 +4,6 @@ import { useAuth } from '../hooks/useAuth'
 import { dashboardPathForRole, isMentorRole } from '../lib/rbac'
 import { uploadMyAvatar } from '@/lib/avatars'
 import { updateMyProfile } from '../services/db'
-import { WorkspaceHeader, WorkspacePage, WorkspacePanel } from '@/components/workspace/WorkspaceChrome'
 
 function InitialsAvatar({ name, email }) {
   const initials = useMemo(() => {
@@ -71,94 +70,79 @@ export function ProfilePage() {
   const memberId = user?.id ? String(user.id).slice(0, 8).toUpperCase() : '—'
   const statusLabel = profile?.status === 'suspended' ? 'Suspended' : 'Active'
 
-  const profileDescription = (
-    <>
-      <p>
-        {isMentor
-          ? 'Keep your mentor profile current so students and staff can reach you easily.'
-          : 'Keep your profile up to date so mentors can personalize your support.'}
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-        <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-          Status: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{statusLabel}</span>
-        </span>
-        <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-          ID: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{memberId}</span>
-        </span>
-        <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-          Email: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{user?.email || '—'}</span>
-        </span>
-        <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
-          Joined: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{joinedAtLabel}</span>
-        </span>
-      </div>
-    </>
-  )
+  const shellClass = inAppShell ? 'w-full min-w-0 space-y-6' : 'mx-auto max-w-7xl space-y-6 px-8 pb-20 pt-28 md:px-12 lg:px-10'
 
-  const headerActions = (
+  const body = (
     <>
-      <Link
-        to={dashboardTo}
-        className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-      >
-        Dashboard
-      </Link>
-      {inAppShell ? (
-        <Link
-          to={changePasswordTo}
-          className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
-        >
-          Change password
-        </Link>
-      ) : null}
-      {!inAppShell && !isMentor ? (
-        <Link
-          to="/member/courses"
-          className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
-        >
-          Courses
-        </Link>
-      ) : null}
-    </>
-  )
+      <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="relative p-8">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
+          <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div className="flex items-start gap-4">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Profile"
+                  className="h-16 w-16 rounded-full object-cover ring-2 ring-orange-200 dark:ring-orange-900/40"
+                  loading="lazy"
+                />
+              ) : (
+                <InitialsAvatar name={profile?.full_name} email={user?.email} />
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Profile</p>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{profile?.full_name || 'Your details'}</h1>
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                  <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
+                    Status: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{statusLabel}</span>
+                  </span>
+                  <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
+                    Member ID: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{memberId}</span>
+                  </span>
+                  <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
+                    Email: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{user?.email || '—'}</span>
+                  </span>
+                  <span className="rounded-full border border-zinc-200 bg-white/70 px-3 py-1 dark:border-zinc-800 dark:bg-zinc-950/30">
+                    Joined: <span className="font-semibold text-zinc-700 dark:text-zinc-200">{joinedAtLabel}</span>
+                  </span>
+                </div>
+                <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">
+                  {isMentor
+                    ? 'Keep your mentor profile current so students and staff can reach you easily.'
+                    : 'Keep your profile up to date so mentors can personalize your support.'}
+                </p>
+              </div>
+            </div>
 
-  const profileHeader = inAppShell ? (
-    <WorkspaceHeader
-      label="Profile"
-      title={profile?.full_name || 'Your details'}
-      description={profileDescription}
-      actions={headerActions}
-    />
-  ) : (
-    <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-      <div className="relative p-8">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-start gap-4">
-            {avatarPreview ? (
-              <img
-                src={avatarPreview}
-                alt="Profile"
-                className="h-16 w-16 rounded-full object-cover ring-2 ring-orange-200 dark:ring-orange-900/40"
-                loading="lazy"
-              />
-            ) : (
-              <InitialsAvatar name={profile?.full_name} email={user?.email} />
-            )}
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Profile</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">{profile?.full_name || 'Your details'}</h1>
-              {profileDescription}
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={dashboardTo}
+                className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
+              >
+                Dashboard
+              </Link>
+              {inAppShell ? (
+                <Link
+                  to={changePasswordTo}
+                  className="inline-flex rounded-full border border-zinc-300 px-5 py-2 text-sm font-semibold text-zinc-700 transition hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:text-zinc-200"
+                >
+                  Change password
+                </Link>
+              ) : null}
+              {!inAppShell && !isMentor ? (
+                <Link
+                  to="/member/courses"
+                  className="inline-flex rounded-full bg-orange-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-orange-400"
+                >
+                  Courses
+                </Link>
+              ) : null}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">{headerActions}</div>
         </div>
-      </div>
-    </header>
-  )
+      </header>
 
-  const formPanel = (
-    <WorkspacePanel>
+      <div className="rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm md:p-8 dark:border-zinc-800 dark:bg-zinc-900/60">
         <form
           className="space-y-4"
           onSubmit={async (e) => {
@@ -318,22 +302,17 @@ export function ProfilePage() {
             {saving ? 'Saving…' : 'Save changes'}
           </button>
         </form>
-    </WorkspacePanel>
+      </div>
+    </>
   )
 
   if (inAppShell) {
-    return (
-      <WorkspacePage>
-        {profileHeader}
-        {formPanel}
-      </WorkspacePage>
-    )
+    return <div className={shellClass}>{body}</div>
   }
 
   return (
-    <main id="page-main" data-component="page-main" className="mx-auto max-w-7xl space-y-6 px-8 pb-20 pt-28 md:px-12 lg:px-10">
-      {profileHeader}
-      {formPanel}
+    <main id="page-main" data-component="page-main" className={shellClass}>
+      {body}
     </main>
   )
 }
