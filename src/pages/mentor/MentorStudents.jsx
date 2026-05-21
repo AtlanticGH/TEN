@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { fetchMenteeProgress, listMentorStudents } from '@/services/mentor'
 import {
   WorkspaceAlert,
@@ -106,6 +107,12 @@ export function MentorStudentsPage() {
               <div>
                 <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Selected</p>
                 <p className="mt-1 text-lg font-semibold">{selected?.full_name || selected?.email}</p>
+                <Link
+                  to={`/mentor/students/${selectedId}/profile`}
+                  className="mt-2 inline-block text-xs font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400"
+                >
+                  View full profile →
+                </Link>
                 {selected?.goals ? (
                   <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600 dark:text-zinc-300">{selected.goals}</p>
                 ) : null}

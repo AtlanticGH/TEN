@@ -40,7 +40,15 @@ export function ProfilePage() {
   const [phone, setPhone] = useState('')
   const [country, setCountry] = useState('')
   const [goals, setGoals] = useState('')
+  const [skillsText, setSkillsText] = useState('')
+  const [interestsText, setInterestsText] = useState('')
   const [avatarFile, setAvatarFile] = useState(null)
+
+  const parseTags = (text) =>
+    String(text || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
   const [avatarPreview, setAvatarPreview] = useState('')
 
   useEffect(() => {
@@ -50,6 +58,8 @@ export function ProfilePage() {
       setPhone(profile?.phone || '')
       setCountry(profile?.country || '')
       setGoals(profile?.goals || '')
+      setSkillsText((profile?.skills || []).join(', '))
+      setInterestsText((profile?.interests || []).join(', '))
     })
   }, [profile])
 
@@ -162,6 +172,8 @@ export function ProfilePage() {
                 phone: phone.trim(),
                 country: country.trim(),
                 goals: goals.trim(),
+                skills: parseTags(skillsText),
+                interests: parseTags(interestsText),
               }
               if (avatarFile) {
                 patch.avatar_path = await uploadMyAvatar(avatarFile)
@@ -264,6 +276,26 @@ export function ProfilePage() {
               className="mt-2 min-h-24 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
               placeholder="What do you want to achieve in the next 30–90 days?"
             />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Skills</label>
+              <input
+                value={skillsText}
+                onChange={(e) => setSkillsText(e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
+                placeholder="Marketing, fundraising, product (comma-separated)"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Interests</label>
+              <input
+                value={interestsText}
+                onChange={(e) => setInterestsText(e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40"
+                placeholder="Climate, fintech, community (comma-separated)"
+              />
+            </div>
           </div>
 
           <div className="grid gap-3 rounded-3xl border border-zinc-200 bg-zinc-50 p-5 dark:border-zinc-800 dark:bg-zinc-950/40">

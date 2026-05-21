@@ -28,6 +28,9 @@ export function MentorLayout() {
       <DashboardNavLink to="/mentor/assignments" onNavigate={onNavigate}>
         Assignments
       </DashboardNavLink>
+      <DashboardNavLink to="/mentor/announcements" onNavigate={onNavigate}>
+        Announcements
+      </DashboardNavLink>
       <DashboardNavLink to="/mentor/profile" onNavigate={onNavigate}>
         Profile
       </DashboardNavLink>

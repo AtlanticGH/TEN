@@ -29,6 +29,19 @@ export function useRealtime({ enabled = true } = {}) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
         queryClient.invalidateQueries({ queryKey: ['member-dashboard'] })
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mentor_announcements' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['student-announcements'] })
+        queryClient.invalidateQueries({ queryKey: ['student-announcements-unread'] })
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mentor_announcement_recipients' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['student-announcements'] })
+        queryClient.invalidateQueries({ queryKey: ['student-announcements-unread'] })
+        queryClient.invalidateQueries({ queryKey: ['member-dashboard'] })
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mentor_students' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['mentor-dashboard'] })
+        queryClient.invalidateQueries({ queryKey: ['profile'] })
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'assignment_submissions' }, () => {
         queryClient.invalidateQueries({ queryKey: ['mentor-dashboard'] })
       })

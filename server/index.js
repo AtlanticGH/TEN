@@ -195,6 +195,8 @@ const PROFILE_SELF_UPDATABLE = [
   'phone',
   'country',
   'goals',
+  'skills',
+  'interests',
   'profile_image_url',
   'avatar_path',
   'avatar_url',

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MainDashboardLayout, DashboardNavLink } from '../../components/layout/MainDashboardLayout'
+import { AnnouncementNavBadge } from '../../components/dashboard/AnnouncementNavBadge'
 import { useAuth } from '../../hooks/useAuth'
 import { isMentorRole } from '../../lib/rbac'
 
@@ -27,6 +28,15 @@ export function MemberLayout() {
       </DashboardNavLink>
       <DashboardNavLink to="/member/change-password" onNavigate={onNavigate}>
         Password
+      </DashboardNavLink>
+      <DashboardNavLink to="/member/announcements" onNavigate={onNavigate}>
+        <span className="flex w-full items-center gap-2">
+          <span>Announcements</span>
+          <AnnouncementNavBadge />
+        </span>
+      </DashboardNavLink>
+      <DashboardNavLink to="/member/mentor" onNavigate={onNavigate}>
+        My mentor
       </DashboardNavLink>
       <DashboardNavLink to="/member/activity" onNavigate={onNavigate}>
         Activity

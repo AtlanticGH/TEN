@@ -1,4 +1,5 @@
 import express from 'express'
+import { sendAnnouncementEmail } from '../lib/email.js'
 
 function isMentorRole(role) {
   return String(role || '') === 'mentor'
@@ -20,6 +21,15 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
   }
 
   async function isMenteeOf(mentorUserId, studentUserId) {
+    const { data: link, error: linkErr } = await supabase
+      .from('mentor_students')
+      .select('id')
+      .eq('mentor_id', mentorUserId)
+      .eq('student_id', studentUserId)
+      .maybeSingle()
+    if (linkErr) throw linkErr
+    if (link) return true
+
     const { data, error } = await supabase
       .from('profiles')
       .select('mentor_user_id')
@@ -27,6 +37,45 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
       .maybeSingle()
     if (error) throw error
     return data?.mentor_user_id === mentorUserId
+  }
+
+  async function listAssignedStudents(mentorId) {
+    const { data: links, error: linkErr } = await supabase
+      .from('mentor_students')
+      .select('student_id')
+      .eq('mentor_id', mentorId)
+    if (linkErr) throw linkErr
+
+    const ids = [...new Set((links || []).map((r) => r.student_id).filter(Boolean))]
+    if (!ids.length) return []
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('user_id, full_name, email, role, status, joined_at, goals, bio, profile_image_url')
+      .in('user_id', ids)
+      .order('joined_at', { ascending: false })
+    if (error) throw error
+    return data || []
+  }
+
+  async function listAssignedStudentEmails(mentorId) {
+    const { data: links, error: linkErr } = await supabase
+      .from('mentor_students')
+      .select('student_id')
+      .eq('mentor_id', mentorId)
+    if (linkErr) throw linkErr
+
+    const ids = [...new Set((links || []).map((r) => r.student_id).filter(Boolean))]
+    if (!ids.length) return []
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('user_id, full_name, email')
+      .in('user_id', ids)
+      .eq('role', 'student')
+      .eq('status', 'active')
+    if (error) throw error
+    return data || []
   }
 
   const COURSE_FIELDS = ['title', 'description', 'instructor', 'duration', 'thumbnail_url', 'category', 'difficulty', 'published']
@@ -94,15 +143,15 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
       const mentorId = req.user.id
       const [{ count: mentees, error: mErr }, { count: myCourses, error: cErr }, { data: menteeRows, error: pErr }] =
         await Promise.all([
-          supabase.from('profiles').select('user_id', { count: 'exact', head: true }).eq('mentor_user_id', mentorId),
+          supabase.from('mentor_students').select('student_id', { count: 'exact', head: true }).eq('mentor_id', mentorId),
           supabase.from('courses').select('id', { count: 'exact', head: true }).eq('created_by', mentorId),
-          supabase.from('profiles').select('user_id').eq('mentor_user_id', mentorId),
+          supabase.from('mentor_students').select('student_id').eq('mentor_id', mentorId),
         ])
       if (mErr) throw mErr
       if (cErr) throw cErr
       if (pErr) throw pErr
 
-      const menteeIds = (menteeRows || []).map((r) => r.user_id).filter(Boolean)
+      const menteeIds = (menteeRows || []).map((r) => r.student_id).filter(Boolean)
       let pendingReviews = 0
       if (menteeIds.length) {
         const { count, error: sErr } = await supabase
@@ -124,15 +173,79 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
     }
   })
 
-  app.get('/api/mentor/students', verifyUser, requireMentor, async (req, res) => {
+  function siteUrl() {
+    const base = String(process.env.SITE_URL || process.env.FRONTEND_ORIGIN || 'http://localhost:5173').replace(/\/$/, '')
+    return base
+  }
+
+  app.get('/api/mentor/announcements', verifyUser, requireMentor, async (req, res) => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, email, role, status, joined_at, goals')
-        .eq('mentor_user_id', req.user.id)
-        .order('joined_at', { ascending: false })
+        .from('mentor_announcements')
+        .select('*, mentor_announcement_recipients(count)')
+        .eq('mentor_id', req.user.id)
+        .order('created_at', { ascending: false })
       if (error) throw error
       res.json(data || [])
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Mentor announcements error' })
+    }
+  })
+
+  app.post('/api/mentor/announcements', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const title = String(req.body?.title || '').trim()
+      const message = String(req.body?.message || req.body?.body || '').trim()
+      if (!title || !message) return res.status(400).json({ error: 'Title and message are required.' })
+
+      const mentorId = req.user.id
+      const { data: published, error: pubErr } = await supabase
+        .from('mentor_announcements')
+        .insert({ title, message, mentor_id: mentorId })
+        .select('*')
+        .single()
+      if (pubErr) throw pubErr
+
+      const mentees = await listAssignedStudentEmails(mentorId)
+      const mentorName = req.actorProfile?.full_name || req.user.email || 'Your mentor'
+      const dashboardUrl = `${siteUrl()}/member/announcements`
+      const emailResults = { sent: 0, failed: 0, skipped: 0 }
+
+      for (const m of mentees) {
+        const email = String(m.email || '').trim()
+        if (!email) {
+          emailResults.skipped += 1
+          continue
+        }
+        try {
+          await sendAnnouncementEmail({
+            to: email,
+            fullName: m.full_name,
+            mentorName,
+            title: published.title,
+            body: published.message,
+            dashboardUrl,
+          })
+          emailResults.sent += 1
+        } catch {
+          emailResults.failed += 1
+        }
+      }
+
+      res.json({
+        announcement: published,
+        mentee_count: mentees.length,
+        email: emailResults,
+      })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Create announcement error' })
+    }
+  })
+
+  app.get('/api/mentor/students', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const data = await listAssignedStudents(req.user.id)
+      res.json(data)
     } catch (err) {
       res.status(400).json({ error: err?.message || 'Mentor students error' })
     }
@@ -454,12 +567,8 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
   app.get('/api/mentor/submissions', verifyUser, requireMentor, async (req, res) => {
     try {
       const status = String(req.query?.status || 'submitted')
-      const { data: mentees, error: mErr } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, email')
-        .eq('mentor_user_id', req.user.id)
-      if (mErr) throw mErr
-      const menteeIds = (mentees || []).map((m) => m.user_id).filter(Boolean)
+      const mentees = await listAssignedStudentEmails(req.user.id)
+      const menteeIds = mentees.map((m) => m.user_id).filter(Boolean)
       if (!menteeIds.length) return res.json([])
 
       let q = supabase

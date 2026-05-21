@@ -36,6 +36,8 @@ import {
   HomePage,
   LessonPage,
   MemberActivityPage,
+  MemberAnnouncementsPage,
+  MemberMentorProfilePage,
   MemberLayout,
   MentorLayout,
   MentorDashboardPage,
@@ -43,6 +45,8 @@ import {
   MentorCoursesPage,
   MentorCourseEditorPage,
   MentorAssignmentsPage,
+  MentorAnnouncementsPage,
+  MentorStudentProfilePage,
   ChangePasswordPage,
   PageFallback,
   ProfilePage,
@@ -173,6 +177,22 @@ const router = createBrowserRouter([
             ),
           },
           {
+            path: 'announcements',
+            element: (
+              <PageFallback>
+                <MemberAnnouncementsPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'mentor',
+            element: (
+              <PageFallback>
+                <MemberMentorProfilePage />
+              </PageFallback>
+            ),
+          },
+          {
             path: 'activity',
             element: (
               <PageFallback>
@@ -212,6 +232,14 @@ const router = createBrowserRouter([
             ),
           },
           {
+            path: 'students/:userId/profile',
+            element: (
+              <PageFallback>
+                <MentorStudentProfilePage />
+              </PageFallback>
+            ),
+          },
+          {
             path: 'courses',
             element: (
               <PageFallback>
@@ -232,6 +260,14 @@ const router = createBrowserRouter([
             element: (
               <PageFallback>
                 <MentorAssignmentsPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'announcements',
+            element: (
+              <PageFallback>
+                <MentorAnnouncementsPage />
               </PageFallback>
             ),
           },

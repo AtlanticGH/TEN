@@ -4,7 +4,7 @@ import { getSupabase } from '@/lib/supabaseClient'
 // columns the client actually needs lets us tighten column-level GRANTs
 // later without breaking this query.
 const PROFILE_COLUMNS =
-  'user_id, full_name, email, role, status, mentor_user_id, profile_image_url, joined_at, bio, phone, country, goals, updated_at'
+  'user_id, full_name, email, role, status, mentor_user_id, profile_image_url, joined_at, bio, phone, country, goals, skills, interests, updated_at'
 
 /**
  * Ensures a `profiles` row exists for the authenticated user.

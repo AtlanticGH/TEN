@@ -35,6 +35,12 @@ export const AdminMemberProgressPage = lazy(() => import('../pages/admin/AdminMe
 
 export const MemberLayout = lazy(() => import('../pages/member/MemberLayout').then((m) => ({ default: m.MemberLayout })))
 export const MemberActivityPage = lazy(() => import('../pages/member/MemberActivityPage').then((m) => ({ default: m.MemberActivityPage })))
+export const MemberAnnouncementsPage = lazy(() =>
+  import('../pages/member/MemberAnnouncementsPage').then((m) => ({ default: m.MemberAnnouncementsPage })),
+)
+export const MemberMentorProfilePage = lazy(() =>
+  import('../pages/member/MemberMentorProfilePage').then((m) => ({ default: m.MemberMentorProfilePage })),
+)
 export const ChangePasswordPage = lazy(() => import('../pages/member/ChangePasswordPage').then((m) => ({ default: m.ChangePasswordPage })))
 
 export const MentorLayout = lazy(() => import('../pages/mentor/MentorLayout').then((m) => ({ default: m.MentorLayout })))
@@ -45,6 +51,12 @@ export const MentorCourseEditorPage = lazy(() =>
   import('../pages/mentor/MentorCourseEditor').then((m) => ({ default: m.MentorCourseEditorPage })),
 )
 export const MentorAssignmentsPage = lazy(() => import('../pages/mentor/MentorAssignments').then((m) => ({ default: m.MentorAssignmentsPage })))
+export const MentorAnnouncementsPage = lazy(() =>
+  import('../pages/mentor/MentorAnnouncements').then((m) => ({ default: m.MentorAnnouncementsPage })),
+)
+export const MentorStudentProfilePage = lazy(() =>
+  import('../pages/mentor/MentorStudentProfilePage').then((m) => ({ default: m.MentorStudentProfilePage })),
+)
 
 export function PageFallback({ children }) {
   return (

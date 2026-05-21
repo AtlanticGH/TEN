@@ -147,6 +147,9 @@ export function MentorDashboardPage() {
         <DashboardButton to="/mentor/students" variant="secondary">
           View all students
         </DashboardButton>
+        <DashboardButton to="/mentor/announcements" variant="secondary">
+          Send announcement
+        </DashboardButton>
       </div>
     </DashboardPage>
   )
