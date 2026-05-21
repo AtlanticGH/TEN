@@ -1,7 +1,13 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl     = import.meta.env.VITE_SUPABASE_URL     as string | undefined
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+/** Vite may inject empty strings from `.env`; treat those as unset. */
+function envOrUndefined(value: string | undefined): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : undefined
+}
+
+const supabaseUrl     = envOrUndefined(import.meta.env.VITE_SUPABASE_URL as string | undefined)
+const supabaseAnonKey = envOrUndefined(import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)
 
 /**
  * True only when real credentials are present.

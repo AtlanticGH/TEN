@@ -171,7 +171,7 @@ Moved to `archive-unused/server.js`. No imports referenced it. `package.json` `s
 
 | Item | Status | Notes |
 |---|---|---|
-| Service-role key NOT in client bundle | ✓ | only `src/lib/supabaseClient.js` uses `VITE_*` keys |
+| Service-role key NOT in client bundle | ✓ | only `src/lib/supabaseClient.ts` uses `VITE_*` keys |
 | CORS locked to FRONTEND_ORIGIN | ✓ | fails closed if env missing |
 | SPA fallback for client routes | ✓ | `vercel.json` rewrites + `server/index.js` (local) |
 | Vite `/api` proxy is dev-only and documented | ✓ | comment added in this pass |
