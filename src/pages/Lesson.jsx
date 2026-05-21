@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   getLesson,
   listLessonFiles,
@@ -151,6 +151,8 @@ function AssignmentSubmitPanel({ assignment }) {
 
 export function LessonPage() {
   const { courseId, lessonId } = useParams()
+  const location = useLocation()
+  const inMemberShell = location.pathname.startsWith('/member')
   const navigate = useNavigate()
   const { profile } = useAuth()
   const dashboardTo = dashboardPathForRole(profile?.role)
@@ -254,8 +256,14 @@ export function LessonPage() {
     queueMicrotask(() => refresh())
   }, [refresh])
 
+  const pageClass = inMemberShell ? 'space-y-6' : 'mx-auto max-w-4xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const PageTag = inMemberShell ? 'div' : 'main'
+  const pageProps = inMemberShell
+    ? { className: pageClass }
+    : { id: 'page-main', 'data-component': 'page-main', className: pageClass }
+
   return (
-    <main id="page-main" data-component="page-main" className="mx-auto max-w-4xl px-8 pb-20 pt-28 md:px-12 lg:px-10">
+    <PageTag {...pageProps}>
       {loading ? (
         <div className="grid gap-4">
           <div className="animate-pulse rounded-[28px] border border-zinc-200 bg-zinc-100/70 p-10 dark:border-zinc-800 dark:bg-zinc-900/40" />
@@ -267,7 +275,7 @@ export function LessonPage() {
         </div>
       ) : lesson ? (
         <div className="space-y-6">
-          <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+          <section className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
             <div className="relative p-8">
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
               <div className="relative">
@@ -326,7 +334,7 @@ export function LessonPage() {
             ) : null}
               </div>
             </div>
-          </header>
+          </section>
 
           <section className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
             {sections.length ? (
@@ -513,7 +521,7 @@ export function LessonPage() {
           ) : null}
         </div>
       ) : null}
-    </main>
+    </PageTag>
   )
 }
 

@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Link } from 'react-router-dom'
 
 export function DashboardPage({ children, className = '' }) {
@@ -5,8 +6,12 @@ export function DashboardPage({ children, className = '' }) {
 }
 
 export function DashboardHero({ label, title, description, avatar, badges = [], actions }) {
+  const titleId = useId()
   return (
-    <header className="relative overflow-hidden rounded-[28px] border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80">
+    <section
+      aria-labelledby={titleId}
+      className="relative overflow-hidden rounded-[28px] border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
+    >
       <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-orange-400/20 blur-3xl dark:bg-orange-500/15" />
       <div className="pointer-events-none absolute -bottom-24 left-1/3 h-48 w-48 rounded-full bg-amber-300/15 blur-3xl" />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/[0.08] via-transparent to-amber-400/[0.04]" />
@@ -16,7 +21,7 @@ export function DashboardHero({ label, title, description, avatar, badges = [], 
             {avatar ? <div className="shrink-0">{avatar}</div> : null}
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">{label}</p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl lg:text-4xl">
+              <h1 id={titleId} className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl lg:text-4xl">
                 {title}
               </h1>
               {description ? (
@@ -40,7 +45,7 @@ export function DashboardHero({ label, title, description, avatar, badges = [], 
           {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
         </div>
       </div>
-    </header>
+    </section>
   )
 }
 
@@ -97,9 +102,14 @@ export function DashboardPanel({ children, className = '' }) {
   )
 }
 
-export function DashboardSectionHeader({ label, title, description, href, hrefLabel = 'View all' }) {
+export function DashboardSectionHeader({ label, title, description, href, hrefLabel = 'View all', bordered = true }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
+    <div
+      className={[
+        'flex flex-wrap items-end justify-between gap-3',
+        bordered ? 'border-b border-zinc-100 pb-4 dark:border-zinc-800' : '',
+      ].join(' ')}
+    >
       <div>
         {label ? <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">{label}</p> : null}
         <h2 className="mt-1 text-xl font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>

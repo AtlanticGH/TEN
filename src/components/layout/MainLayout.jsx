@@ -1,35 +1,18 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useThemeToggle } from '../../hooks/useThemeToggle'
 import { ChatWidget } from '../shared/ChatWidget'
 import { Footer } from './Footer'
 import { Navbar } from './Navbar'
 import { ScrollProgress } from './ScrollProgress'
 
-function getInitialTheme() {
-  try {
-    const saved = localStorage.getItem('ten-theme')
-    if (saved === 'dark' || saved === 'light') return saved === 'dark'
-  } catch { /* localStorage blocked */ }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
-}
-
 export function MainLayout({ children }) {
-  const [dark, setDark] = useState(getInitialTheme)
+  const { dark, toggle: toggleTheme } = useThemeToggle()
   const location = useLocation()
   // Home starts in hero nav mode to avoid a scrolled→hero flash over the gateway
   const [headerMode, setHeaderMode] = useState(() =>
     location.pathname === '/' ? 'hero' : 'scrolled',
   )
-
-  // Apply theme class to <html> immediately, before paint
-  useLayoutEffect(() => {
-    const root = document.documentElement
-    if (dark) {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-  }, [dark])
 
   // Scroll to top on route change
   useEffect(() => {
@@ -76,16 +59,9 @@ export function MainLayout({ children }) {
     }
   }, [location.pathname, heroSelector])
 
-  const toggleTheme = () => {
-    const next = !dark
-    setDark(next)
-    try {
-      localStorage.setItem('ten-theme', next ? 'dark' : 'light')
-    } catch { /* ignore */ }
-  }
-
   const path = location.pathname
-  const isAppShell = path.startsWith('/admin') || path.startsWith('/mentor')
+  const isAppShell =
+    path.startsWith('/admin') || path.startsWith('/mentor') || path.startsWith('/member')
 
   return (
     // Root wrapper uses CSS variables so the whole page reacts to .dark

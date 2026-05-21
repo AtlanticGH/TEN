@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { AppShellTopBar } from '../../components/layout/AppShellTopBar'
 import { useAuth } from '../../hooks/useAuth'
 import { isMentorRole } from '../../lib/rbac'
 
@@ -58,35 +59,14 @@ export function MentorLayout() {
   )
 
   return (
-    <main id="page-main" data-component="page-main" className="mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-zinc-200 bg-white px-5 py-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">Mentor</p>
-          <p className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{profile?.full_name || 'Mentor'}</p>
-          <p className="text-xs text-zinc-500">{user?.email}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            to="/mentor/profile"
-            className="hidden rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:border-orange-400 sm:inline-flex dark:border-zinc-700 dark:text-zinc-200"
-          >
-            Profile
-          </Link>
-          <Link
-            to="/"
-            className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:border-orange-400 dark:border-zinc-700 dark:text-zinc-200"
-          >
-            Site
-          </Link>
-          <button
-            type="button"
-            className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:border-orange-400 lg:hidden dark:border-zinc-700 dark:text-zinc-200"
-            onClick={() => setMenuOpen(true)}
-          >
-            Menu
-          </button>
-        </div>
-      </div>
+    <main id="page-main" data-component="page-main" className="mx-auto max-w-7xl px-8 pb-20 pt-8 md:px-12 lg:px-10">
+      <AppShellTopBar
+        roleLabel="Mentor workspace"
+        name={profile?.full_name || 'Mentor'}
+        email={user?.email}
+        profileTo="/mentor/profile"
+        onOpenMenu={() => setMenuOpen(true)}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <aside className="hidden lg:block">

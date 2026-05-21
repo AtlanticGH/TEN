@@ -54,10 +54,14 @@ export function CoursesPage() {
   }, [courses, query])
 
   const pageClass = inMemberShell ? 'space-y-6' : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
+  const PageTag = inMemberShell ? 'div' : 'main'
+  const pageProps = inMemberShell
+    ? { className: pageClass }
+    : { id: 'page-main', 'data-component': 'page-main', className: pageClass }
 
   return (
-    <main id="page-main" data-component="page-main" className={pageClass}>
-      <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+    <PageTag {...pageProps}>
+      <section className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
         <div className="relative p-8">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
           <div className="relative flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -86,7 +90,7 @@ export function CoursesPage() {
             </div>
           </div>
         </div>
-      </header>
+      </section>
 
       {enrollError ? (
         <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
@@ -176,7 +180,7 @@ export function CoursesPage() {
           ) : null}
         </section>
       )}
-    </main>
+    </PageTag>
   )
 }
 

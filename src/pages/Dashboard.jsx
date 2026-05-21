@@ -246,8 +246,13 @@ export function DashboardPage() {
     ? 'pb-8'
     : 'mx-auto max-w-7xl px-8 pb-20 pt-28 md:px-12 lg:px-10'
 
+  const PageTag = inMemberShell ? 'div' : 'main'
+  const pageProps = inMemberShell
+    ? { className: outerMainClass }
+    : { id: 'page-main', 'data-component': 'page-main', className: outerMainClass }
+
   return (
-    <main id="page-main" data-component="page-main" className={outerMainClass}>
+    <PageTag {...pageProps}>
       <div className={inMemberShell ? 'space-y-6' : 'grid gap-6 lg:grid-cols-[280px_1fr]'}>
         {!inMemberShell ? (
           <aside className="hidden lg:block">
@@ -276,16 +281,36 @@ export function DashboardPage() {
         ) : null}
 
         <DashboardShell className="min-w-0">
-          <div className="flex items-center justify-between gap-2 lg:hidden">
-            <button
-              type="button"
-              onClick={() => setMobileNavOpen(true)}
-              className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:bg-zinc-950/30 dark:text-zinc-200"
-              title="Open menu"
-            >
-              Menu
-            </button>
-            <div className="flex items-center gap-2">
+          {!inMemberShell ? (
+            <div className="flex items-center justify-between gap-2 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(true)}
+                className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:bg-zinc-950/30 dark:text-zinc-200"
+                title="Open menu"
+              >
+                Menu
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setNotifOpen((v) => !v)}
+                  className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-600 dark:border-zinc-700 dark:bg-zinc-950/30 dark:text-zinc-200"
+                  title="Notifications"
+                >
+                  Alerts ({notifications.length})
+                </button>
+                <Link
+                  to={profileTo}
+                  className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400"
+                  title="Open profile"
+                >
+                  Profile
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-end lg:hidden">
               <button
                 type="button"
                 onClick={() => setNotifOpen((v) => !v)}
@@ -294,15 +319,8 @@ export function DashboardPage() {
               >
                 Alerts ({notifications.length})
               </button>
-              <Link
-                to={profileTo}
-                className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400"
-                title="Open profile"
-              >
-                Profile
-              </Link>
             </div>
-          </div>
+          )}
 
           <DashboardHero
             label="Student dashboard"
@@ -378,6 +396,7 @@ export function DashboardPage() {
                       label="Learning"
                       title="Enrolled programs"
                       description="Jump back into a program and track progress with visual indicators."
+                      bordered={false}
                     />
                     <div className="rounded-2xl border border-zinc-200/90 bg-zinc-50/80 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950/40">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Monthly activity</p>
@@ -569,7 +588,7 @@ export function DashboardPage() {
           </div>
         </div>
       ) : null}
-    </main>
+    </PageTag>
   )
 }
 

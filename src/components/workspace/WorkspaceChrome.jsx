@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Link } from 'react-router-dom'
 
 /** Shared layout chrome for member + mentor app shells (matches Dashboard shapes). */
@@ -20,14 +21,18 @@ export function WorkspaceRow({ children, className = '' }) {
 }
 
 export function WorkspaceHeader({ label, title, description, actions }) {
+  const titleId = useId()
   return (
-    <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+    <section
+      aria-labelledby={titleId}
+      className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60"
+    >
       <div className="relative p-6 md:p-8">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
         <div className="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">{label}</p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl">{title}</h1>
+            <h1 id={titleId} className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 md:text-3xl">{title}</h1>
             {description ? (
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{description}</p>
             ) : null}
@@ -35,7 +40,7 @@ export function WorkspaceHeader({ label, title, description, actions }) {
           {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
         </div>
       </div>
-    </header>
+    </section>
   )
 }
 

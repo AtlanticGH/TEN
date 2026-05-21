@@ -74,7 +74,7 @@ export function ProfilePage() {
 
   const body = (
     <>
-      <header className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+      <section className="overflow-hidden rounded-[28px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
         <div className="relative p-8">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange-500/10 via-amber-400/5 to-transparent" />
           <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
@@ -140,7 +140,7 @@ export function ProfilePage() {
             </div>
           </div>
         </div>
-      </header>
+      </section>
 
       <div className="rounded-[28px] border border-zinc-200 bg-white p-6 shadow-sm md:p-8 dark:border-zinc-800 dark:bg-zinc-900/60">
         <form
