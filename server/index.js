@@ -1383,7 +1383,7 @@ app.use((req, res) => {
   res.status(404).json({ error: `Not found: ${req.method} ${req.path}` })
 })
 
-// On Vercel this module is imported by api/[[...slug]].js and the Express app
+// On Vercel this module is imported by api/index.js and the Express app
 // is returned as a serverless handler — never call .listen there. The local
 // dev server (npm start) is the only place we want a long-lived listener.
 if (!process.env.VERCEL) {

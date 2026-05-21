@@ -51,7 +51,7 @@ export default defineConfig({
   },
   // Dev-only proxy. In production (Vercel), the frontend and API share an
   // origin so no proxy is needed; the browser hits /api/* directly and Vercel
-  // routes those requests to api/[[...slug]].js (which mounts the Express app
+  // routes those requests to api/index.js (which mounts the Express app
   // from server/index.js). If VITE_API_URL is set in a build env, fetch
   // helpers in src/ use it instead of relative /api paths.
   server: {
