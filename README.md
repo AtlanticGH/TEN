@@ -31,8 +31,9 @@ Open http://localhost:5173/
 ### First-time bootstrap (empty database)
 
 ```bash
-npm run bootstrap:cms    # home hero in site_content
+npm run bootstrap:cms      # home hero in site_content
 npm run bootstrap:admin -- --email you@company.com --password "YourSecurePass1" --name "Your Name"
+npm run bootstrap:sample   # optional published starter course (local/staging)
 ```
 
 Public sign-up is disabled; members join via **Apply** → admin approve → invite. The bootstrap admin is only for your initial staff account.
