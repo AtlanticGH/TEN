@@ -25,6 +25,10 @@ Vercel → Project → **Settings** → **Environment Variables** → add for **
 Dashboard → **Authentication** → **URL Configuration**:
 
 - `https://ember-network-qc25.vercel.app/reset-password`
+- `http://localhost:5173/reset-password`
+- `http://localhost:5174/reset-password`
+- `http://localhost:5175/reset-password`
+- `http://localhost:5176/reset-password`
 
 ## 3. Redeploy
 

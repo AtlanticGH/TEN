@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { createMentorCourse, listMentorCourses, updateMentorCourse } from '@/services/mentor'
 
 export function MentorCoursesPage() {
@@ -44,7 +45,7 @@ export function MentorCoursesPage() {
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Courses</p>
           <h2 className="mt-2 text-2xl font-semibold">Your courses</h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create learning tracks for your mentees. Ask staff to add modules and lessons.</p>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">Create learning tracks and build modules and lessons for your mentees.</p>
         </div>
         <button
           type="button"
@@ -146,25 +147,33 @@ export function MentorCoursesPage() {
                       <p className="font-semibold text-zinc-900 dark:text-zinc-100">{c.title}</p>
                       <p className="mt-1 text-xs text-zinc-500">{c.published ? 'Published' : 'Draft'}</p>
                     </div>
-                    <button
-                      type="button"
-                      disabled={busyId === c.id}
-                      onClick={async () => {
-                        setBusyId(c.id)
-                        setError('')
-                        try {
-                          await updateMentorCourse(c.id, { published: !c.published })
-                          await refresh()
-                        } catch (err) {
-                          setError(err?.message || 'Unable to update.')
-                        } finally {
-                          setBusyId('')
-                        }
-                      }}
-                      className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-semibold hover:border-orange-400 dark:border-zinc-700"
-                    >
-                      {c.published ? 'Unpublish' : 'Publish'}
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        to={`/mentor/courses/${c.id}`}
+                        className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-semibold hover:border-orange-400 dark:border-zinc-700"
+                      >
+                        Build
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={busyId === c.id}
+                        onClick={async () => {
+                          setBusyId(c.id)
+                          setError('')
+                          try {
+                            await updateMentorCourse(c.id, { published: !c.published })
+                            await refresh()
+                          } catch (err) {
+                            setError(err?.message || 'Unable to update.')
+                          } finally {
+                            setBusyId('')
+                          }
+                        }}
+                        className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-semibold hover:border-orange-400 dark:border-zinc-700"
+                      >
+                        {c.published ? 'Unpublish' : 'Publish'}
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}

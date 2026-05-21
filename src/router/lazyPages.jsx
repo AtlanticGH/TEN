@@ -39,6 +39,9 @@ export const MentorLayout = lazy(() => import('../pages/mentor/MentorLayout').th
 export const MentorDashboardPage = lazy(() => import('../pages/mentor/MentorDashboard').then((m) => ({ default: m.MentorDashboardPage })))
 export const MentorStudentsPage = lazy(() => import('../pages/mentor/MentorStudents').then((m) => ({ default: m.MentorStudentsPage })))
 export const MentorCoursesPage = lazy(() => import('../pages/mentor/MentorCourses').then((m) => ({ default: m.MentorCoursesPage })))
+export const MentorCourseEditorPage = lazy(() =>
+  import('../pages/mentor/MentorCourseEditor').then((m) => ({ default: m.MentorCourseEditorPage })),
+)
 export const MentorAssignmentsPage = lazy(() => import('../pages/mentor/MentorAssignments').then((m) => ({ default: m.MentorAssignmentsPage })))
 
 export function PageFallback({ children }) {

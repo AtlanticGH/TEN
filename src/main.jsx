@@ -39,6 +39,7 @@ import {
   MentorDashboardPage,
   MentorStudentsPage,
   MentorCoursesPage,
+  MentorCourseEditorPage,
   MentorAssignmentsPage,
   ChangePasswordPage,
   PageFallback,
@@ -242,6 +243,14 @@ const router = createBrowserRouter([
             element: (
               <PageFallback>
                 <MentorCoursesPage />
+              </PageFallback>
+            ),
+          },
+          {
+            path: 'courses/:courseId',
+            element: (
+              <PageFallback>
+                <MentorCourseEditorPage />
               </PageFallback>
             ),
           },

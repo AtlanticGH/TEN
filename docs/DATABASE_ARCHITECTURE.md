@@ -150,7 +150,7 @@ Use npm scripts (see root `README.md`):
 | `listMyMilestones()` | `mentorship_milestones` |
 | `listMyUpcomingSessions()` | `session_attendees` + `sessions` |
 | `listResources()` | API public → `resources` |
-| Mentor APIs | Service role → mentees, submissions, courses |
+| Mentor APIs | Service role → mentees, submissions, courses, modules, lessons (`/api/mentor/*`) |
 
 ## Security model
 

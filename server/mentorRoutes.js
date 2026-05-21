@@ -28,6 +28,27 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
   }
 
   const COURSE_FIELDS = ['title', 'description', 'instructor', 'duration', 'thumbnail_url', 'category', 'difficulty', 'published']
+  const MODULE_UPDATABLE = ['title', 'description', 'position', 'content']
+  const LESSON_UPDATABLE = ['title', 'description', 'position', 'content', 'status', 'published_at']
+  const LESSON_STATUSES = new Set(['draft', 'published'])
+
+  async function ownsCourse(mentorId, courseId) {
+    const { data, error } = await supabase.from('courses').select('created_by').eq('id', courseId).single()
+    if (error) throw error
+    return data?.created_by === mentorId
+  }
+
+  async function ownsModule(mentorId, moduleId) {
+    const { data: mod, error } = await supabase.from('modules').select('course_id').eq('id', moduleId).single()
+    if (error) throw error
+    return ownsCourse(mentorId, mod.course_id)
+  }
+
+  async function ownsLesson(mentorId, lessonId) {
+    const { data: lesson, error } = await supabase.from('lessons').select('module_id').eq('id', lessonId).single()
+    if (error) throw error
+    return ownsModule(mentorId, lesson.module_id)
+  }
 
   app.get('/api/mentor/summary', verifyUser, requireMentor, async (req, res) => {
     try {
@@ -179,6 +200,215 @@ export function registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRo
       res.json(data)
     } catch (err) {
       res.status(400).json({ error: err?.message || 'Update course error' })
+    }
+  })
+
+  app.get('/api/mentor/courses/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      if (!(await ownsCourse(req.user.id, id))) {
+        return res.status(403).json({ error: 'You can only view your own courses' })
+      }
+      const { data, error } = await supabase.from('courses').select('*').eq('id', id).single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Get course error' })
+    }
+  })
+
+  app.get('/api/mentor/courses/:courseId/modules', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const courseId = String(req.params.courseId || '')
+      if (!(await ownsCourse(req.user.id, courseId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const { data, error } = await supabase.from('modules').select('*').eq('course_id', courseId).order('position', { ascending: true })
+      if (error) throw error
+      res.json(data || [])
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'List modules error' })
+    }
+  })
+
+  app.post('/api/mentor/courses/:courseId/modules', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const courseId = String(req.params.courseId || '')
+      if (!(await ownsCourse(req.user.id, courseId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const { count, error: countErr } = await supabase
+        .from('modules')
+        .select('id', { count: 'exact', head: true })
+        .eq('course_id', courseId)
+      if (countErr) throw countErr
+      const position = (count || 0) + 1
+      const { data, error } = await supabase
+        .from('modules')
+        .insert({ course_id: courseId, title: req.body?.title, description: req.body?.description, position })
+        .select('*')
+        .single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Create module error' })
+    }
+  })
+
+  app.put('/api/mentor/modules/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      if (!(await ownsModule(req.user.id, id))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const patch = pickFields(req.body, MODULE_UPDATABLE)
+      if (Object.keys(patch).length === 0) {
+        return res.status(400).json({ error: 'No updatable fields provided' })
+      }
+      if (patch.position !== undefined && !(Number.isInteger(patch.position) && patch.position > 0)) {
+        return res.status(400).json({ error: 'position must be a positive integer' })
+      }
+      const { data, error } = await supabase.from('modules').update(patch).eq('id', id).select('*').single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Update module error' })
+    }
+  })
+
+  app.delete('/api/mentor/modules/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      if (!(await ownsModule(req.user.id, id))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const { error } = await supabase.from('modules').delete().eq('id', id)
+      if (error) throw error
+      res.json({ ok: true })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Delete module error' })
+    }
+  })
+
+  app.post('/api/mentor/courses/:courseId/modules/reorder', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const courseId = String(req.params.courseId || '')
+      if (!(await ownsCourse(req.user.id, courseId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const ordered = Array.isArray(req.body?.orderedModuleIds) ? req.body.orderedModuleIds : []
+      for (let i = 0; i < ordered.length; i += 1) {
+        const mid = ordered[i]
+        const { error } = await supabase.from('modules').update({ position: 1000 + i + 1 }).eq('id', mid).eq('course_id', courseId)
+        if (error) throw error
+      }
+      for (let i = 0; i < ordered.length; i += 1) {
+        const mid = ordered[i]
+        const { error } = await supabase.from('modules').update({ position: i + 1 }).eq('id', mid).eq('course_id', courseId)
+        if (error) throw error
+      }
+      res.json({ ok: true })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Reorder modules error' })
+    }
+  })
+
+  app.get('/api/mentor/modules/:moduleId/lessons', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const moduleId = String(req.params.moduleId || '')
+      if (!(await ownsModule(req.user.id, moduleId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const { data, error } = await supabase.from('lessons').select('*').eq('module_id', moduleId).order('position', { ascending: true })
+      if (error) throw error
+      res.json(data || [])
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'List lessons error' })
+    }
+  })
+
+  app.post('/api/mentor/modules/:moduleId/lessons', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const moduleId = String(req.params.moduleId || '')
+      if (!(await ownsModule(req.user.id, moduleId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const { count, error: countErr } = await supabase
+        .from('lessons')
+        .select('id', { count: 'exact', head: true })
+        .eq('module_id', moduleId)
+      if (countErr) throw countErr
+      const position = (count || 0) + 1
+      const { data, error } = await supabase
+        .from('lessons')
+        .insert({ module_id: moduleId, title: req.body?.title, description: req.body?.description, position, status: 'draft' })
+        .select('*')
+        .single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Create lesson error' })
+    }
+  })
+
+  app.put('/api/mentor/lessons/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      if (!(await ownsLesson(req.user.id, id))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const patch = pickFields(req.body, LESSON_UPDATABLE)
+      if (Object.keys(patch).length === 0) {
+        return res.status(400).json({ error: 'No updatable fields provided' })
+      }
+      if (patch.status !== undefined && !LESSON_STATUSES.has(String(patch.status))) {
+        return res.status(400).json({ error: `Invalid status: ${patch.status}` })
+      }
+      if (patch.position !== undefined && !(Number.isInteger(patch.position) && patch.position > 0)) {
+        return res.status(400).json({ error: 'position must be a positive integer' })
+      }
+      const { data, error } = await supabase.from('lessons').update(patch).eq('id', id).select('*').single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Update lesson error' })
+    }
+  })
+
+  app.delete('/api/mentor/lessons/:id', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const id = String(req.params.id || '')
+      if (!(await ownsLesson(req.user.id, id))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const { error } = await supabase.from('lessons').delete().eq('id', id)
+      if (error) throw error
+      res.json({ ok: true })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Delete lesson error' })
+    }
+  })
+
+  app.post('/api/mentor/modules/:moduleId/lessons/reorder', verifyUser, requireMentor, async (req, res) => {
+    try {
+      const moduleId = String(req.params.moduleId || '')
+      if (!(await ownsModule(req.user.id, moduleId))) {
+        return res.status(403).json({ error: 'You can only edit your own courses' })
+      }
+      const ordered = Array.isArray(req.body?.orderedLessonIds) ? req.body.orderedLessonIds : []
+      for (let i = 0; i < ordered.length; i += 1) {
+        const lid = ordered[i]
+        const { error } = await supabase.from('lessons').update({ position: 1000 + i + 1 }).eq('id', lid).eq('module_id', moduleId)
+        if (error) throw error
+      }
+      for (let i = 0; i < ordered.length; i += 1) {
+        const lid = ordered[i]
+        const { error } = await supabase.from('lessons').update({ position: i + 1 }).eq('id', lid).eq('module_id', moduleId)
+        if (error) throw error
+      }
+      res.json({ ok: true })
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Reorder lessons error' })
     }
   })
 
