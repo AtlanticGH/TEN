@@ -74,6 +74,14 @@ SUPABASE_SERVICE_ROLE_KEY=<service role — server only, never commit>
 
 ## Post-deploy admin
 
+**Option A — CLI (recommended on empty DB):**
+
+```bash
+npm run bootstrap:admin -- --email you@company.com --password "YourSecurePass1" --name "Your Name"
+```
+
+**Option B — SQL (after the user already exists in Auth):**
+
 ```sql
 UPDATE public.profiles SET role = 'super_admin' WHERE email = 'your@email.com';
 ```

@@ -18,7 +18,8 @@
     "supabase:push": "supabase db push",
     "supabase:push:dry-run": "supabase db push --dry-run",
     "supabase:seed": "supabase db seed",
-    "bootstrap:cms": "node scripts/bootstrap-site-content.mjs"
+    "bootstrap:cms": "node scripts/bootstrap-site-content.mjs",
+    "bootstrap:admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
