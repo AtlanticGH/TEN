@@ -1,37 +1,30 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMyProfile } from '../services/db'
 import { AuthContext } from './AuthContextBase'
 import { getSupabase, supabaseIsConfigured } from '@/lib/supabaseClient'
+import { RealtimeSync } from '@/components/system/RealtimeSync'
 
 export function AuthProvider({ children }) {
+  const queryClient = useQueryClient()
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [authReady, setAuthReady] = useState(!supabaseIsConfigured)
 
-  const refreshProfile = useCallback(async () => {
-    try {
-      if (!user) {
-        setProfile(null)
-        return null
-      }
-      const p = await getMyProfile()
-      setProfile(p)
-      return p
-    } catch {
-      setProfile(null)
-      return null
-    }
-  }, [user])
+  const profileQuery = useQuery({
+    queryKey: ['profile'],
+    queryFn: () => getMyProfile(),
+    enabled: !!user && supabaseIsConfigured,
+    staleTime: 30_000,
+    retry: 1,
+  })
 
   useEffect(() => {
     let ignore = false
 
     const init = async () => {
-      setLoading(true)
-
       if (!supabaseIsConfigured) {
-        if (!ignore) setLoading(false)
+        if (!ignore) setAuthReady(true)
         return
       }
 
@@ -41,49 +34,59 @@ export function AuthProvider({ children }) {
         setSession(data.session || null)
         setUser(data.session?.user || null)
       }
-      setLoading(false)
+      setAuthReady(true)
     }
 
     init()
 
     if (!supabaseIsConfigured) {
-      return () => { ignore = true }
+      return () => {
+        ignore = true
+      }
     }
 
     const { data: sub } = getSupabase().auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       setUser(nextSession?.user || null)
+      if (!nextSession?.user) {
+        queryClient.removeQueries({ queryKey: ['profile'] })
+        queryClient.removeQueries({ queryKey: ['teams'] })
+      }
     })
 
     return () => {
       ignore = true
       sub?.subscription?.unsubscribe?.()
     }
-  }, [])
+  }, [queryClient])
 
-  useEffect(() => {
-    if (!user) {
-      queueMicrotask(() => setProfile(null))
-      return
-    }
-    queueMicrotask(() => {
-      refreshProfile()
-    })
-  }, [user, refreshProfile])
+  const refreshProfile = useCallback(async () => {
+    if (!user) return null
+    const result = await profileQuery.refetch()
+    return result.data ?? null
+  }, [user, profileQuery])
+
+  const loading =
+    !authReady || (!!user && profileQuery.isLoading && !profileQuery.data && !profileQuery.isError)
 
   const value = useMemo(
     () => ({
       loading,
       session,
       user,
-      profile,
+      profile: profileQuery.data ?? null,
+      profileError: profileQuery.error?.message || null,
       refreshProfile,
       isAuthed: !!user,
       authMode: 'supabase',
     }),
-    [loading, session, user, profile, refreshProfile]
+    [loading, session, user, profileQuery.data, profileQuery.error, refreshProfile],
   )
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {supabaseIsConfigured && user ? <RealtimeSync /> : null}
+      {children}
+    </AuthContext.Provider>
+  )
 }
-

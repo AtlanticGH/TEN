@@ -22,10 +22,7 @@ export async function ensureProfile(user) {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (error) {
-    console.error('Supabase Error:', error.message)
-    throw error
-  }
+  if (error) throw error
 
   if (data) return data
 
@@ -39,10 +36,7 @@ export async function ensureProfile(user) {
     .select(PROFILE_COLUMNS)
     .single()
 
-  if (insErr) {
-    console.error('Supabase Error:', insErr.message)
-    throw insErr
-  }
+  if (insErr) throw insErr
 
   return inserted
 }

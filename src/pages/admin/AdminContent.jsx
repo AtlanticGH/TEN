@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { EMPTY_HOME_HERO } from '../../config/siteContentDefaults'
-import { getSiteContent, upsertSiteContent } from '../../services/siteContent'
+import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO } from '../../config/siteContentDefaults'
+import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
+import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
 
 const HOME_HERO_KEY = 'home.hero.v1'
 
@@ -32,7 +33,8 @@ export function AdminContentPage() {
       try {
         const row = await getSiteContent(HOME_HERO_KEY)
         if (!alive) return
-        setValue((v) => ({ ...v, ...(row?.value || {}) }))
+        const cms = extractSiteContentValue(row)
+        setValue(cms ? mergeSiteContentDefaults(DEFAULT_HOME_HERO, cms) : { ...DEFAULT_HOME_HERO })
       } catch (err) {
         if (!alive) return
         setError(err?.message || 'Unable to load site content.')

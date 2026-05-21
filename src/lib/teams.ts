@@ -1,4 +1,5 @@
 import { apiFetch } from '@/lib/apiClient'
+import { queryClient } from '@/lib/queryClient'
 
 export type Team = {
   id: string
@@ -16,7 +17,9 @@ export async function listMyTeams(): Promise<Team[]> {
 export async function createTeam(name: string): Promise<Team> {
   const trimmed = String(name || '').trim()
   if (!trimmed) throw new Error('Team name is required.')
-  return (await apiFetch('/api/teams', { method: 'POST', body: JSON.stringify({ name: trimmed }) })) as Team
+  const team = (await apiFetch('/api/teams', { method: 'POST', body: JSON.stringify({ name: trimmed }) })) as Team
+  await queryClient.invalidateQueries({ queryKey: ['teams'] })
+  return team
 }
 
 export async function listTeamMembers(teamId: string) {
@@ -36,5 +39,6 @@ export async function addTeamMember({
     method: 'POST',
     body: JSON.stringify({ userId, role }),
   })
+  await queryClient.invalidateQueries({ queryKey: ['teams'] })
 }
 

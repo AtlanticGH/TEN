@@ -5,6 +5,7 @@
  */
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
+import { DEFAULT_HOME_HERO } from '../src/config/siteContentDefaults.js'
 
 dotenv.config({ path: ['.env', '.env.local'], override: true })
 
@@ -20,24 +21,7 @@ const supabase = createClient(url, key, {
   auth: { persistSession: false, autoRefreshToken: false },
 })
 
-const rows = [
-  {
-    key: 'home.hero.v1',
-    value: {
-      badge: 'A COMMUNITY OF IGNITION & EMPOWERMENT',
-      headline_before: 'Small sparks ignite',
-      headline_emphasis: 'big dreams at The Ember Network',
-      description:
-        'We help aspiring entrepreneurs and early-stage founders transform bold ideas into lasting ventures through mentorship, structured learning, and meaningful connections.',
-      cta_primary_label: 'Apply for Membership',
-      cta_primary_href: '/apply',
-      cta_secondary_label: 'Explore Our Story',
-      cta_secondary_href: '/about',
-      background_image:
-        'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1600&q=80',
-    },
-  },
-]
+const rows = [{ key: 'home.hero.v1', value: DEFAULT_HOME_HERO }]
 
 for (const row of rows) {
   const { error } = await supabase.from('site_content').upsert(

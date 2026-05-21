@@ -153,24 +153,11 @@ body {
   text-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* Gradient headline — solid fallback + webkit clip so text never renders invisible */
+/* Legacy class — home hero uses Tailwind gradient with text-orange-300 fallback */
 .ten-hero-emphasis {
   color: #fdba74;
   line-height: 1.15;
-  /* background-clip:text trims descenders (g, y, p) unless the line box has room */
   padding-bottom: 0.06em;
-  background-image: linear-gradient(to right, #fdba74, #fde68a, #fb923c);
-  -webkit-background-clip: text;
-  background-clip: text;
-  /* Avoid global color transitions breaking clipped gradient during theme toggle */
-  transition: none;
-}
-
-@supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .ten-hero-emphasis {
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-  }
 }
 
 /* Hero copy stays on its own layer above background/overlay (no visual change) */

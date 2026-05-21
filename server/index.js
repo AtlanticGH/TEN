@@ -81,11 +81,45 @@ async function verifyUser(req, res, next) {
   }
 }
 
-async function getMyProfileRow(userId) {
+async function ensureProfileRow(user) {
   if (!supabase) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
-  const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).single()
+  const userId = user?.id
+  if (!userId) throw new Error('Missing user id')
+
+  const { data: existing, error: readErr } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (readErr) throw readErr
+  if (existing) return existing
+
+  const { data: inserted, error: insErr } = await supabase
+    .from('profiles')
+    .insert({
+      user_id: userId,
+      email: user.email || null,
+      full_name: user.user_metadata?.full_name || '',
+      role: 'student',
+      status: 'active',
+    })
+    .select('*')
+    .single()
+
+  if (insErr) throw insErr
+  return inserted
+}
+
+async function getMyProfileRow(userId, authUser = null) {
+  if (!supabase) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
+  const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle()
   if (error) throw error
-  return data
+  if (data) return data
+  if (authUser?.id === userId) return await ensureProfileRow(authUser)
+  const err = new Error('Profile not found')
+  err.code = 'PGRST116'
+  throw err
 }
 
 function isStaffRole(role) {
@@ -179,7 +213,7 @@ app.get('/healthz', (_req, res) => res.status(200).send('ok'))
 
 app.get('/api/profile', verifyUser, async (req, res) => {
   try {
-    const row = await getMyProfileRow(req.user.id)
+    const row = await getMyProfileRow(req.user.id, req.user)
     res.json(row)
   } catch (err) {
     res.status(400).json({ error: err?.message || 'Profile error' })
@@ -268,9 +302,14 @@ app.post('/api/teams/:teamId/members', verifyUser, async (req, res) => {
   }
 })
 
-app.get('/api/courses', verifyUser, async (_req, res) => {
+app.get('/api/courses', verifyUser, async (req, res) => {
   try {
-    const { data, error } = await supabase.from('courses').select('*').order('created_at', { ascending: false })
+    const actor = await getMyProfileRow(req.user.id, req.user)
+    let q = supabase.from('courses').select('*').order('created_at', { ascending: false })
+    if (!isStaffRole(actor?.role)) {
+      q = q.eq('published', true)
+    }
+    const { data, error } = await q
     if (error) throw error
     res.json(data || [])
   } catch (err) {

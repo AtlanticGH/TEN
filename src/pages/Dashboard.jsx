@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { listCourses, listMyCourseProgress, listMyEnrollments, listMyMilestones, listMyNotifications, listMyUpcomingSessions } from '../services/db'
+import { useMemberDashboard } from '../hooks/useMemberDashboard'
+import { useTeams } from '../hooks/useTeams'
+import { TeamList } from '../components/dashboard/TeamList'
 
 function ProgressBar({ value }) {
   const v = Math.max(0, Math.min(100, Number(value) || 0))
@@ -162,50 +164,19 @@ function TimelineItem({ title, meta, body, tone = 'zinc' }) {
 export function DashboardPage() {
   const location = useLocation()
   const inMemberShell = location.pathname.startsWith('/member')
-  const { profile, user, refreshProfile } = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [courses, setCourses] = useState([])
-  const [enrollments, setEnrollments] = useState([])
-  const [progress, setProgress] = useState([])
-  const [milestones, setMilestones] = useState([])
-  const [notifications, setNotifications] = useState([])
-  const [sessions, setSessions] = useState([])
+  const { profile, user } = useAuth()
+  const { data, isLoading, isError, error, refetch } = useMemberDashboard()
+  const teamsQuery = useTeams()
 
-  useEffect(() => {
-    let alive = true
-    const run = async () => {
-      setLoading(true)
-      setError('')
-      try {
-        const [c, e, p, m, n, s] = await Promise.all([
-          listCourses(),
-          listMyEnrollments(),
-          listMyCourseProgress(),
-          listMyMilestones(),
-          listMyNotifications({ limit: 6 }),
-          listMyUpcomingSessions({ limit: 5 }),
-        ])
-        if (!alive) return
-        setCourses(c)
-        setEnrollments(e)
-        setProgress(p)
-        setMilestones(m)
-        setNotifications(n)
-        setSessions(s)
-        await refreshProfile()
-      } catch (err) {
-        if (!alive) return
-        setError(err?.message || 'Unable to load your dashboard right now.')
-      } finally {
-        if (alive) setLoading(false)
-      }
-    }
-    run()
-    return () => {
-      alive = false
-    }
-  }, [refreshProfile])
+  const loading = isLoading
+  const loadError = isError ? error?.message || 'Unable to load your dashboard right now.' : ''
+  const courses = data?.courses || []
+  const enrollments = data?.enrollments || []
+  const progress = data?.progress || []
+  const milestones = data?.milestones || []
+  const notifications = data?.notifications || []
+  const sessions = data?.sessions || []
+  const teamMemberships = teamsQuery.data || []
 
   const courseById = useMemo(() => {
     const map = new Map()
@@ -421,9 +392,16 @@ export function DashboardPage() {
               <Skeleton className="h-48 rounded-3xl md:col-span-2" />
               <Skeleton className="h-48 rounded-3xl" />
             </div>
-          ) : error ? (
+          ) : loadError ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-              {error}
+              <p>{loadError}</p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-4 rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-400"
+              >
+                Retry
+              </button>
             </div>
           ) : (
             <>
@@ -569,6 +547,8 @@ export function DashboardPage() {
                   </div>
                 </aside>
               </div>
+
+              <TeamList memberships={teamMemberships} />
             </>
           )}
         </section>

@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { enrollInCourse, listCourses, listMyCourseProgress, listMyEnrollments } from '../services/db'
+import { enrollInCourse } from '../services/db'
+import { useMemberCourses } from '../hooks/useMemberCourses'
+import { queryClient } from '@/lib/queryClient'
 
 function ProgressPill({ value }) {
   const v = Math.max(0, Math.min(100, Number(value) || 0))
@@ -20,34 +22,16 @@ export function CoursesPage() {
   const location = useLocation()
   const inMemberShell = location.pathname.startsWith('/member')
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [courses, setCourses] = useState([])
-  const [enrollments, setEnrollments] = useState([])
-  const [progress, setProgress] = useState([])
+  const { data, isLoading, isError, error, refetch } = useMemberCourses()
   const [enrollingId, setEnrollingId] = useState('')
+  const [enrollError, setEnrollError] = useState('')
   const [query, setQuery] = useState('')
 
-  const refresh = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const [c, e, p] = await Promise.all([listCourses(), listMyEnrollments(), listMyCourseProgress()])
-      setCourses(c)
-      setEnrollments(e)
-      setProgress(p)
-    } catch (err) {
-      setError(err?.message || 'Unable to load courses.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      refresh()
-    })
-  }, [])
+  const loading = isLoading
+  const loadError = isError ? error?.message || 'Unable to load courses.' : ''
+  const courses = data?.courses || []
+  const enrollments = data?.enrollments || []
+  const progress = data?.progress || []
 
   const enrolledCourseIds = useMemo(() => new Set(enrollments.map((e) => e.course_id)), [enrollments])
   const progressByCourse = useMemo(() => {
@@ -104,6 +88,12 @@ export function CoursesPage() {
         </div>
       </header>
 
+      {enrollError ? (
+        <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
+          {enrollError}
+        </div>
+      ) : null}
+
       {loading ? (
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <Skeleton className="h-48" />
@@ -111,9 +101,16 @@ export function CoursesPage() {
           <Skeleton className="h-48" />
           <Skeleton className="h-48" />
         </div>
-      ) : error ? (
+      ) : loadError ? (
         <div className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-200">
-          {error}
+          <p>{loadError}</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="mt-4 rounded-full bg-orange-500 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-400"
+          >
+            Retry
+          </button>
         </div>
       ) : (
         <section className="mt-8 grid gap-4 md:grid-cols-2">
@@ -153,10 +150,12 @@ export function CoursesPage() {
                       onClick={async () => {
                         setEnrollingId(c.id)
                         try {
+                          setEnrollError('')
                           await enrollInCourse(c.id)
-                          await refresh()
+                          await queryClient.invalidateQueries({ queryKey: ['member-courses'] })
+                          await queryClient.invalidateQueries({ queryKey: ['member-dashboard'] })
                         } catch (err) {
-                          setError(err?.message || 'Unable to enroll.')
+                          setEnrollError(err?.message || 'Unable to enroll.')
                         } finally {
                           setEnrollingId('')
                         }
