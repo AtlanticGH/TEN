@@ -20,6 +20,7 @@ Migrations apply in **filename timestamp** order. Do not insert `ALTER` before `
 | 014 | `20260321130115_mentor_announcements.sql` | Legacy admin-audience mentor_mentees on `announcements` (superseded for mentors by 016) |
 | 015 | `20260321130116_mentor_student_communication.sql` | `mentor_students`, `mentor_announcements`, recipients, peer profile RLS, realtime |
 | 016 | `20260321130117_fix_mentor_announcements_rls.sql` | Break `mentor_announcements` ↔ recipients RLS recursion |
+| 017 | `20260321130118_resources_file_metadata.sql` | `resources.mime_type`, `resources.size_bytes` + schema cache reload |
 
 Full architecture: `docs/DATABASE_ARCHITECTURE.md`
 

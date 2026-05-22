@@ -249,6 +249,8 @@ export interface Database {
           bucket: string
           path: string | null
           file_url: string | null
+          mime_type: string | null
+          size_bytes: number | null
         }
         Insert: {
           id?: string
@@ -260,6 +262,8 @@ export interface Database {
           bucket?: string
           path?: string | null
           file_url?: string | null
+          mime_type?: string | null
+          size_bytes?: number | null
         }
         Update: Partial<Database['public']['Tables']['resources']['Insert']>
       }

@@ -509,7 +509,9 @@ create table if not exists public.resources (
   category text,
   bucket text not null default 'public',
   path text,
-  file_url text
+  file_url text,
+  mime_type text,
+  size_bytes bigint
 );
 
 create index if not exists resources_created_at_idx on public.resources(created_at desc);
