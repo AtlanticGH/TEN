@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSiteHeaderMode } from '../../hooks/useSiteHeaderMode'
+import { PageTransition } from '../shared/PageTransition'
 import { ChatWidget } from '../shared/ChatWidget'
 import { Footer } from './Footer'
 import { SiteNavbar } from './Header'
@@ -21,7 +22,7 @@ export function MainLayout({ children }) {
     >
       <ScrollProgress />
       <SiteNavbar mode={headerMode} />
-      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      <PageTransition>{children}</PageTransition>
       <Footer />
       <ChatWidget />
     </div>

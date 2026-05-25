@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Reveal } from '../components/shared/Reveal'
+import { HomeHeroMotion } from '../components/shared/HomeHeroMotion'
 import { useHomeHero } from '../hooks/useHomeHero'
 
 export function HomePage() {
@@ -14,79 +15,7 @@ export function HomePage() {
         data-section="hero-gateway"
         className="relative min-h-[100dvh] overflow-hidden bg-zinc-950"
       >
-        {/* Background image */}
-        {bg ? (
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url('${bg}')` }}
-          />
-        ) : (
-          <div aria-hidden="true" className="absolute inset-0 bg-zinc-900" />
-        )}
-        {/* Overlay gradient — slightly more opaque for better text contrast */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/55 to-zinc-950/95"
-        />
-
-        {/* Content */}
-        <div className="relative mx-auto flex min-h-[100dvh] max-w-7xl flex-col justify-center px-6 pb-20 pt-32 sm:px-8 md:px-12 md:pb-24 lg:px-10">
-          <div className="ten-hero-content max-w-6xl">
-
-            {heroCopy.badge ? (
-            <p className="mb-6 inline-block w-fit rounded-full border border-white/25 bg-white/[0.07] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-300/90 backdrop-blur-sm">
-              {heroCopy.badge}
-            </p>
-            ) : null}
-
-            {/* Headline */}
-            {(heroCopy.headline_before || heroCopy.headline_emphasis) ? (
-            <h1 className="text-[clamp(2rem,6vw,4rem)] font-extrabold leading-[1.04] tracking-[-0.025em] text-white ten-hero-text-shadow">
-              {heroCopy.headline_before ? (
-              <span className="block text-white">{heroCopy.headline_before}</span>
-              ) : null}
-              {heroCopy.headline_emphasis ? (
-              <span className="ten-hero-emphasis mt-1 block">
-                {heroCopy.headline_emphasis}
-              </span>
-              ) : null}
-            </h1>
-            ) : (
-              <h1 className="text-3xl font-bold text-white">The Ember Network</h1>
-            )}
-
-            {/* Description */}
-            {heroCopy.description ? (
-            <p className="mt-6 max-w-5xl text-balance text-[15px] leading-snug text-zinc-200/85 md:text-[17px] md:leading-snug">
-              {heroCopy.description}
-            </p>
-            ) : null}
-
-            {/* CTAs */}
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              {heroCopy.cta_primary_label ? (
-              <Link
-                to={heroCopy.cta_primary_href || '/apply'}
-                className="inline-flex min-h-[48px] min-w-[11rem] items-center justify-center rounded-full bg-orange-500 px-7 py-3 text-[15px] font-semibold text-white shadow-glow ring-1 ring-white/10 transition-all duration-200 ease-out hover:bg-orange-400 hover:shadow-[0_0_0_1px_rgba(249,115,22,0.2),0_12px_32px_rgba(249,115,22,0.35)] active:scale-[0.98]"
-              >
-                {heroCopy.cta_primary_label}
-              </Link>
-              ) : null}
-              {heroCopy.cta_secondary_label ? (
-              <Link
-                to={heroCopy.cta_secondary_href || '/about'}
-                className="inline-flex min-h-[48px] items-center gap-1.5 justify-center rounded-full border border-white/30 bg-transparent px-6 py-3 text-[14px] font-medium text-white/80 backdrop-blur-sm transition-all duration-200 ease-out hover:border-white/50 hover:bg-white/[0.07] hover:text-white active:scale-[0.98]"
-              >
-                {heroCopy.cta_secondary_label}
-                <svg className="h-3.5 w-3.5 opacity-70" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-              ) : null}
-            </div>
-          </div>
-        </div>
+        <HomeHeroMotion heroCopy={heroCopy} bg={bg} />
 
         {/* Bottom wave into orange section */}
         <div className="pointer-events-none absolute inset-x-0 -bottom-px" aria-hidden="true">

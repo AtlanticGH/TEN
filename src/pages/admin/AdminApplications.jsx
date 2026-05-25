@@ -293,6 +293,7 @@ export function AdminApplicationsPage() {
                       action: decisionKind,
                       emailWarning: result?.emailWarning === true,
                       email: decisionItem?.email || '',
+                      detail: result?.error || '',
                     })
                     window.setTimeout(async () => {
                       setDecisionOpen(false)
@@ -335,9 +336,20 @@ export function AdminApplicationsPage() {
                 <p className="mt-3 font-mono text-xs text-amber-950 dark:text-amber-100">{decisionSuccess.email}</p>
               </div>
             ) : null}
-            {decisionSuccess.action === 'reject' ? (
+            {decisionSuccess.action === 'reject' && !decisionSuccess.emailWarning ? (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
                 <p className="text-lg font-semibold">✓ Application rejected and notification sent.</p>
+              </div>
+            ) : null}
+            {decisionSuccess.action === 'reject' && decisionSuccess.emailWarning ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                <p className="text-lg font-semibold">Application rejected</p>
+                <p className="mt-2">
+                  ⚠ The rejection email could not be sent. Please notify the applicant directly.
+                </p>
+                {decisionSuccess.detail ? (
+                  <p className="mt-2 text-xs text-amber-950 dark:text-amber-100">{decisionSuccess.detail}</p>
+                ) : null}
               </div>
             ) : null}
           </div>

@@ -1,32 +1,46 @@
-import { useInView } from '../../hooks/useInView'
+import { motion, useReducedMotion } from 'framer-motion'
+import { fadeUp, transition, viewport } from '../../lib/motion'
+
+const motionTags = {
+  div: motion.div,
+  section: motion.section,
+  article: motion.article,
+  li: motion.li,
+  header: motion.header,
+}
 
 /**
- * Reveal — fade + slide-up animation on scroll into view.
- * Respects prefers-reduced-motion via CSS.
+ * Reveal — fade + slide-up on scroll (Framer Motion).
+ * Respects prefers-reduced-motion.
  *
  * Props:
- *   as        – element/component to render (default: 'div')
+ *   as        – element tag (default: 'div')
  *   delay     – stagger delay in ms (0, 100, 200 …)
  *   className – additional classes
  */
-export function Reveal({ as: As = 'div', delay = 0, className = '', children, ...props }) {
-  const { ref, inView } = useInView({ once: true, threshold: 0.12 })
+export function Reveal({ as: asTag = 'div', delay = 0, className = '', children, ...props }) {
+  const reduceMotion = useReducedMotion()
+  const Component = motionTags[asTag] || motion.div
+
+  if (reduceMotion) {
+    return (
+      <Component className={className} {...props}>
+        {children}
+      </Component>
+    )
+  }
 
   return (
-    <As
-      ref={ref}
-      className={[
-        'transition-[opacity,transform] ease-out will-change-transform motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:opacity-100',
-        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
-        className,
-      ].join(' ')}
-      style={{
-        transitionDuration: '380ms',
-        transitionDelay: inView ? `${delay}ms` : '0ms',
-      }}
+    <Component
+      className={className}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewport}
+      variants={fadeUp}
+      transition={{ ...transition, delay: delay / 1000 }}
       {...props}
     >
       {children}
-    </As>
+    </Component>
   )
 }

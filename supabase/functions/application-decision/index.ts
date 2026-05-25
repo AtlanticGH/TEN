@@ -202,9 +202,8 @@ serve(async (req) => {
     if (!supabaseUrl || !serviceKey) {
       return jsonResponse(500, { ok: false, error: 'Server configuration error' })
     }
-    if (!resendKey || !emailFrom) {
-      return jsonResponse(500, { ok: false, error: 'Email service is not configured (RESEND_API_KEY / EMAIL_FROM)' })
-    }
+
+    const emailReady = Boolean(resendKey && emailFrom)
 
     const authHeader = req.headers.get('Authorization') ?? ''
     const token = authHeader.replace(/^Bearer\s+/i, '').trim()
@@ -267,7 +266,7 @@ serve(async (req) => {
       return jsonResponse(404, { ok: false, error: 'Application not found' })
     }
 
-    const resend = new Resend(resendKey)
+    const resend = emailReady ? new Resend(resendKey) : null
     const nowIso = new Date().toISOString()
     const first = firstName(applicantName || app.full_name || '')
 
@@ -350,6 +349,15 @@ serve(async (req) => {
         .then(() => {})
         .catch(() => {})
 
+      if (!emailReady || !resend) {
+        return jsonResponse(200, {
+          ok: true,
+          action: 'approve',
+          emailWarning: true,
+          error: 'Account created. Set RESEND_API_KEY and EMAIL_FROM in Supabase secrets to send welcome email.',
+        })
+      }
+
       try {
         const { data: emailData, error: emailErr } = await resend.emails.send({
           from: emailFrom,
@@ -410,23 +418,38 @@ serve(async (req) => {
       .then(() => {})
       .catch(() => {})
 
-    const { data: emailData, error: emailErr } = await resend.emails.send({
-      from: emailFrom,
-      to: applicantEmail,
-      subject: 'Your Ember Network Application — An Update',
-      html: rejectionEmailHtml({ first, rejectionReason }),
-    })
-
-    if (emailErr) {
-      return jsonResponse(500, { ok: false, error: `Rejected in database but email failed: ${emailErr.message}` })
+    if (!emailReady || !resend) {
+      return jsonResponse(200, {
+        ok: true,
+        action: 'reject',
+        emailWarning: true,
+        error: 'Application rejected. Set RESEND_API_KEY and EMAIL_FROM in Supabase secrets to send notification email.',
+      })
     }
 
-    return jsonResponse(200, {
-      ok: true,
-      action: 'reject',
-      emailId: emailData?.id ?? null,
-      emailWarning: false,
-    })
+    try {
+      const { data: emailData, error: emailErr } = await resend.emails.send({
+        from: emailFrom,
+        to: applicantEmail,
+        subject: 'Your Ember Network Application — An Update',
+        html: rejectionEmailHtml({ first, rejectionReason }),
+      })
+      if (emailErr) throw emailErr
+      return jsonResponse(200, {
+        ok: true,
+        action: 'reject',
+        emailId: emailData?.id ?? null,
+        emailWarning: false,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Email send failed'
+      return jsonResponse(200, {
+        ok: true,
+        action: 'reject',
+        emailWarning: true,
+        error: `Application rejected in database but email could not be sent: ${msg}`,
+      })
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unexpected error'
     return jsonResponse(500, { ok: false, error: message })

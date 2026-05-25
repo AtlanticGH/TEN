@@ -1,6 +1,24 @@
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { logActivity } from './activityLogs'
 import { apiFetch } from '@/lib/apiClient'
 import { getSupabase } from '@/lib/supabaseClient'
+
+async function invokeApplicationDecision(body) {
+  const { data, error } = await getSupabase().functions.invoke('application-decision', { body })
+  if (error) {
+    if (error instanceof FunctionsHttpError) {
+      try {
+        const payload = await error.context.json()
+        throw new Error(payload?.error || error.message)
+      } catch (parseErr) {
+        if (parseErr instanceof Error && parseErr.message !== error.message) throw parseErr
+      }
+    }
+    throw error
+  }
+  if (!data?.ok) throw new Error(data?.error || 'Request failed')
+  return data
+}
 
 export async function listAdminSummary() {
   return await apiFetch('/api/admin/summary', { method: 'GET' })
@@ -58,17 +76,12 @@ export async function approveApplication(applicationId) {
     .single()
   if (fetchErr) throw fetchErr
 
-  const { data, error } = await getSupabase().functions.invoke('application-decision', {
-    body: {
-      action: 'approve',
-      applicationId: app.id,
-      applicantName: app.full_name,
-      applicantEmail: app.email,
-    },
+  return invokeApplicationDecision({
+    action: 'approve',
+    applicationId: app.id,
+    applicantName: app.full_name,
+    applicantEmail: app.email,
   })
-  if (error) throw error
-  if (!data?.ok) throw new Error(data?.error || 'Approval failed')
-  return data
 }
 
 export async function rejectApplication(applicationId, { rejectionReason = '' } = {}) {
@@ -79,17 +92,12 @@ export async function rejectApplication(applicationId, { rejectionReason = '' } 
     .single()
   if (fetchErr) throw fetchErr
 
-  const { data, error } = await getSupabase().functions.invoke('application-decision', {
-    body: {
-      action: 'reject',
-      applicationId: app.id,
-      applicantName: app.full_name,
-      applicantEmail: app.email,
-      rejectionReason: rejectionReason || null,
-    },
+  return invokeApplicationDecision({
+    action: 'reject',
+    applicationId: app.id,
+    applicantName: app.full_name,
+    applicantEmail: app.email,
+    rejectionReason: rejectionReason || null,
   })
-  if (error) throw error
-  if (!data?.ok) throw new Error(data?.error || 'Rejection failed')
-  return data
 }
 
