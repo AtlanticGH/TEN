@@ -92,3 +92,31 @@ UPDATE public.profiles SET role = 'super_admin' WHERE email = 'your@email.com';
 ```sql
 NOTIFY pgrst, 'reload schema';
 ```
+
+## Deploying Edge Functions
+
+Application approve/reject emails use the `application-decision` function (Resend).
+
+Set secrets first (one-time per project):
+
+```bash
+supabase secrets set RESEND_API_KEY=re_your_key_here
+supabase secrets set EMAIL_FROM=noreply@theembernetwork.com
+supabase secrets set VITE_SITE_URL=https://theembernetwork.com
+```
+
+Deploy the function:
+
+```bash
+supabase functions deploy application-decision
+```
+
+Test locally before deploying:
+
+```bash
+cp supabase/functions/application-decision/.env.example supabase/functions/application-decision/.env
+# Edit .env with your keys, then:
+supabase functions serve application-decision --env-file ./supabase/functions/application-decision/.env
+```
+
+Admin UI calls this via `supabase.functions.invoke('application-decision', …)` from `src/services/admin.js`.

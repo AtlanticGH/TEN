@@ -52,7 +52,7 @@ export function LoginPage() {
   useEffect(() => {
     if (!isAuthed) return
     if (user?.user_metadata?.force_password_reset) {
-      navigate('/member/change-password', { replace: true })
+      navigate('/reset-password', { replace: true, state: { forced: true } })
       return
     }
     const role = profile?.role
@@ -82,7 +82,7 @@ export function LoginPage() {
       setAttemptCount(0)
       setLockoutRemaining(0)
       if (res?.user?.user_metadata?.force_password_reset) {
-        navigate('/member/change-password', { replace: true })
+        navigate('/reset-password', { replace: true, state: { forced: true } })
         return
       }
       const role = res?.profile?.role || profile?.role

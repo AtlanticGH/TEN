@@ -30,6 +30,7 @@ export function AdminApplicationsPage() {
   const [decisionKind, setDecisionKind] = useState('') // 'approve' | 'reject'
   const [decisionId, setDecisionId] = useState('')
   const [rejectionReason, setRejectionReason] = useState('')
+  const [decisionSuccess, setDecisionSuccess] = useState(null)
 
   const refresh = async () => {
     setLoading(true)
@@ -126,15 +127,17 @@ export function AdminApplicationsPage() {
                 </button>
                 <button
                   type="button"
-                  disabled={busyId === a.id}
+                  disabled={busyId === a.id || a.status === 'approved'}
                   onClick={async () => {
                     setDecisionKind('approve')
                     setDecisionId(a.id)
+                    setRejectionReason('')
+                    setDecisionSuccess(null)
                     setDecisionOpen(true)
                   }}
                   className="rounded-full bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
                 >
-                  Approve
+                  {a.status === 'approved' ? 'Approved ✓' : 'Approve & email'}
                 </button>
                 <button
                   type="button"
@@ -156,16 +159,17 @@ export function AdminApplicationsPage() {
                 </button>
                 <button
                   type="button"
-                  disabled={busyId === a.id}
+                  disabled={busyId === a.id || a.status === 'rejected'}
                   onClick={async () => {
                     setDecisionKind('reject')
                     setDecisionId(a.id)
                     setRejectionReason(a.rejection_reason || '')
+                    setDecisionSuccess(null)
                     setDecisionOpen(true)
                   }}
                   className="rounded-full bg-rose-600 px-3 py-2 text-xs font-semibold text-white hover:bg-rose-500 disabled:opacity-60"
                 >
-                  Reject
+                  {a.status === 'rejected' ? 'Rejected' : 'Reject & email'}
                 </button>
               </div>
             </div>
@@ -252,56 +256,92 @@ export function AdminApplicationsPage() {
           setDecisionOpen(false)
           setDecisionKind('')
           setDecisionId('')
+          setDecisionSuccess(null)
         }}
         title={decisionKind === 'reject' ? 'Reject application' : 'Approve application'}
         footer={
-          <div className="flex flex-wrap justify-end gap-2">
-            <button
-              type="button"
-              disabled={!!busyId}
-              onClick={() => {
-                setDecisionOpen(false)
-                setDecisionKind('')
-                setDecisionId('')
-              }}
-              className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-200"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={!!busyId || !decisionId}
-              onClick={async () => {
-                if (!decisionId) return
-                setBusyId(decisionId)
-                setError('')
-                try {
-                  if (decisionKind === 'reject') {
-                    await rejectApplication(decisionId, { rejectionReason })
-                  } else {
-                    await approveApplication(decisionId)
-                  }
+          decisionSuccess ? null : (
+            <div className="flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                disabled={!!busyId}
+                onClick={() => {
                   setDecisionOpen(false)
                   setDecisionKind('')
                   setDecisionId('')
-                  await refresh()
-                } catch (err) {
-                  setError(err?.message || 'Unable to update application.')
-                } finally {
-                  setBusyId('')
-                }
-              }}
-              className={[
-                'rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-60',
-                decisionKind === 'reject' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500',
-              ].join(' ')}
-            >
-              {busyId ? 'Working…' : decisionKind === 'reject' ? 'Reject & email' : 'Approve & email'}
-            </button>
-          </div>
+                  setDecisionSuccess(null)
+                }}
+                className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!!busyId || !decisionId}
+                onClick={async () => {
+                  if (!decisionId) return
+                  setBusyId(decisionId)
+                  setError('')
+                  try {
+                    let result
+                    if (decisionKind === 'reject') {
+                      result = await rejectApplication(decisionId, { rejectionReason })
+                    } else {
+                      result = await approveApplication(decisionId)
+                    }
+                    setDecisionSuccess({
+                      action: decisionKind,
+                      emailWarning: result?.emailWarning === true,
+                      email: decisionItem?.email || '',
+                    })
+                    window.setTimeout(async () => {
+                      setDecisionOpen(false)
+                      setDecisionKind('')
+                      setDecisionId('')
+                      setDecisionSuccess(null)
+                      await refresh()
+                    }, 2000)
+                  } catch (err) {
+                    setError(err?.message || 'Unable to update application.')
+                  } finally {
+                    setBusyId('')
+                  }
+                }}
+                className={[
+                  'rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-60',
+                  decisionKind === 'reject' ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500',
+                ].join(' ')}
+              >
+                {busyId ? 'Working…' : decisionKind === 'reject' ? 'Reject & email' : 'Approve & email'}
+              </button>
+            </div>
+          )
         }
       >
-        {decisionItem ? (
+        {decisionSuccess ? (
+          <div className="space-y-3">
+            {decisionSuccess.action === 'approve' && !decisionSuccess.emailWarning ? (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+                <p className="text-lg font-semibold">✓ Account created and welcome email sent!</p>
+                <p className="mt-2">Login credentials have been emailed to {decisionSuccess.email}</p>
+              </div>
+            ) : null}
+            {decisionSuccess.action === 'approve' && decisionSuccess.emailWarning ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                <p className="text-lg font-semibold">Account created successfully</p>
+                <p className="mt-2">
+                  ⚠ The welcome email could not be sent. Please share login credentials with the member directly.
+                </p>
+                <p className="mt-3 font-mono text-xs text-amber-950 dark:text-amber-100">{decisionSuccess.email}</p>
+              </div>
+            ) : null}
+            {decisionSuccess.action === 'reject' ? (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+                <p className="text-lg font-semibold">✓ Application rejected and notification sent.</p>
+              </div>
+            ) : null}
+          </div>
+        ) : decisionItem ? (
           <div className="space-y-3">
             <p className="text-sm text-zinc-600 dark:text-zinc-300">
               Applicant: <span className="font-semibold text-zinc-900 dark:text-zinc-100">{decisionItem.full_name}</span> • {decisionItem.email}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { InnerPageHero } from '../components/shared/InnerPageHero'
 import { getSupabase } from '@/lib/supabaseClient'
 import { updateMyPassword } from '../services/auth'
@@ -12,6 +12,8 @@ function isRecoveryHash() {
 
 export function ResetPasswordPage() {
   const navigate = useNavigate()
+  const { state } = useLocation()
+  const forced = state?.forced === true
   const [loading, setLoading] = useState(true)
   const [recoveryReady, setRecoveryReady] = useState(false)
   const [password, setPassword] = useState('')
@@ -28,8 +30,13 @@ export function ResetPasswordPage() {
     }
 
     const init = async () => {
-      await getSupabase().auth.getSession()
-      if (!ignore) setLoading(false)
+      const { data } = await getSupabase().auth.getSession()
+      if (!ignore) {
+        if (forced && data.session) {
+          setRecoveryReady(true)
+        }
+        setLoading(false)
+      }
     }
 
     init()
@@ -46,7 +53,7 @@ export function ResetPasswordPage() {
       ignore = true
       sub?.subscription?.unsubscribe?.()
     }
-  }, [])
+  }, [forced])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -66,7 +73,11 @@ export function ResetPasswordPage() {
     setSubmitting(true)
     try {
       await updateMyPassword(password)
-      setSuccess('Your password has been updated. Redirecting…')
+      setSuccess(
+        forced
+          ? 'Welcome to The Ember Network! Your password is set. Redirecting…'
+          : 'Your password has been updated. Redirecting…',
+      )
       window.setTimeout(() => navigate('/member', { replace: true }), 1200)
     } catch (err) {
       setError(err?.message || 'Unable to update password. Please try again.')
@@ -76,15 +87,23 @@ export function ResetPasswordPage() {
   }
 
   const heroHeading = loading
-    ? 'Reset password'
+    ? forced
+      ? 'Set your password'
+      : 'Reset password'
     : recoveryReady
-      ? 'Choose new password'
+      ? forced
+        ? 'Set your password'
+        : 'Choose new password'
       : 'Reset link invalid'
 
   const heroDescription = loading
-    ? 'Verifying your reset link…'
+    ? forced
+      ? 'Preparing your account…'
+      : 'Verifying your reset link…'
     : recoveryReady
-      ? 'Enter and confirm your new password below.'
+      ? forced
+        ? 'Welcome to The Ember Network! Please set a personal password to secure your account.'
+        : 'Enter and confirm your new password below.'
       : 'This link has expired or is invalid. Request a new one.'
 
   return (
@@ -117,8 +136,12 @@ export function ResetPasswordPage() {
           ) : (
             <>
               <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Account</p>
-              <h1 className="mt-3 text-3xl font-semibold">Choose new password</h1>
-              <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">Enter and confirm your new password below.</p>
+              <h1 className="mt-3 text-3xl font-semibold">{forced ? 'Set your password' : 'Choose new password'}</h1>
+              <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
+                {forced
+                  ? 'Welcome to The Ember Network! Please set a personal password to secure your account.'
+                  : 'Enter and confirm your new password below.'}
+              </p>
 
               <form className="mt-6 space-y-4" onSubmit={submit}>
                 <div>

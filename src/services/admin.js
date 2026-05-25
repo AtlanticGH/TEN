@@ -1,5 +1,6 @@
 import { logActivity } from './activityLogs'
 import { apiFetch } from '@/lib/apiClient'
+import { getSupabase } from '@/lib/supabaseClient'
 
 export async function listAdminSummary() {
   return await apiFetch('/api/admin/summary', { method: 'GET' })
@@ -50,10 +51,45 @@ export async function inviteApprovedApplicant(applicationId, { role = 'student' 
 }
 
 export async function approveApplication(applicationId) {
-  return await apiFetch('/api/applications/approve', { method: 'POST', body: JSON.stringify({ applicationId }) })
+  const { data: app, error: fetchErr } = await getSupabase()
+    .from('applications')
+    .select('id, full_name, email')
+    .eq('id', applicationId)
+    .single()
+  if (fetchErr) throw fetchErr
+
+  const { data, error } = await getSupabase().functions.invoke('application-decision', {
+    body: {
+      action: 'approve',
+      applicationId: app.id,
+      applicantName: app.full_name,
+      applicantEmail: app.email,
+    },
+  })
+  if (error) throw error
+  if (!data?.ok) throw new Error(data?.error || 'Approval failed')
+  return data
 }
 
 export async function rejectApplication(applicationId, { rejectionReason = '' } = {}) {
-  return await apiFetch('/api/applications/reject', { method: 'POST', body: JSON.stringify({ applicationId, rejectionReason }) })
+  const { data: app, error: fetchErr } = await getSupabase()
+    .from('applications')
+    .select('id, full_name, email')
+    .eq('id', applicationId)
+    .single()
+  if (fetchErr) throw fetchErr
+
+  const { data, error } = await getSupabase().functions.invoke('application-decision', {
+    body: {
+      action: 'reject',
+      applicationId: app.id,
+      applicantName: app.full_name,
+      applicantEmail: app.email,
+      rejectionReason: rejectionReason || null,
+    },
+  })
+  if (error) throw error
+  if (!data?.ok) throw new Error(data?.error || 'Rejection failed')
+  return data
 }
 
