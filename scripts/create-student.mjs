@@ -81,6 +81,11 @@ async function setStudentProfile(userId) {
 const { data: existing } = await supabase.from('profiles').select('user_id,email,role').eq('email', email).maybeSingle()
 if (existing?.user_id) {
   await setStudentProfile(existing.user_id)
+  const { error: pwdErr } = await supabase.auth.admin.updateUserById(existing.user_id, {
+    password,
+    email_confirm: true,
+  })
+  if (pwdErr) console.warn('Note: could not update password:', pwdErr.message)
   console.log(`Promoted existing user to student: ${email}`)
   console.log(`Login at ${origin}/login → ${origin}/dashboard`)
   process.exit(0)
