@@ -10,14 +10,14 @@ export function AdminLayout() {
 
   const renderNav = ({ onNavigate } = {}) => (
     <div className="grid gap-2">
-      <DashboardNavLink to="/admin/dashboard" end onNavigate={onNavigate}>
-        Dashboard
+      <DashboardNavLink to="/admin/overview" end onNavigate={onNavigate}>
+        Overview
       </DashboardNavLink>
       <DashboardNavLink to="/admin/applications" onNavigate={onNavigate}>
         Applications
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/users" onNavigate={onNavigate}>
-        Users
+      <DashboardNavLink to="/admin/members" onNavigate={onNavigate}>
+        Members
       </DashboardNavLink>
       <DashboardNavLink to="/admin/courses" onNavigate={onNavigate}>
         Courses

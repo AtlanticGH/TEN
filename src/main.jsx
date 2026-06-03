@@ -1,94 +1,46 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
-import { HomePage } from './pages/HomePage'
-import { homeHeroQueryOptions } from './hooks/useHomeHero'
-import { LegacyMemberCourseRedirect, LegacyMemberLessonRedirect } from './components/routing/LegacyMemberRedirects'
-import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
-import { ProtectedRoute } from './components/auth/ProtectedRoute'
-import { MentorRoute } from './components/auth/MentorRoute'
+import { AdminRoute } from './components/auth/AdminRoute'
 import { SuperAdminRoute } from './components/auth/SuperAdminRoute'
-
-import {
-  AboutPage,
-  AdminAnnouncementsPage,
-  AdminApplicationsPage,
-  AdminCoursesPage,
-  AdminContentPage,
-  AdminCourseEditorPage,
-  AdminGate,
-  AdminLayout,
-  AdminLogsPage,
-  AdminMediaPage,
-  AdminMembersPage,
-  AdminOverviewPage,
-  AdminResourcesPage,
-  AdminMemberProgressPage,
-  AdminSessionsPage,
-  AdminSettingsPage,
-  ContactPage,
-  CourseDetailsPage,
-  CoursesPage,
-  DashboardPage,
-  LessonPage,
-  MemberActivityPage,
-  MemberAnnouncementsPage,
-  MemberMentorProfilePage,
-  MemberLayout,
-  MentorLayout,
-  MentorDashboardPage,
-  MentorStudentsPage,
-  MentorCoursesPage,
-  MentorCourseEditorPage,
-  MentorAssignmentsPage,
-  MentorAnnouncementsPage,
-  MentorStudentProfilePage,
-  ChangePasswordPage,
-  PageFallback,
-  ProfilePage,
-  ProgramComponentsPage,
-  ProgramsPage,
-  ResourcesPage,
-} from './router/lazyPages'
+import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
+import { PageFallback } from './router/lazyPages'
 import { queryClient } from './lib/queryClient'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
+import { HomePage } from './pages/HomePage'
 
-const memberCourseRoutes = [
-  {
-    path: 'courses',
-    element: (
-      <PageFallback>
-        <CoursesPage />
-      </PageFallback>
-    ),
-  },
-  {
-    path: 'courses/:courseId',
-    element: (
-      <PageFallback>
-        <CourseDetailsPage />
-      </PageFallback>
-    ),
-  },
-  {
-    path: 'courses/:courseId/lessons/:lessonId',
-    element: (
-      <PageFallback>
-        <LessonPage />
-      </PageFallback>
-    ),
-  },
-]
+// ── Public pages (lazy) ─────────────────────────────────────────────────────
+const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
+const ProgramsPage = lazy(() => import('./pages/ProgramsPage').then((m) => ({ default: m.ProgramsPage })))
+const ResourcesPage = lazy(() => import('./pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage })))
+const ContactPage = lazy(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })))
+const JoinCommunityPage = lazy(() => import('./pages/JoinCommunityPage').then((m) => ({ default: m.JoinCommunityPage })))
 
-queryClient.prefetchQuery(homeHeroQueryOptions())
+// ── Admin pages (lazy) ──────────────────────────────────────────────────────
+const AdminLoginPage = lazy(() => import('./pages/admin/AdminLogin').then((m) => ({ default: m.AdminLoginPage })))
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
+const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverview').then((m) => ({ default: m.AdminOverviewPage })))
+const AdminApplicationsPage = lazy(() => import('./pages/admin/AdminApplications').then((m) => ({ default: m.AdminApplicationsPage })))
+const AdminMembersPage = lazy(() => import('./pages/admin/AdminMembers').then((m) => ({ default: m.AdminMembersPage })))
+const AdminCoursesPage = lazy(() => import('./pages/admin/AdminCourses').then((m) => ({ default: m.AdminCoursesPage })))
+const AdminCourseEditorPage = lazy(() => import('./pages/admin/AdminCourseEditor').then((m) => ({ default: m.AdminCourseEditorPage })))
+const AdminContentPage = lazy(() => import('./pages/admin/AdminContent').then((m) => ({ default: m.AdminContentPage })))
+const AdminAnnouncementsPage = lazy(() => import('./pages/admin/AdminAnnouncements').then((m) => ({ default: m.AdminAnnouncementsPage })))
+const AdminMediaPage = lazy(() => import('./pages/admin/AdminMedia').then((m) => ({ default: m.AdminMediaPage })))
+const AdminResourcesPage = lazy(() => import('./pages/admin/AdminResources').then((m) => ({ default: m.AdminResourcesPage })))
+const AdminSessionsPage = lazy(() => import('./pages/admin/AdminSessions').then((m) => ({ default: m.AdminSessionsPage })))
+const AdminMemberProgressPage = lazy(() => import('./pages/admin/AdminMemberProgress').then((m) => ({ default: m.AdminMemberProgressPage })))
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })))
+const AdminLogsPage = lazy(() => import('./pages/admin/AdminLogsPage').then((m) => ({ default: m.AdminLogsPage })))
 
 const router = createBrowserRouter([
+  // ── Public marketing site (wrapped in MainLayout via App) ──────────────────
   {
     path: '/',
     element: <App />,
@@ -97,263 +49,55 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'about', element: <PageFallback><AboutPage /></PageFallback> },
       { path: 'programs', element: <PageFallback><ProgramsPage /></PageFallback> },
-      { path: 'program-components', element: <PageFallback><ProgramComponentsPage /></PageFallback> },
       { path: 'resources', element: <PageFallback><ResourcesPage /></PageFallback> },
-      { path: 'auth', element: <Navigate to="/login" replace /> },
-      {
-        path: 'dashboard',
-        lazy: async () => {
-          const m = await import('./pages/Dashboard')
-          return {
-            Component: () => (
-              <ProtectedRoute>
-                <PageFallback>
-                  <m.DashboardPage />
-                </PageFallback>
-              </ProtectedRoute>
-            ),
-          }
-        },
-      },
-      { path: 'join', element: <Navigate to="/apply" replace /> },
       { path: 'contact', element: <PageFallback><ContactPage /></PageFallback> },
-      {
-        path: 'login',
-        lazy: async () => {
-          const m = await import('./pages/Login')
-          return { Component: m.LoginPage }
-        },
-      },
-      {
-        path: 'apply',
-        lazy: async () => {
-          const m = await import('./pages/Apply')
-          return { Component: m.ApplyPage }
-        },
-      },
-      {
-        path: 'forgot-password',
-        lazy: async () => {
-          const m = await import('./pages/ForgotPassword')
-          return { Component: m.ForgotPasswordPage }
-        },
-      },
-      {
-        path: 'reset-password',
-        lazy: async () => {
-          const m = await import('./pages/ResetPassword')
-          return { Component: m.ResetPasswordPage }
-        },
-      },
-      {
-        path: 'member',
-        element: (
-          <ProtectedRoute>
-            <PageFallback>
-              <MemberLayout />
-            </PageFallback>
-          </ProtectedRoute>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <PageFallback>
-                <DashboardPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'change-password',
-            element: (
-              <PageFallback>
-                <ChangePasswordPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'profile',
-            element: (
-              <PageFallback>
-                <ProfilePage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'announcements',
-            element: (
-              <PageFallback>
-                <MemberAnnouncementsPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'mentor',
-            element: (
-              <PageFallback>
-                <MemberMentorProfilePage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'activity',
-            element: (
-              <PageFallback>
-                <MemberActivityPage />
-              </PageFallback>
-            ),
-          },
-          ...memberCourseRoutes,
-        ],
-      },
-      {
-        path: 'mentor',
-        element: (
-          <ProtectedRoute>
-            <MentorRoute>
-              <PageFallback>
-                <MentorLayout />
-              </PageFallback>
-            </MentorRoute>
-          </ProtectedRoute>
-        ),
-        children: [
-          {
-            index: true,
-            element: (
-              <PageFallback>
-                <MentorDashboardPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'students',
-            element: (
-              <PageFallback>
-                <MentorStudentsPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'students/:userId/profile',
-            element: (
-              <PageFallback>
-                <MentorStudentProfilePage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'courses',
-            element: (
-              <PageFallback>
-                <MentorCoursesPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'courses/:courseId',
-            element: (
-              <PageFallback>
-                <MentorCourseEditorPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'assignments',
-            element: (
-              <PageFallback>
-                <MentorAssignmentsPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'announcements',
-            element: (
-              <PageFallback>
-                <MentorAnnouncementsPage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'profile',
-            element: (
-              <PageFallback>
-                <ProfilePage />
-              </PageFallback>
-            ),
-          },
-          {
-            path: 'change-password',
-            element: (
-              <PageFallback>
-                <ChangePasswordPage />
-              </PageFallback>
-            ),
-          },
-        ],
-      },
-      // /dashboard is now a real page (see above). Keep /member as the default authed area.
-      { path: 'profile', element: <Navigate to="/member/profile" replace /> },
-      { path: 'courses', element: <Navigate to="/member/courses" replace /> },
-      { path: 'courses/:courseId', element: <LegacyMemberCourseRedirect /> },
-      { path: 'courses/:courseId/lessons/:lessonId', element: <LegacyMemberLessonRedirect /> },
-      {
-        path: 'admin',
-        element: (
-          <PageFallback>
-            <AdminGate />
-          </PageFallback>
-        ),
-        children: [
-          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-          {
-            element: (
-              <PageFallback>
-                <AdminLayout />
-              </PageFallback>
-            ),
-            children: [
-              { path: 'dashboard', element: <PageFallback><AdminOverviewPage /></PageFallback> },
-              { path: 'applications', element: <PageFallback><AdminApplicationsPage /></PageFallback> },
-              { path: 'users', element: <PageFallback><AdminMembersPage /></PageFallback> },
-              { path: 'courses', element: <PageFallback><AdminCoursesPage /></PageFallback> },
-              { path: 'courses/:courseId', element: <PageFallback><AdminCourseEditorPage /></PageFallback> },
-              { path: 'announcements', element: <PageFallback><AdminAnnouncementsPage /></PageFallback> },
-              { path: 'members', element: <Navigate to="/admin/users" replace /> },
-              { path: 'sessions', element: <PageFallback><AdminSessionsPage /></PageFallback> },
-              { path: 'content', element: <PageFallback><AdminContentPage /></PageFallback> },
-              { path: 'resources', element: <PageFallback><AdminResourcesPage /></PageFallback> },
-              { path: 'progress', element: <PageFallback><AdminMemberProgressPage /></PageFallback> },
-              { path: 'media', element: <PageFallback><AdminMediaPage /></PageFallback> },
-              { path: 'logs', element: <PageFallback><AdminLogsPage /></PageFallback> },
-              {
-                path: 'settings',
-                element: (
-                  <PageFallback>
-                    <SuperAdminRoute>
-                      <AdminSettingsPage />
-                    </SuperAdminRoute>
-                  </PageFallback>
-                ),
-              },
-            ],
-          },
-        ],
-      },
-      { path: 'index.html', element: <Navigate to="/" replace /> },
-      { path: 'about.html', element: <Navigate to="/about" replace /> },
-      { path: 'programs.html', element: <Navigate to="/programs" replace /> },
-      { path: 'program-components.html', element: <Navigate to="/program-components" replace /> },
-      { path: 'community', element: <Navigate to="/apply" replace /> },
-      { path: 'community.html', element: <Navigate to="/apply" replace /> },
-      { path: 'resources.html', element: <Navigate to="/resources" replace /> },
-      { path: 'join.html', element: <Navigate to="/apply" replace /> },
-      { path: 'contact.html', element: <Navigate to="/contact" replace /> },
-      { path: 'login.html', element: <Navigate to="/login" replace /> },
-      { path: 'signup.html', element: <Navigate to="/apply" replace /> },
-      { path: '*', element: <RouterErrorBoundary /> },
+      { path: 'community', element: <PageFallback><JoinCommunityPage /></PageFallback> },
     ],
   },
+
+  // ── Admin login (standalone) ───────────────────────────────────────────────
+  { path: '/admin/login', element: <PageFallback><AdminLoginPage /></PageFallback> },
+
+  // ── Admin CMS (protected) ──────────────────────────────────────────────────
+  {
+    path: '/admin',
+    element: (
+      <AdminRoute>
+        <PageFallback>
+          <AdminLayout />
+        </PageFallback>
+      </AdminRoute>
+    ),
+    errorElement: <RouterErrorBoundary />,
+    children: [
+      { index: true, element: <Navigate to="overview" replace /> },
+      { path: 'overview', element: <AdminOverviewPage /> },
+      { path: 'applications', element: <AdminApplicationsPage /> },
+      { path: 'members', element: <AdminMembersPage /> },
+      { path: 'courses', element: <AdminCoursesPage /> },
+      { path: 'courses/:courseId/edit', element: <AdminCourseEditorPage /> },
+      { path: 'content', element: <AdminContentPage /> },
+      { path: 'announcements', element: <AdminAnnouncementsPage /> },
+      { path: 'media', element: <AdminMediaPage /> },
+      { path: 'resources', element: <AdminResourcesPage /> },
+      { path: 'sessions', element: <AdminSessionsPage /> },
+      { path: 'progress', element: <AdminMemberProgressPage /> },
+      { path: 'settings', element: <SuperAdminRoute><AdminSettingsPage /></SuperAdminRoute> },
+      { path: 'logs', element: <AdminLogsPage /> },
+    ],
+  },
+
+  // ── Redirects for removed member/applicant routes ──────────────────────────
+  { path: '/login', element: <Navigate to="/" replace /> },
+  { path: '/auth', element: <Navigate to="/" replace /> },
+  { path: '/apply', element: <Navigate to="/community" replace /> },
+  { path: '/join', element: <Navigate to="/community" replace /> },
+  { path: '/dashboard', element: <Navigate to="/admin" replace /> },
+  { path: '/forgot-password', element: <Navigate to="/" replace /> },
+  { path: '/reset-password', element: <Navigate to="/" replace /> },
+  { path: '/member/*', element: <Navigate to="/" replace /> },
+  { path: '/mentor/*', element: <Navigate to="/" replace /> },
+  { path: '*', element: <Navigate to="/" replace /> },
 ])
 
 const appTree = supabaseIsConfigured ? (

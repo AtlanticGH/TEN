@@ -39,9 +39,9 @@ export const GHOST_BTN_BASE =
 export const SITE_NAV_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/programs', label: 'Programs' },
-  { to: '/apply', label: 'Apply' },
   { to: '/resources', label: 'Resources' },
   { to: '/contact', label: 'Contact' },
+  { to: '/community', label: 'Community' },
 ]
 
 export function siteHeaderStyles(mode) {

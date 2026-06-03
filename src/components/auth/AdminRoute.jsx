@@ -19,11 +19,11 @@ export function AdminRoute({ children }) {
 
   if (!isAuthed) {
     const next = encodeURIComponent(location.pathname + location.search + location.hash)
-    return <Navigate to={`/login?next=${next}`} replace />
+    return <Navigate to={`/admin/login?next=${next}`} replace />
   }
 
   if (!isStaffRole(profile?.role)) {
-    return <Navigate to="/member" replace />
+    return <Navigate to="/" replace />
   }
 
   return children

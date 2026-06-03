@@ -27,8 +27,8 @@ export function AdminLoginPage() {
     setSubmitting(true)
     try {
       await signInWithEmail({ email: trimmedEmail, password: p })
-      // AdminGate will validate role and render admin shell only for authorized staff.
-      navigate('/admin/dashboard', { replace: true })
+      // AdminRoute validates the staff role and renders the admin shell only for authorized staff.
+      navigate('/admin/overview', { replace: true })
     } catch (err) {
       const msg = err?.message || 'Unable to login. Please try again.'
       if (msg.toLowerCase().includes('email') && msg.toLowerCase().includes('confirm')) {

@@ -347,7 +347,7 @@ function CourseRow({ course, busy, onBusy, onError, onRefresh }) {
           ) : (
             <>
               <Link
-                to={`/admin/courses/${course.id}`}
+                to={`/admin/courses/${course.id}/edit`}
                 className="rounded-full bg-orange-500 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-400"
               >
                 Builder

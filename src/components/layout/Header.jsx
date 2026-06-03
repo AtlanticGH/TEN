@@ -1,9 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
-import { useAuth } from '../../hooks/useAuth'
-import { dashboardPathForRole } from '../../lib/rbac'
-import { signOut } from '../../services/auth'
 import {
   APP_SHELL_BTN,
   APP_SHELL_MENU_Z,
@@ -78,10 +75,7 @@ function HamburgerIcon({ open }) {
 /** Fixed marketing site navbar (public pages). */
 export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { isAuthed, profile } = useAuth()
-  const navigate = useNavigate()
   const location = useLocation()
-  const dashboardTo = dashboardPathForRole(profile?.role)
   const visualMode = mobileOpen ? 'scrolled' : mode
   const styles = siteHeaderStyles(visualMode)
 
@@ -104,15 +98,6 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
       window.removeEventListener('keydown', onKey)
     }
   }, [mobileOpen, closeMobile])
-
-  const handleLogout = async () => {
-    try {
-      await signOut()
-    } finally {
-      closeMobile()
-      navigate('/', { replace: true })
-    }
-  }
 
   return (
     <header
@@ -146,23 +131,6 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 md:flex">
-            {isAuthed ? (
-              <>
-                <Link to={dashboardTo} className={styles.ghostBtnClass} onClick={closeMobile}>
-                  Dashboard
-                </Link>
-                <button type="button" className={styles.ghostBtnClass} aria-label="Sign out" onClick={handleLogout}>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className={styles.ghostBtnClass} onClick={closeMobile}>
-                Login
-              </Link>
-            )}
-          </div>
-
           <ThemeToggleButton className={styles.iconBtnClass} />
 
           <button
@@ -207,23 +175,6 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
               {label}
             </NavLink>
           ))}
-
-          <div className="mt-3 flex flex-col gap-2 border-t border-current/10 pt-3">
-            {isAuthed ? (
-              <>
-                <Link to={dashboardTo} className={styles.ghostBtnClass} onClick={closeMobile}>
-                  Dashboard
-                </Link>
-                <button type="button" className={styles.ghostBtnClass} aria-label="Sign out" onClick={handleLogout}>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className={styles.ghostBtnClass} onClick={closeMobile}>
-                Login
-              </Link>
-            )}
-          </div>
         </div>
       </div>
     </header>
