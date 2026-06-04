@@ -7,7 +7,7 @@ const links = [
   { label: 'Programs', to: '/programs' },
   { label: 'Contact us', to: '/contact' },
   { label: 'Community', to: '/community' },
-  { label: 'CMS login', to: '/admin/login' },
+  { label: 'CMS login', to: '/admin' },
 ]
 
 export function ChatWidget() {

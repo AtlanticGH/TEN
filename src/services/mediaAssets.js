@@ -1,4 +1,5 @@
 import { apiFetch, publicApiFetch } from '@/lib/apiClient'
+import { buildPublicStorageUrl, resolveMediaAssetUrl } from '@/lib/storageUrls'
 
 const DEFAULT_BUCKET = 'public'
 
@@ -11,12 +12,9 @@ function sanitizeFilename(name) {
     .slice(0, 120) || 'file'
 }
 
-export function getPublicAssetUrl({ bucket = DEFAULT_BUCKET, path }) {
-  // Synchronous signature preserved; return empty if misused.
-  // Prefer `getDownloadUrl()` or backend-computed URLs.
-  void bucket
-  void path
-  return ''
+export function getPublicAssetUrl({ bucket = DEFAULT_BUCKET, path, asset }) {
+  if (asset) return resolveMediaAssetUrl(asset)
+  return buildPublicStorageUrl(bucket, path)
 }
 
 export async function getDownloadUrl({ bucket = DEFAULT_BUCKET, path, expiresIn = 120 } = {}) {
@@ -35,11 +33,14 @@ export async function getDownloadUrl({ bucket = DEFAULT_BUCKET, path, expiresIn 
   return res?.publicUrl || res?.signedUrl || ''
 }
 
-export async function listMediaAssets({ limit = 100, query = '' } = {}) {
-  return await apiFetch(
-    `/api/admin/media-assets?limit=${encodeURIComponent(String(limit || 100))}&query=${encodeURIComponent(String(query || ''))}`,
-    { method: 'GET' },
-  )
+export async function listMediaAssets({ limit = 100, query = '', folder = '', type = 'all' } = {}) {
+  const params = new URLSearchParams({
+    limit: String(limit || 100),
+    query: String(query || ''),
+    type: String(type || 'all'),
+  })
+  if (folder) params.set('folder', folder)
+  return await apiFetch(`/api/admin/media-assets?${params.toString()}`, { method: 'GET' })
 }
 
 export async function uploadMediaFile({ file, folder = 'uploads', title = '', alt = '', tags = [] } = {}) {

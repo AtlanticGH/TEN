@@ -7,19 +7,24 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  const [profileError, setProfileError] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const refreshProfile = useCallback(async () => {
     try {
       if (!user) {
         setProfile(null)
+        setProfileError(null)
         return null
       }
       const p = await getMyProfile()
       setProfile(p)
+      setProfileError(null)
       return p
-    } catch {
+    } catch (err) {
       setProfile(null)
+      setProfileError(err?.message || 'Could not load profile')
       return null
     }
   }, [user])
@@ -63,12 +68,21 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (!user) {
-      queueMicrotask(() => setProfile(null))
+      setProfile(null)
+      setProfileError(null)
+      setProfileLoading(false)
       return
     }
-    queueMicrotask(() => {
-      refreshProfile()
+
+    let cancelled = false
+    setProfileLoading(true)
+    refreshProfile().finally(() => {
+      if (!cancelled) setProfileLoading(false)
     })
+
+    return () => {
+      cancelled = true
+    }
   }, [user, refreshProfile])
 
   const value = useMemo(
@@ -77,11 +91,13 @@ export function AuthProvider({ children }) {
       session,
       user,
       profile,
+      profileError,
+      profileLoading,
       refreshProfile,
       isAuthed: !!user,
       authMode: 'supabase',
     }),
-    [loading, session, user, profile, refreshProfile]
+    [loading, session, user, profile, profileError, profileLoading, refreshProfile]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

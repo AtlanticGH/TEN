@@ -76,13 +76,13 @@ export function HomeHeroMotion({ heroCopy, bg }) {
           {(heroCopy.headline_before || heroCopy.headline_emphasis) ? (
             <motion.h1
               variants={reduceMotion ? undefined : fadeUp}
-              className="text-[clamp(2rem,6vw,4rem)] font-extrabold leading-[1.04] tracking-[-0.025em] text-white ten-hero-text-shadow"
+              className="ten-home-headline text-[clamp(2rem,6vw,4.25rem)] font-extrabold leading-[1.04] text-white ten-hero-text-shadow"
             >
               {heroCopy.headline_before ? (
-                <span className="block text-white">{heroCopy.headline_before}</span>
+                <span className="ten-home-headline-line block text-white">{heroCopy.headline_before}</span>
               ) : null}
               {heroCopy.headline_emphasis ? (
-                <span className="ten-hero-emphasis mt-1 block">{heroCopy.headline_emphasis}</span>
+                <span className="ten-home-headline-emphasis ten-hero-emphasis mt-1 block font-extrabold">{heroCopy.headline_emphasis}</span>
               ) : null}
             </motion.h1>
           ) : (

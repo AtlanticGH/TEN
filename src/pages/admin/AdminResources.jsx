@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   ADMIN_FIELD_LABEL,
   DashboardAlert,
@@ -9,10 +10,11 @@ import {
   DashboardSkeleton,
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
-import { SITE_BTN_PRIMARY, SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
+import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY } from '../../components/dashboard/DashboardChrome'
 import { createResource, deleteResource, listResources } from '../../services/resources'
 
 export function AdminResourcesPage() {
+  const nested = useLocation().pathname.includes('/admin/pages/')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [items, setItems] = useState([])
@@ -42,18 +44,20 @@ export function AdminResourcesPage() {
 
   const canCreate = useMemo(() => !!title.trim() && !!file && !busy, [title, file, busy])
 
-  return (
-    <DashboardPage>
-      <DashboardPageIntro
-        label="Resources"
-        title="Free downloads"
-        description="Upload PDFs/templates for the public Resources page."
-        actions={
-          <button type="button" onClick={() => refresh()} className={`${SITE_BTN_SECONDARY} !py-2`}>
-            Refresh
-          </button>
-        }
-      />
+  const body = (
+    <>
+      {!nested ? (
+        <DashboardPageIntro
+          label="Resources"
+          title="Free downloads"
+          description="Upload PDFs/templates for the public Resources page."
+          actions={
+            <button type="button" onClick={() => refresh()} className={`${ADMIN_BTN_SECONDARY} !py-2`}>
+              Refresh
+            </button>
+          }
+        />
+      ) : null}
 
       {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
 
@@ -118,7 +122,7 @@ export function AdminResourcesPage() {
               />
               {file ? <p className="mt-2 text-xs text-zinc-500">Selected: {file.name}</p> : null}
             </label>
-            <button type="submit" disabled={!canCreate} className={`w-full ${SITE_BTN_PRIMARY} disabled:opacity-60`}>
+            <button type="submit" disabled={!canCreate} className={`w-full ${ADMIN_BTN_PRIMARY} disabled:opacity-60`}>
               {busy ? 'Uploading…' : 'Upload'}
             </button>
           </form>
@@ -179,7 +183,9 @@ export function AdminResourcesPage() {
           )}
         </div>
       </DashboardSplit>
-    </DashboardPage>
+    </>
   )
+
+  return nested ? body : <DashboardPage>{body}</DashboardPage>
 }
 

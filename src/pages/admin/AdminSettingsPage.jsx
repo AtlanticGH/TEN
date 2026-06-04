@@ -9,7 +9,7 @@ import {
   DashboardPanel,
   DashboardSkeleton,
 } from '../../components/dashboard/DashboardChrome'
-import { SITE_BTN_PRIMARY } from '../../components/ui/siteDesignTokens'
+import { ADMIN_BTN_PRIMARY } from '../../components/dashboard/DashboardChrome'
 import { getSiteContent, upsertSiteContent } from '../../services/siteContent'
 
 const SETTINGS_KEY = 'admin.settings.v1'
@@ -107,7 +107,7 @@ export function AdminSettingsPage() {
               className={`mt-2 ${ADMIN_TEXTAREA_CLASS}`}
             />
           </div>
-          <button type="submit" disabled={saving} className={`${SITE_BTN_PRIMARY} disabled:opacity-60`}>
+          <button type="submit" disabled={saving} className={`${ADMIN_BTN_PRIMARY} disabled:opacity-60`}>
             {saving ? 'Saving…' : 'Save settings'}
           </button>
         </form>

@@ -1,14 +1,16 @@
 import { ContactDetails } from './contact/ContactDetails'
 import { ContactFAQ } from './contact/ContactFAQ'
-import { ContactHero } from './contact/ContactHero'
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { PageHeroSection } from '../components/shared/PageHeroSection'
+import { CmsPublicPage } from '../components/cms/CmsPublicPage'
 
 export function ContactPage() {
-  useDocumentTitle('Contact')
+  return <CmsPublicPage slug="contact" fallback={<ContactPageContent />} />
+}
 
+function ContactPageContent() {
   return (
     <main id="page-main" data-component="page-main" className="overflow-x-hidden">
-      <ContactHero />
+      <PageHeroSection slug="contact" />
       <ContactDetails />
       <ContactFAQ />
     </main>

@@ -25,10 +25,17 @@ export async function publicApiFetch(path, init = {}) {
   const res = await fetchWithTimeout(url, init)
   const json = await res.json().catch(() => null)
   if (!res.ok) {
-    const msg = json?.error || json?.message || `Request failed: ${res.status}`
+    const msg = formatApiError(res.status, json)
     throw new Error(msg)
   }
   return json
+}
+
+function formatApiError(status, json) {
+  if (status === 502) {
+    return 'API server is not running. Stop dev:all (Ctrl+C) and run npm run dev:all again, or run npm start in a second terminal on port 3000.'
+  }
+  return json?.error || json?.message || `Request failed: ${status}`
 }
 
 export async function apiFetch(path, init = {}) {
@@ -56,7 +63,7 @@ export async function apiFetch(path, init = {}) {
 
   const json = await res.json().catch(() => null)
   if (!res.ok) {
-    const msg = json?.error || json?.message || `Request failed: ${res.status}`
+    const msg = formatApiError(res.status, json)
     throw new Error(msg)
   }
   return json

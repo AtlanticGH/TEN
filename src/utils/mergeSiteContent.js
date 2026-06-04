@@ -25,6 +25,10 @@ export function mergeSiteContentDefaults(defaults, override) {
   for (const [key, value] of Object.entries(parsed)) {
     if (value === null || value === undefined) continue
     if (typeof value === 'string' && value.trim() === '') continue
+    if (Array.isArray(value)) {
+      merged[key] = value
+      continue
+    }
     merged[key] = value
   }
   return merged

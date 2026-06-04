@@ -1,48 +1,72 @@
 /**
- * Role-based access helpers. Authoritative enforcement is Supabase RLS.
- * CMS app: staff roles only (student/mentor DB values may exist but have no workspace).
+ * CMS RBAC — super_admin, admin, editor, viewer (+ legacy staff).
  */
 
 export const ROLES = {
-  STAFF: 'staff',
-  ADMIN: 'admin',
   SUPER_ADMIN: 'super_admin',
+  ADMIN: 'admin',
+  EDITOR: 'editor',
+  VIEWER: 'viewer',
+  STAFF: 'staff',
+}
+
+const DASHBOARD_ROLES = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.VIEWER, ROLES.STAFF]
+const CONTENT_EDIT_ROLES = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.STAFF]
+const ADMIN_MANAGE_ROLES = [ROLES.SUPER_ADMIN, ROLES.ADMIN]
+
+/** Can open CMS dashboard. */
+export function isAdminRole(role) {
+  return DASHBOARD_ROLES.includes(role)
 }
 
 export function isStaffRole(role) {
-  return [ROLES.STAFF, ROLES.ADMIN, ROLES.SUPER_ADMIN].includes(role)
+  return CONTENT_EDIT_ROLES.includes(role)
 }
 
 export function isSuperAdmin(role) {
   return role === ROLES.SUPER_ADMIN
 }
 
+export function isViewerOnly(role) {
+  return role === ROLES.VIEWER
+}
+
+export function canEditContent(role) {
+  return CONTENT_EDIT_ROLES.includes(role) && role !== ROLES.VIEWER
+}
+
+export function canManageUsers(role) {
+  return ADMIN_MANAGE_ROLES.includes(role)
+}
+
+export function canManageSettings(role) {
+  return ADMIN_MANAGE_ROLES.includes(role) || role === ROLES.SUPER_ADMIN
+}
+
 export function resolvePostLoginPath(role, nextPath = '/admin') {
   const next = String(nextPath || '/admin')
-  if (isStaffRole(role)) {
-    return next.startsWith('/admin') ? next : '/admin/content'
+  if (isAdminRole(role)) {
+    return next.startsWith('/admin') ? next : '/admin/overview'
   }
   return '/'
 }
 
 export function dashboardPathForRole(role) {
-  return isStaffRole(role) ? '/admin/content' : '/'
+  return isAdminRole(role) ? '/admin/overview' : '/'
 }
 
-/** Permission matrix (UI + client-side checks only). */
 export function can(role, action) {
-  const staff = isStaffRole(role)
-  const superAdmin = isSuperAdmin(role)
-
   switch (action) {
     case 'access_admin':
-    case 'view_activity_logs':
-    case 'edit_cms':
     case 'view_analytics':
-      return staff
+      return isAdminRole(role)
+    case 'edit_cms':
+      return canEditContent(role)
     case 'manage_settings':
+      return canManageSettings(role)
     case 'manage_admins':
-      return superAdmin
+    case 'manage_users':
+      return canManageUsers(role)
     default:
       return false
   }

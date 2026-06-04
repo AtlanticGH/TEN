@@ -1,151 +1,141 @@
 import { Link } from 'react-router-dom'
-import { InnerPageHero } from '../components/shared/InnerPageHero'
+import { PageMeta } from '../components/cms/PageMeta'
+import { PageHeroSection } from '../components/shared/PageHeroSection'
+import { ProgramCardMedia } from '../components/shared/ProgramCardMedia'
+import { Reveal } from '../components/shared/Reveal'
+import { useCmsPage } from '../hooks/useCmsPage'
+import { useProgramsContent } from '../hooks/useProgramsContent'
+
+const CONTAINER = 'mx-auto max-w-7xl px-6 sm:px-8 lg:px-10'
+const EYEBROW = 'mb-4 block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-500'
+const HEADLINE = 'text-4xl font-black leading-tight tracking-tight text-zinc-900 dark:text-white md:text-5xl'
 
 export function ProgramsPage() {
-  return (
-    <main id="page-main" data-component="page-main" className="overflow-x-hidden">
-      <InnerPageHero
-        badge="Programs"
-        heading="Operational learning journey"
-        description="From weekly execution tasks to quarterly pitch competitions, TEN guides members through a practical, accountability-driven path from idea to venture growth."
-        image="/assets/images/1498050108023-c5249f4df085.jpg"
-      />
+  const { seo } = useCmsPage('programs')
+  const { content, cards, growthStages } = useProgramsContent()
 
-      <section id="module-navigator" data-section="module-navigator" className="mx-auto max-w-7xl px-8 pt-10 md:px-12 lg:px-10">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Lesson Modules</p>
-          <div className="mt-3 grid gap-2 md:grid-cols-3">
-            <a href="#module-1" className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm transition hover:border-orange-400 hover:bg-orange-50 dark:border-zinc-700 dark:bg-zinc-800">
-              Module 01 - Weekly Foundation
-            </a>
-            <a href="#module-2" className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm transition hover:border-orange-400 hover:bg-orange-50 dark:border-zinc-700 dark:bg-zinc-800">
-              Module 02 - Monthly Acceleration
-            </a>
-            <a href="#module-3" className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm transition hover:border-orange-400 hover:bg-orange-50 dark:border-zinc-700 dark:bg-zinc-800">
-              Module 03 - Quarterly Execution
-            </a>
-          </div>
-          <div className="mt-3">
-            <Link to="/program-components" className="inline-flex rounded-full bg-orange-500 px-4 py-2 text-xs font-medium text-white transition hover:bg-orange-400">
-              Open Full Components Page
-            </Link>
+  return (
+    <>
+      <PageMeta
+        title={seo?.title || 'Programs'}
+        description={seo?.description || 'Programs and experiences at The Ember Network.'}
+        robots={seo?.robots}
+      />
+      <main id="page-main" data-component="page-main" data-cms-page="programs" className="overflow-x-hidden">
+        <PageHeroSection slug="programs" />
+        <ProgramsPageContent cards={cards} growthStages={growthStages} content={content} />
+      </main>
+    </>
+  )
+}
+
+function ProgramsPageContent({ cards, growthStages, content }) {
+  const cardsSection = content.cards_section
+  const growthSection = content.growth_section
+
+  return (
+    <>
+      <section id="program-cards" data-section="program-cards" className="bg-white py-16 md:py-24 dark:bg-zinc-950">
+        <div className={CONTAINER}>
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <span className={EYEBROW}>{cardsSection.eyebrow}</span>
+            <h2 className={HEADLINE}>{cardsSection.title}</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
+              {cardsSection.body}
+            </p>
+          </Reveal>
+          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {cards.map(({ Icon, id, title, tagline, description, image, imageAlt, video }, i) => (
+              <Reveal
+                key={id || title}
+                as="article"
+                delay={(i % 3) * 80}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+              >
+                <div className="relative">
+                  <ProgramCardMedia
+                    image={image}
+                    imageAlt={imageAlt}
+                    video={video}
+                    title={title}
+                    aspectClass="aspect-[16/10] transition duration-300 group-hover:scale-[1.02]"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/50 via-transparent to-transparent"
+                    aria-hidden="true"
+                  />
+                  <span className="absolute bottom-3 left-3 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/90 text-orange-500 shadow-sm backdrop-blur dark:bg-zinc-900/90">
+                    <Icon />
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{title}</h3>
+                  <p className="mt-1 text-sm font-semibold text-orange-600 dark:text-orange-400">{tagline}</p>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{description}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="module-1" data-section="module-1" className="mx-auto max-w-7xl px-8 py-10 md:px-12 lg:px-10">
-        <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="min-h-[260px]">
-              <img
-                src="/assets/images/1454165804606-c3d57bc86b40.jpg"
-                alt="Weekly module planning and collaboration session"
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div className="p-7 md:p-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Module 01</p>
-              <h2 className="mt-3 text-2xl font-semibold">Weekly Foundation</h2>
-              <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-                Each week, members complete practical tasks across ideation, market research, business model canvas development, and product concept refinement.
-              </p>
-              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
-                <li>Task-based learning and continuous accountability.</li>
-                <li>Weekly presentation and structured peer review.</li>
-                <li>Top execution recognized as Entrepreneur of the Week.</li>
-              </ul>
-            </div>
+      <section
+        id="growth-cycle"
+        data-section="growth-cycle"
+        className="border-t border-zinc-200 bg-gradient-to-b from-orange-50/80 to-white py-16 md:py-24 dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-950"
+      >
+        <div className={CONTAINER}>
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <span className={EYEBROW}>{growthSection.eyebrow}</span>
+            <h2 className={HEADLINE}>{growthSection.title}</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
+              {growthSection.body}
+            </p>
+          </Reveal>
+          <div className="relative mt-12 flex flex-col gap-8 md:flex-row md:gap-6">
+            <div
+              className="absolute left-0 right-0 top-6 hidden h-[2px] bg-gradient-to-r from-orange-500/40 via-orange-500/40 to-amber-400/40 md:block"
+              aria-hidden="true"
+            />
+            {growthStages.map(({ id, num, stage, title, tagline, description, image, imageAlt, video }, i) => (
+              <Reveal
+                key={id || num}
+                as="article"
+                delay={i * 100}
+                className="relative flex flex-1 flex-col overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+              >
+                <ProgramCardMedia image={image} imageAlt={imageAlt} video={video} title={title} aspectClass="aspect-[16/9]" />
+                <div className="flex flex-1 flex-col p-7">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-orange-500">{stage}</p>
+                  <span className="relative z-10 mt-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-base font-black text-white">
+                    {num}
+                  </span>
+                  <h3 className="mt-5 text-lg font-bold text-zinc-900 dark:text-white">{title}</h3>
+                  <p className="mt-1 text-sm font-semibold text-orange-600 dark:text-orange-400">{tagline}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{description}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
-        </article>
+        </div>
       </section>
 
-      <section id="module-2" data-section="module-2" className="mx-auto max-w-7xl px-8 py-2 md:px-12 lg:px-10">
-        <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="order-2 p-7 md:p-8 lg:order-1">
-              <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Module 02</p>
-              <h2 className="mt-3 text-2xl font-semibold">Monthly Acceleration</h2>
-              <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-                Monthly in-person sessions feature expert and mentor-led workshops on critical business skills such as market strategy, scaling, and financial management.
-              </p>
-              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
-                <li>Hands-on learning focused on practical business growth.</li>
-                <li>Progress check-ins and personalized mentor feedback.</li>
-                <li>Pitch &amp; Progress Review with clear next actions.</li>
-              </ul>
-            </div>
-            <div className="order-1 min-h-[260px] lg:order-2">
-              <img
-                src="/assets/images/1552664730-d307ca884978.jpg"
-                alt="Monthly workshop and mentorship session"
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section id="module-3" data-section="module-3" className="mx-auto max-w-7xl px-8 py-10 md:px-12 lg:px-10">
-        <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="min-h-[260px]">
-              <img
-                src="/assets/images/1542744173-8e7e53415bb0.jpg"
-                alt="Quarterly pitch and judging session"
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div className="p-7 md:p-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Module 03</p>
-              <h2 className="mt-3 text-2xl font-semibold">Quarterly Execution</h2>
-              <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-                Each quarter, members pitch refined business ideas to a panel of experts and judges, demonstrating measurable movement from ideation to execution.
-              </p>
-              <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
-                <li>Pitch competition and mastery-based evaluation.</li>
-                <li>Masterclasses on scaling, growth, and investment readiness.</li>
-                <li>Rewards for outstanding innovation and impact-aligned solutions.</li>
-              </ul>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section id="founder-lens" data-section="founder-lens" className="mx-auto max-w-7xl px-8 pb-12 md:px-12 lg:px-10">
-        <article className="rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Founder Spotlight</p>
-          <h2 className="mt-2 text-2xl font-semibold">Program Philosophy from the Founder</h2>
-          <p className="mt-3 text-zinc-600 dark:text-zinc-300">
-            The Ember Network&apos;s learning structure reflects Maud Lindsay-Gamrat&apos;s leadership approach: disciplined execution, practical learning, and resilience-driven growth built over two decades of business leadership.
-          </p>
-        </article>
-      </section>
-
-      <section id="programs-cta" data-section="programs-cta" className="mx-auto max-w-7xl px-8 pb-20 md:px-12 lg:px-10">
-        <div className="flex flex-wrap gap-2">
-          <Link to="/apply" className="inline-flex rounded-full bg-orange-500 px-5 py-2 font-medium text-white">
-            Apply for Mentorship
+      <section id="programs-cta" data-section="programs-cta" className="mx-auto max-w-7xl px-6 pb-20 sm:px-8 lg:px-10">
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            to="/community"
+            className="inline-flex rounded-full bg-orange-500 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-orange-400"
+          >
+            Apply for Membership
           </Link>
-          <Link to="/resources" className="inline-flex rounded-full border border-zinc-300 px-5 py-2 font-medium text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
+          <Link
+            to="/resources"
+            className="inline-flex rounded-full border border-zinc-300 px-6 py-2.5 text-sm font-bold text-zinc-700 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
+          >
             Learning Resources
           </Link>
         </div>
       </section>
-
-      <section id="highlights-ticker" data-section="highlights-ticker" className="overflow-hidden border-y border-zinc-200 bg-zinc-50 py-8 dark:border-zinc-800 dark:bg-zinc-900/50">
-        <div className="animate-marquee whitespace-nowrap text-sm font-medium text-zinc-500">
-          <span className="mx-6">Weekly: Business ideation, market research, model canvas, peer reviews</span>
-          <span className="mx-6">Monthly: In-person workshops, mentor feedback, Pitch &amp; Progress review</span>
-          <span className="mx-6">Quarterly: Pitch competitions, growth masterclasses, impact-aligned solutions</span>
-          <span className="mx-6">Recognition: Entrepreneur of the Week and top quarterly innovation awards</span>
-          <span className="mx-6">Weekly: Business ideation, market research, model canvas, peer reviews</span>
-          <span className="mx-6">Monthly: In-person workshops, mentor feedback, Pitch &amp; Progress review</span>
-        </div>
-      </section>
-    </main>
+    </>
   )
 }
-

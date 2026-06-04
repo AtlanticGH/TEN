@@ -11,8 +11,18 @@ export async function signUpWithEmail({ email, password, fullName }) {
 }
 
 export async function signInWithEmail({ email, password }) {
-  const { data, error } = await getSupabase().auth.signInWithPassword({ email, password })
-  if (error) throw error
+  const { data, error } = await getSupabase().auth.signInWithPassword({
+    email: String(email || '').trim().toLowerCase(),
+    password: String(password || ''),
+  })
+  if (error) {
+    if (error.message?.toLowerCase().includes('invalid api key')) {
+      throw new Error(
+        'Supabase API key is invalid. Check VITE_SUPABASE_ANON_KEY in .env, then restart npm run dev:all.',
+      )
+    }
+    throw error
+  }
   return data
 }
 

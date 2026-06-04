@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
+  ADMIN_BTN_PRIMARY,
   ADMIN_FIELD_LABEL,
+  ADMIN_INPUT_CLASS,
   ADMIN_TEXTAREA_CLASS,
   DashboardAlert,
   DashboardNotice,
@@ -11,7 +14,6 @@ import {
   DashboardSkeleton,
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
-import { SITE_BTN_PRIMARY } from '../../components/ui/siteDesignTokens'
 import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO, HOME_HERO_KEY } from '../../config/siteContentDefaults'
 import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
 import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
@@ -27,6 +29,7 @@ function Field({ label, children, hint }) {
 }
 
 export function AdminContentPage() {
+  const nested = useLocation().pathname.includes('/admin/pages/')
   const queryClient = useQueryClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -61,21 +64,24 @@ export function AdminContentPage() {
   }, [])
 
   if (loading) {
-    return (
-      <DashboardPage>
+    const sk = (
+      <>
         <DashboardSkeleton className="h-8 w-48" />
         <DashboardSkeleton className="h-96" />
-      </DashboardPage>
+      </>
     )
+    return nested ? sk : <DashboardPage>{sk}</DashboardPage>
   }
 
-  return (
-    <DashboardPage>
-      <DashboardPageIntro
-        label="Content CMS"
-        title="Website content"
-        description="Edit public site copy without deploying code. Changes apply immediately."
-      />
+  const body = (
+    <>
+      {!nested ? (
+        <DashboardPageIntro
+          label="Home hero"
+          title="Homepage hero"
+          description="Edit the main homepage hero without deploying code."
+        />
+      ) : null}
 
       {error ? <DashboardAlert message={error} /> : null}
       <DashboardNotice message={notice} />
@@ -183,7 +189,7 @@ export function AdminContentPage() {
             </Field>
           </div>
 
-          <button type="submit" disabled={saving} className={`w-full ${SITE_BTN_PRIMARY} disabled:opacity-60`}>
+          <button type="submit" disabled={saving} className={`w-full ${ADMIN_BTN_PRIMARY} disabled:opacity-60`}>
             {saving ? 'Saving…' : 'Save changes'}
           </button>
         </form>
@@ -215,7 +221,9 @@ export function AdminContentPage() {
           </p>
         </DashboardPanel>
       </DashboardSplit>
-    </DashboardPage>
+    </>
   )
+
+  return nested ? body : <DashboardPage>{body}</DashboardPage>
 }
 

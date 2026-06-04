@@ -3,7 +3,13 @@ import { InnerPageHero } from '../components/shared/InnerPageHero'
 import { useEffect, useMemo, useState } from 'react'
 import { listResources } from '../services/resources'
 
+import { CmsPublicPage } from '../components/cms/CmsPublicPage'
+
 export function ResourcesPage() {
+  return <CmsPublicPage slug="resources" fallback={<ResourcesPageContent />} />
+}
+
+function ResourcesPageContent() {
   const [open, setOpen] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

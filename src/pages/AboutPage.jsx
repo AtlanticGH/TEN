@@ -1,44 +1,70 @@
 import { Link } from 'react-router-dom'
-import { InnerPageHero } from '../components/shared/InnerPageHero'
-import { ImageWithFallback } from '../components/ui/ImageWithFallback'
+import { CmsPageBlocks } from '../components/cms/CmsBlockRenderer'
+import { PageMeta } from '../components/cms/PageMeta'
+import {
+  FounderProfileSection,
+  TeamGridSection,
+} from '../components/cms/marketing/AboutMarketingBlocks'
+import { PageHeroSection } from '../components/shared/PageHeroSection'
+import { blocksWithoutHero } from '../lib/cmsBlocks'
 import { Reveal } from '../components/shared/Reveal'
+import { useCmsPage } from '../hooks/useCmsPage'
+import { useAboutFounder, useAboutTeam } from '../hooks/usePeopleContent'
+import { isAboutPeopleCmsBlock } from '../lib/aboutPeopleBlocks'
 
 export function AboutPage() {
-  const team = [
-    {
-      title: 'Program Lead',
-      desc: 'Designs weekly and monthly activities that keep members accountable and growth-focused.',
-      image: '/assets/images/profiles/team-program-lead.jpg',
-      fallback: '/assets/images/1560250097-0b93528c311a.jpg',
-    },
-    {
-      title: 'Mentor Relations',
-      desc: 'Connects members with experienced founders, experts, and strategic advisors.',
-      image: '/assets/images/profiles/team-mentor-relations.jpg',
-      fallback: '/assets/images/1573497019940-1c28c88b4f3e.jpg',
-    },
-    {
-      title: 'Member Engagement Lead',
-      desc: 'Cultivates engagement across circles, events, and founder collaboration touchpoints.',
-      image: '/assets/images/profiles/team-community-manager.jpg',
-      fallback: '/assets/images/1542744173-05336fcc7ad4.jpg',
-    },
-    {
-      title: 'Partnerships & Growth',
-      desc: 'Builds ecosystem partnerships that expand opportunity for TEN members.',
-      image: '/assets/images/profiles/team-partnerships-growth.jpg',
-      fallback: '/assets/images/1520607162513-77705c0f0d4a.jpg',
-    },
-  ]
+  const { blocks, hasBlocks, loading, seo } = useCmsPage('about')
+  const { data: founder } = useAboutFounder()
+  const { data: team } = useAboutTeam()
 
+  if (loading && !hasBlocks) {
+    return <AboutPageFallback founder={founder} team={team} />
+  }
+
+  if (hasBlocks) {
+    const filtered = blocksWithoutHero((blocks || []).filter((b) => !isAboutPeopleCmsBlock(b)))
+    return (
+      <>
+        <PageMeta title={seo?.title} description={seo?.description} robots={seo?.robots} />
+        <main id="page-main" data-component="page-main" data-cms-page="about" className="overflow-x-hidden">
+          <PageHeroSection slug="about" />
+          {filtered.length ? <CmsPageBlocks blocks={filtered} /> : null}
+          {founder ? <FounderProfileSection content={founder} /> : null}
+          {team ? <TeamGridSection content={team} /> : null}
+        </main>
+      </>
+    )
+  }
+
+  return <AboutPageFallback founder={founder} team={team} />
+}
+
+function AboutPeopleSections({ founder, team }) {
   return (
-    <main id="page-main" data-component="page-main" className="overflow-x-hidden">
-      <InnerPageHero
-        badge="About"
-        heading="Who we are and why TEN exists"
-        description="The Ember Network is a transformative hub for emerging entrepreneurs, turning ambitious ideas into thriving enterprises through mentorship and strategic guidance."
-        image="/assets/images/1519389950473-47ba0277781c.jpg"
-      />
+    <>
+      {founder ? <FounderProfileSection content={founder} /> : null}
+      {team ? <TeamGridSection content={team} /> : null}
+    </>
+  )
+}
+
+function AboutPageFallback({ founder, team }) {
+  return (
+    <>
+      <PageMeta title="About" description="Who we are and why TEN exists." />
+      <main id="page-main" data-component="page-main" className="overflow-x-hidden">
+        <AboutPageCore />
+        <AboutPeopleSections founder={founder} team={team} />
+        <AboutPageTail />
+      </main>
+    </>
+  )
+}
+
+function AboutPageCore() {
+  return (
+    <>
+      <PageHeroSection slug="about" />
 
       <section id="vision-mission" data-section="vision-mission" className="mx-auto grid max-w-7xl gap-10 px-8 py-20 md:px-12 lg:grid-cols-2 lg:px-10">
         <Reveal as="article" className="rounded-2xl border border-zinc-200 p-8 dark:border-zinc-800">
@@ -108,98 +134,13 @@ export function AboutPage() {
           </div>
         </Reveal>
       </section>
+    </>
+  )
+}
 
-      <section id="founder-profile" data-section="founder-profile" className="mx-auto max-w-7xl px-8 pb-10 md:px-12 lg:px-10">
-        <Reveal as="article" className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="relative min-h-[260px]">
-              <ImageWithFallback
-                src="/assets/images/profiles/ceo portrat 7.png"
-                fallbackSrc="/assets/images/1573496774426-fe3db3dd1731.jpg"
-                alt="Portrait representing founder leadership"
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-            </div>
-            <div className="p-8 md:p-10">
-              <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Meet Our Founder</p>
-              <h2 className="mt-3 text-3xl font-semibold md:text-4xl">Maud Lindsay-Gamrat</h2>
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Founder &amp; Executive Director</p>
-              <p className="mt-5 text-zinc-600 dark:text-zinc-300">
-                Maud Lindsay-Gamrat is a dynamic entrepreneur and seasoned business leader with over two decades of experience in Ghana&apos;s corporate landscape. As the CEO of Atlantic, she has built a thriving company delivering world-class catering and hospitality solutions across inflight, offshore, remote site, and corporate operations on some of the continent&apos;s largest oil and gas and mining sites.
-              </p>
-              <p className="mt-4 text-zinc-600 dark:text-zinc-300">
-                Under her leadership, Atlantic has grown into a powerhouse employing more than 545 staff, with approximately 98% being Ghanaians, reflecting her strong commitment to local capacity building. Across a 24-year career spanning Sales, Marketing, Human Resources, and Finance, she has launched and managed major remote-site hospitality projects with consistent operational excellence.
-              </p>
-              <p className="mt-4 text-zinc-600 dark:text-zinc-300">
-                Her strategic vision has earned notable recognition, including Most Outstanding Female-Owned Business in Ghana&apos;s Upstream Petroleum Sector (Petroleum Commission of Ghana) and Glitz Woman of the Year for Catering and Hospitality (Glitz Africa). She has also been featured on global platforms such as CNN&apos;s &quot;Passion to Portfolio&quot; for her impact as a business leader.
-              </p>
-              <p className="mt-4 text-zinc-600 dark:text-zinc-300">
-                Beyond business, Maud is deeply committed to women&apos;s empowerment and entrepreneurship. Through The Ember Network, she is focused on equipping and connecting ambitious entrepreneurs, especially women, by building a supportive ecosystem that fosters innovation, leadership, and sustainable venture growth.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                <a href="https://www.linkedin.com" className="inline-flex rounded-full border border-zinc-300 px-3 py-1.5 text-xs tracking-[0.12em] text-zinc-600 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-300" target="_blank" rel="noopener noreferrer">
-                  LinkedIn
-                </a>
-                <a href="https://www.instagram.com" className="inline-flex rounded-full border border-zinc-300 px-3 py-1.5 text-xs tracking-[0.12em] text-zinc-600 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-300" target="_blank" rel="noopener noreferrer">
-                  Instagram
-                </a>
-                <a href="https://www.facebook.com" className="inline-flex rounded-full border border-zinc-300 px-3 py-1.5 text-xs tracking-[0.12em] text-zinc-600 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-300" target="_blank" rel="noopener noreferrer">
-                  Facebook
-                </a>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      <section id="team-grid" data-section="team-grid" className="mx-auto max-w-7xl px-8 pb-14 md:px-12 lg:px-10">
-        <div className="mb-6">
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-500">Meet The Team</p>
-          <h2 className="mt-3 text-3xl font-semibold md:text-4xl">The people powering TEN</h2>
-        </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {team.map((m) => (
-            <Reveal
-              key={m.title}
-              as="article"
-              className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <ImageWithFallback
-                src={m.image}
-                fallbackSrc={m.fallback}
-                alt="Team member profile"
-                className="h-64 w-full object-cover md:h-72"
-                loading="lazy"
-              />
-              <div className="p-5">
-                <h3 className="text-lg font-semibold">{m.title}</h3>
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{m.desc}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <a
-                    href="https://www.linkedin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-600 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-300"
-                  >
-                    LinkedIn
-                  </a>
-                  <a
-                    href="https://www.instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-600 transition hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-300"
-                  >
-                    Instagram
-                  </a>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
+function AboutPageTail() {
+  return (
+    <>
       <section id="about-cta" data-section="about-cta" className="mx-auto max-w-7xl px-8 pb-20 md:px-12 lg:px-10">
         <div className="mb-6 flex flex-wrap gap-2">
           <a href="https://www.instagram.com/theembernetwork" className="inline-flex rounded-full bg-orange-500 px-4 py-2 text-xs tracking-[0.12em] text-white transition hover:bg-orange-400" target="_blank" rel="noopener noreferrer">
@@ -235,7 +176,6 @@ export function AboutPage() {
           <span className="mx-6">Testimonial: I found my cofounder in two weeks</span>
         </div>
       </section>
-    </main>
+    </>
   )
 }
-

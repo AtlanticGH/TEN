@@ -1,10 +1,11 @@
 /**
- * One-time CMS bootstrap for public site_content keys.
- * Run: node scripts/bootstrap-site-content.mjs
- * Safe to re-run (upserts on key conflict).
+ * Bootstrap public site_content keys (safe to re-run — upserts).
+ * node scripts/bootstrap-site-content.mjs
  */
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
+import { DEFAULT_PAGE_HEROES, pageHeroKey } from '../src/config/pageHeroDefaults.js'
+import { DEFAULT_PROGRAMS_PAGE_CONTENT, PROGRAMS_PAGE_CONTENT_KEY } from '../src/config/programsContentDefaults.js'
 import { DEFAULT_HOME_HERO, HOME_HERO_KEY } from '../src/config/siteContentDefaults.js'
 
 dotenv.config({ path: ['.env', '.env.local'], override: true })
@@ -21,7 +22,14 @@ const supabase = createClient(url, key, {
   auth: { persistSession: false, autoRefreshToken: false },
 })
 
-const rows = [{ key: HOME_HERO_KEY, value: DEFAULT_HOME_HERO }]
+const rows = [
+  { key: HOME_HERO_KEY, value: DEFAULT_HOME_HERO },
+  { key: PROGRAMS_PAGE_CONTENT_KEY, value: DEFAULT_PROGRAMS_PAGE_CONTENT },
+  ...Object.entries(DEFAULT_PAGE_HEROES).map(([slug, hero]) => ({
+    key: pageHeroKey(slug),
+    value: hero,
+  })),
+]
 
 for (const row of rows) {
   const { error } = await supabase.from('site_content').upsert(
@@ -35,4 +43,4 @@ for (const row of rows) {
   console.log(`Upserted ${row.key}`)
 }
 
-console.log('Done. Verify: curl http://localhost:3000/api/public/site-content/home.hero.v1')
+console.log('Done.')

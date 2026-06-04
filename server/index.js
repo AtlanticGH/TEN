@@ -5,7 +5,10 @@ import { createClient } from '@supabase/supabase-js'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
-
+import { registerAdminRoutes } from './adminRoutes.js'
+import { registerCmsRoutes } from './cmsRoutes.js'
+import { registerGalleryEnsureRoute } from './galleryEnsureRoute.js'
+import { registerResourcesRoutes } from './resourcesRoutes.js'
 
 // Load .env then .env.local (Vite-style: local overrides base).
 dotenv.config({ path: ['.env', '.env.local'], override: true })
@@ -131,7 +134,7 @@ async function ensureProfileRow(user) {
       user_id: userId,
       email: user.email || null,
       full_name: user.user_metadata?.full_name || '',
-      role: 'student',
+      role: 'viewer',
       status: 'active',
     })
     .select('*')
@@ -167,7 +170,7 @@ async function getMyProfileRow(userId, authUser = null) {
 }
 
 function isStaffRole(role) {
-  return ['admin', 'super_admin', 'staff'].includes(String(role || ''))
+  return ['admin', 'super_admin', 'staff', 'editor'].includes(String(role || ''))
 }
 
 // Whitelist updatable fields per table — never trust raw req.body.
@@ -194,7 +197,7 @@ const PROFILE_SELF_UPDATABLE = [
   'avatar_path',
   'avatar_url',
 ]
-const MEDIA_STAFF_UPDATABLE = ['title', 'alt', 'tags']
+const MEDIA_STAFF_UPDATABLE = ['title', 'alt', 'tags', 'folder']
 
 // Upload validation: enforce content-type allowlist + per-type size limits.
 const ALLOWED_UPLOAD_MIME = new Map([
@@ -317,18 +320,6 @@ app.get('/api/public/cms-content', async (req, res) => {
   }
 })
 
-app.get('/api/public/resources', async (req, res) => {
-  try {
-    if (!requireSupabase(res)) return
-    const limit = Math.max(1, Math.min(500, Number(req.query?.limit || 200)))
-    const { data, error } = await supabase.from('resources').select('*').order('created_at', { ascending: false }).limit(limit)
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Resources error' })
-  }
-})
-
 app.post('/api/public/contact', async (req, res) => {
   try {
     if (!requireSupabase(res)) return
@@ -431,6 +422,39 @@ function publicObjectUrl(bucket, path) {
   return `${base}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encodeStoragePath(path)}`
 }
 
+app.get('/api/public/gallery-media', async (req, res) => {
+  try {
+    if (!requireSupabase(res)) return
+    const limit = Math.max(1, Math.min(120, Number(req.query?.limit || 48)))
+    const folder = String(req.query?.folder || '').trim()
+    const mediaType = String(req.query?.type || 'image').toLowerCase()
+    let q = supabase
+      .from('media_assets')
+      .select('id,title,alt,path,bucket,mime_type,folder,created_at')
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    if (folder) q = q.eq('folder', folder)
+    const { data, error } = await q
+    if (error) throw error
+    const rows = (data || [])
+      .filter((row) => {
+        const mime = String(row.mime_type || '')
+        const isImage = mime.startsWith('image/') || /\.(jpe?g|png|gif|webp|svg)$/i.test(row.path || '')
+        const isVideo = mime.startsWith('video/') || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(row.path || '')
+        if (mediaType === 'video') return isVideo
+        if (mediaType === 'all') return isImage || isVideo
+        return isImage
+      })
+      .map((row) => ({
+        ...row,
+        public_url: publicObjectUrl(row.bucket || 'public', row.path),
+      }))
+    res.json(rows)
+  } catch (err) {
+    res.status(400).json({ error: err?.message || 'Gallery media error' })
+  }
+})
+
 app.get('/api/public/storage/public-url', (req, res) => {
   try {
     const bucket = String(req.query?.bucket || 'public')
@@ -499,7 +523,7 @@ app.get('/api/admin/activity-logs', verifyUser, requireStaff, async (req, res) =
     const limit = Math.max(1, Math.min(500, Number(req.query?.limit || 100)))
     const { data, error } = await supabase
       .from('activity_logs')
-      .select('id, actor_user_id, action, entity_type, entity_id, metadata_json, created_at')
+      .select('id, user_id, action, entity_type, entity_id, meta, created_at')
       .order('created_at', { ascending: false })
       .limit(limit)
     if (error) throw error
@@ -513,11 +537,11 @@ app.post('/api/activity-logs', verifyUser, async (req, res) => {
   try {
     const payload = req.body && typeof req.body === 'object' ? req.body : {}
     const { error } = await supabase.from('activity_logs').insert({
-      actor_user_id: req.user.id,
+      user_id: req.user.id,
       action: payload.action || 'unknown',
       entity_type: payload.entityType || payload.entity_type || 'unknown',
       entity_id: payload.entityId ? String(payload.entityId) : null,
-      metadata_json: payload.metadata || {},
+      meta: payload.metadata || payload.meta || {},
     })
     if (error) throw error
     res.json({ ok: true })
@@ -526,55 +550,36 @@ app.post('/api/activity-logs', verifyUser, async (req, res) => {
   }
 })
 
-// Resources (admin create/delete)
-app.post('/api/admin/resources', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const p = req.body && typeof req.body === 'object' ? req.body : {}
-    const { data, error } = await supabase
-      .from('resources')
-      .insert({
-        title: String(p.title || '').trim(),
-        description: (p.description || '').trim() || null,
-        category: (p.category || '').trim() || null,
-        bucket: p.bucket || 'public',
-        path: p.path || null,
-        file_url: p.file_url ? String(p.file_url).trim() : null,
-        mime_type: p.mime_type || null,
-        size_bytes: p.size_bytes || null,
-      })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Create resource error' })
-  }
-})
-
-app.delete('/api/admin/resources/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const { data: row, error: getErr } = await supabase.from('resources').select('*').eq('id', id).single()
-    if (getErr) throw getErr
-    if (row?.path) await supabase.storage.from(row.bucket || 'public').remove([row.path]).catch(() => {})
-    const { error } = await supabase.from('resources').delete().eq('id', id)
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Delete resource error' })
-  }
-})
-
 // Media assets (admin)
 app.get('/api/admin/media-assets', verifyUser, requireStaff, async (req, res) => {
   try {
     const limit = Math.max(1, Math.min(500, Number(req.query?.limit || 100)))
     const query = String(req.query?.query || '').trim()
+    const folder = String(req.query?.folder || '').trim()
+    const mediaType = String(req.query?.type || 'all').toLowerCase()
     let q = supabase.from('media_assets').select('*').order('created_at', { ascending: false }).limit(limit)
-    if (query) q = q.or(`title.ilike.%${query}%,path.ilike.%${query}%`)
+    if (folder) q = q.eq('folder', folder)
+    if (query) q = q.or(`title.ilike.%${query}%,path.ilike.%${query}%,mime_type.ilike.%${query}%`)
     const { data, error } = await q
     if (error) throw error
-    res.json(data || [])
+    const rows = (data || [])
+      .filter((row) => {
+        const mime = String(row.mime_type || '')
+        const path = String(row.path || '')
+        const isImage = mime.startsWith('image/') || /\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(path)
+        const isVideo = mime.startsWith('video/') || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(path)
+        const isPdf = mime === 'application/pdf' || /\.pdf(\?|$)/i.test(path)
+        if (mediaType === 'image') return isImage
+        if (mediaType === 'video') return isVideo
+        if (mediaType === 'pdf') return isPdf
+        return true
+      })
+      .map((row) => ({
+        ...row,
+        folder: row.folder || String(row.path || '').split('/')[0] || 'general',
+        public_url: publicObjectUrl(row.bucket || 'public', row.path),
+      }))
+    res.json(rows)
   } catch (err) {
     res.status(400).json({ error: err?.message || 'Media assets error' })
   }
@@ -614,6 +619,7 @@ app.post(
         .insert({
           bucket: 'public',
           path,
+          folder: folder || 'general',
           mime_type: contentType || null,
           size_bytes: Buffer.isBuffer(req.body) ? req.body.length : null,
           title: title || filename,
@@ -623,7 +629,10 @@ app.post(
         .select('*')
         .single()
       if (error) throw error
-      res.json(data)
+      res.json({
+        ...data,
+        public_url: publicObjectUrl(data.bucket || 'public', data.path),
+      })
     } catch (err) {
       res.status(400).json({ error: err?.message || 'Upload media error' })
     }
@@ -664,32 +673,22 @@ app.delete('/api/admin/media-assets/:id', verifyUser, requireStaff, async (req, 
   }
 })
 
-// -------------------------
-// Admin: CMS summary
-// -------------------------
-
-app.get('/api/admin/summary', verifyUser, requireStaff, async (_req, res) => {
-  try {
-    const [
-      { count: content_blocks, error: cErr },
-      { count: media_assets, error: mErr },
-      { count: resources, error: rErr },
-    ] = await Promise.all([
-      supabase.from('site_content').select('key', { count: 'exact', head: true }),
-      supabase.from('media_assets').select('id', { count: 'exact', head: true }),
-      supabase.from('resources').select('id', { count: 'exact', head: true }),
-    ])
-    if (cErr) throw cErr
-    if (mErr) throw mErr
-    if (rErr) throw rErr
-    res.json({
-      content_blocks: content_blocks || 0,
-      media_assets: media_assets || 0,
-      resources: resources || 0,
-    })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Summary error' })
-  }
+registerAdminRoutes(app, { supabase, verifyUser, requireStaff, pickFields, requireSupabase })
+registerCmsRoutes(app, {
+  supabase,
+  verifyUser,
+  requireStaff,
+  pickFields,
+  requireSupabase,
+  getMyProfileRow,
+})
+registerGalleryEnsureRoute(app, { supabase, verifyUser, requireStaff })
+registerResourcesRoutes(app, {
+  supabase,
+  verifyUser,
+  requireStaff,
+  requireSupabase,
+  supabaseUrl: SUPABASE_URL,
 })
 
 const __dirname = dirname(fileURLToPath(import.meta.url))

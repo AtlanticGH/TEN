@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom'
+import { useFooterNav } from '../../hooks/useFooterNav'
+import { useSiteSettings } from '../../hooks/useSiteSettings'
 
-const NAVIGATE_LINKS = [
+const NAVIGATE_LINKS_FALLBACK = [
   { to: '/about', label: 'About' },
   { to: '/programs', label: 'Programs' },
   { to: '/resources', label: 'Resources' },
+  { to: '/gallery', label: 'Gallery' },
   { to: '/contact', label: 'Contact' },
   { to: '/community', label: 'Community' },
 ]
@@ -57,23 +60,42 @@ const SOCIALS = [
 ]
 
 export function Footer() {
+  const { links: footerNavLinks } = useFooterNav()
+  const { settings } = useSiteSettings()
+  const navigateLinks = footerNavLinks?.length
+    ? footerNavLinks.filter((l) => !l.external).map((l) => ({ to: l.to, label: l.label }))
+    : NAVIGATE_LINKS_FALLBACK
+  const programLinks =
+    settings?.footer?.program_links?.length > 0
+      ? settings.footer.program_links.map((p) => ({ label: p.label, href: p.href || '/programs' }))
+      : PROGRAM_LINKS.map((label) => ({ label, href: '/programs' }))
+  const footerCtaLabel = settings?.footer?.cta_label || 'Join The Network'
+  const footerCtaHref = settings?.footer?.cta_href || '/community'
+  const tagline = settings?.tagline || settings?.footer?.copyright || 'A community of ignition and empowerment.'
+  const contactEmail = settings?.contact_email || 'info@theembernetwork.com'
+  const contactPhone = settings?.contact_phone || '+233 50 940 4673'
+  const website = settings?.social?.website || 'https://www.theembernetwork.com'
+  const copyright = settings?.footer?.copyright || `© ${new Date().getFullYear()} The Ember Network`
+
   return (
     <footer id="site-footer" className="mt-auto bg-[#0A0A0A] text-zinc-400">
       <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8 md:py-20 lg:px-10">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Col 1 — Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <h2 className="text-xl font-semibold tracking-tight text-white">
-              The <span className="text-orange-500">Ember</span> Network
-            </h2>
-            <p className="mt-4 max-w-[320px] text-[14px] leading-relaxed text-zinc-400">
-              A community of ignition and empowerment.
-            </p>
             <Link
-              to="/community"
+              to="/"
+              className="inline-block text-xl font-semibold tracking-tight text-white transition-colors duration-200 ease-out hover:text-orange-400"
+              aria-label="The Ember Network — home"
+            >
+              The <span className="text-orange-500">Ember</span> Network
+            </Link>
+            <p className="mt-4 max-w-[320px] text-[14px] leading-relaxed text-zinc-400">{tagline}</p>
+            <Link
+              to={footerCtaHref}
               className="mt-7 inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3 text-[13px] font-bold text-white shadow-glow-sm transition-all duration-200 ease-out hover:bg-orange-400 active:scale-[0.98]"
             >
-              Join The Network
+              {footerCtaLabel}
             </Link>
           </div>
 
@@ -81,7 +103,7 @@ export function Footer() {
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-zinc-500">Navigate</p>
             <nav className="mt-5 flex flex-col gap-2.5" aria-label="Footer navigation">
-              {NAVIGATE_LINKS.map(({ to, label }) => (
+              {navigateLinks.map(({ to, label }) => (
                 <Link
                   key={label}
                   to={to}
@@ -97,10 +119,10 @@ export function Footer() {
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-zinc-500">Programs</p>
             <nav className="mt-5 flex flex-col gap-2.5" aria-label="Programs">
-              {PROGRAM_LINKS.map((label) => (
+              {programLinks.map(({ label, href }) => (
                 <Link
                   key={label}
-                  to="/programs"
+                  to={href}
                   className="text-[13px] text-zinc-400 transition-colors duration-200 ease-out hover:text-orange-400"
                 >
                   {label}
@@ -114,19 +136,19 @@ export function Footer() {
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-zinc-500">Connect</p>
             <nav className="mt-5 flex flex-col gap-2.5" aria-label="Connect links">
               <a
-                href="mailto:info@theembernetwork.com"
+                href={`mailto:${contactEmail}`}
                 className="text-[13px] text-zinc-400 transition-colors duration-200 ease-out hover:text-orange-400"
               >
-                info@theembernetwork.com
+                {contactEmail}
               </a>
               <a
-                href="tel:+233509404673"
+                href={`tel:${contactPhone.replace(/\s/g, '')}`}
                 className="text-[13px] text-zinc-400 transition-colors duration-200 ease-out hover:text-orange-400"
               >
-                +233 50 940 4673
+                {contactPhone}
               </a>
               <a
-                href="https://www.theembernetwork.com"
+                href={website}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[13px] text-zinc-400 transition-colors duration-200 ease-out hover:text-orange-400"
@@ -163,8 +185,8 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-zinc-800 pt-6 text-[12px] text-zinc-500 md:flex-row md:items-center md:justify-between">
-          <span>&copy; {new Date().getFullYear()} The Ember Network. All rights reserved.</span>
-          <span className="italic text-zinc-500">Small Sparks Ignite Big Dreams</span>
+          <span>{copyright}</span>
+          <span className="italic text-zinc-500">{settings?.tagline || 'Small Sparks Ignite Big Dreams'}</span>
         </div>
       </div>
     </footer>

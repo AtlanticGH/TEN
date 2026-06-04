@@ -1,13 +1,13 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { isStaffRole } from '../../lib/rbac'
+import { isAdminRole } from '../../lib/rbac'
 import { APP_SHELL_MAIN_OFFSET, LAYOUT_CONTAINER } from '../layout/headerTokens'
 
 export function AdminRoute({ children }) {
-  const { loading, isAuthed, profile } = useAuth()
+  const { loading, profileLoading, isAuthed, profile } = useAuth()
   const location = useLocation()
 
-  if (loading) {
+  if (loading || (isAuthed && profileLoading)) {
     return (
       <div className={`${LAYOUT_CONTAINER} pb-16 ${APP_SHELL_MAIN_OFFSET}`}>
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60">
@@ -19,10 +19,10 @@ export function AdminRoute({ children }) {
 
   if (!isAuthed) {
     const next = encodeURIComponent(location.pathname + location.search + location.hash)
-    return <Navigate to={`/admin/login?next=${next}`} replace />
+    return <Navigate to={`/admin?next=${next}`} replace />
   }
 
-  if (!isStaffRole(profile?.role)) {
+  if (!profile || !isAdminRole(profile.role)) {
     return <Navigate to="/" replace />
   }
 

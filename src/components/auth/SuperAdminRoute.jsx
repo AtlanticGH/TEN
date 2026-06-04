@@ -14,7 +14,7 @@ export function SuperAdminRoute({ children }) {
   }
 
   if (!isSuperAdmin(profile?.role)) {
-    return <Navigate to="/admin/dashboard" replace />
+    return <Navigate to="/admin/overview" replace />
   }
 
   return children

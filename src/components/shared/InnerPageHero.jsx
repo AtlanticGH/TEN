@@ -5,7 +5,7 @@ import { fadeUp, heroBgTransition, heroStagger } from '../../lib/motion'
 /**
  * InnerPageHero — reusable hero for inner pages (About, Programs, Resources, Contact…)
  */
-export function InnerPageHero({ badge, heading, description, image, className = '' }) {
+export function InnerPageHero({ badge, heading, description, image, actions, className = '' }) {
   const reduceMotion = useReducedMotion()
 
   const content = (
@@ -32,12 +32,17 @@ export function InnerPageHero({ badge, heading, description, image, className = 
           {description}
         </motion.p>
       )}
+      {actions ? (
+        <motion.div variants={fadeUp} className="mt-8">
+          {actions}
+        </motion.div>
+      ) : null}
     </>
   )
 
   return (
     <section
-      id="home-gateway"
+      id="page-hero"
       data-section="hero-gateway"
       className={['relative overflow-hidden bg-zinc-950', className].join(' ')}
     >
@@ -72,6 +77,7 @@ export function InnerPageHero({ badge, heading, description, image, className = 
                 {description}
               </p>
             )}
+            {actions ? <div className="mt-8">{actions}</div> : null}
           </div>
         ) : (
           <motion.div initial="hidden" animate="visible" variants={heroStagger}>

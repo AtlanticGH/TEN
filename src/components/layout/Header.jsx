@@ -1,13 +1,15 @@
-import { memo, useCallback, useEffect, useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { memo, useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { readHeaderPillScrolled } from '../../lib/headerMode'
+import { Link, NavLink } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
+import { useMarketingNav } from '../../hooks/useMarketingNav'
+import { useSiteSettings } from '../../hooks/useSiteSettings'
 import {
   APP_SHELL_BTN,
   APP_SHELL_MENU_Z,
   APP_SHELL_MAIN_OFFSET,
   LAYOUT_CONTAINER,
   SITE_HEADER_Z,
-  SITE_NAV_LINKS,
   siteHeaderStyles,
 } from './headerTokens'
 
@@ -63,18 +65,77 @@ function HamburgerIcon({ open }) {
 }
 
 /** Fixed marketing site navbar (public pages). */
+function NavItem({ link, navLinkClass, navLinkActiveClass, onNavigate }) {
+  const classFn = ({ isActive }) => [navLinkClass, isActive ? navLinkActiveClass : ''].filter(Boolean).join(' ')
+  if (link.external) {
+    return (
+      <a href={link.to} className={navLinkClass} target="_blank" rel="noreferrer" onClick={onNavigate}>
+        {link.label}
+      </a>
+    )
+  }
+  return (
+    <NavLink to={link.to} className={classFn} onClick={onNavigate}>
+      {link.label}
+    </NavLink>
+  )
+}
+
+function MobileNavItem({ link, styles, onNavigate }) {
+  const base =
+    'rounded-lg px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200 ease-out'
+  if (link.external) {
+    return (
+      <a
+        href={link.to}
+        className={[base, styles.isHero ? 'text-white/80 hover:bg-white/[0.07] hover:text-white' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'].join(' ')}
+        target="_blank"
+        rel="noreferrer"
+        onClick={onNavigate}
+      >
+        {link.label}
+      </a>
+    )
+  }
+  return (
+    <NavLink
+      to={link.to}
+      className={({ isActive }) =>
+        [
+          base,
+          isActive
+            ? 'bg-orange-500/10 text-orange-500 dark:text-orange-400'
+            : styles.isHero
+              ? 'text-white/80 hover:bg-white/[0.07] hover:text-white'
+              : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800',
+        ].join(' ')
+      }
+      onClick={onNavigate}
+    >
+      {link.label}
+    </NavLink>
+  )
+}
+
 export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
+  const { links } = useMarketingNav()
+  const { settings } = useSiteSettings()
+  const siteName = settings?.site_name || 'The Ember Network'
+  const logoUrl = settings?.logo_url?.trim()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const location = useLocation()
+  const [scrolled, setScrolled] = useState(() => readHeaderPillScrolled())
+  const [chromeReady, setChromeReady] = useState(false)
   const visualMode = mobileOpen ? 'scrolled' : mode
   const styles = siteHeaderStyles(visualMode)
 
   const closeMobile = useCallback(() => setMobileOpen(false), [])
 
-  useEffect(() => {
-    closeMobile()
-  }, [location.pathname, closeMobile])
+  const usePill = scrolled && !mobileOpen
+
+  useLayoutEffect(() => {
+    setScrolled(readHeaderPillScrolled())
+    setChromeReady(true)
+  }, [])
 
   useEffect(() => {
     if (!mobileOpen) return undefined
@@ -90,15 +151,13 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
     }
   }, [mobileOpen, closeMobile])
 
-  // Floating "hover header": past ~70px the bar morphs into a centred pill.
+  // Floating pill: past ~70px the bar morphs into a centred pill.
   useEffect(() => {
-    const THRESHOLD = 70
     let raf = 0
     const onScroll = () => {
       cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => setScrolled(window.scrollY >= THRESHOLD))
+      raf = requestAnimationFrame(() => setScrolled(readHeaderPillScrolled()))
     }
-    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       cancelAnimationFrame(raf)
@@ -110,38 +169,50 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
     <header
       data-site-header
       className={[
-        'site-header fixed inset-x-0 mx-auto overflow-hidden',
+        'site-header fixed inset-x-0 mx-auto',
+        chromeReady ? 'is-ready' : '',
         SITE_HEADER_Z,
         styles.headerClass,
-        scrolled
+        mobileOpen ? 'overflow-visible' : 'overflow-hidden',
+        usePill
           ? 'is-pill top-3 max-w-[calc(100vw-32px)] rounded-full border sm:max-w-6xl'
           : 'top-0 max-w-[100vw] rounded-none border-b',
       ].join(' ')}
     >
       <nav
         className={[
-          'flex items-center justify-between transition-[max-width,padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
-          scrolled ? 'mx-auto max-w-6xl px-8 py-3.5' : `${LAYOUT_CONTAINER} py-4`,
+          'flex items-center justify-between gap-3 transition-[max-width,padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          usePill ? 'mx-auto max-w-6xl px-6 py-3.5 sm:px-8' : `${LAYOUT_CONTAINER} py-4`,
         ].join(' ')}
         aria-label="Primary navigation"
       >
         <Link
           to="/"
-          className={`whitespace-nowrap text-[1.1rem] font-semibold tracking-tight transition-colors duration-200 ease-out ${styles.brandTextClass}`}
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap text-[1.1rem] font-semibold tracking-tight transition-colors duration-200 ease-out hover:opacity-90 ${styles.brandTextClass}`}
           onClick={closeMobile}
+          aria-label={`${siteName} — home`}
+          title="Go to homepage"
         >
-          The <span className={styles.brandAccentClass}>Ember Network</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="h-8 w-auto max-w-[160px] object-contain" />
+          ) : siteName.includes('Ember') ? (
+            <>
+              The <span className={styles.brandAccentClass}>Ember Network</span>
+            </>
+          ) : (
+            siteName
+          )}
         </Link>
 
-        <div className="hidden items-center gap-7 md:flex">
-          {SITE_NAV_LINKS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => [styles.navLinkClass, isActive ? styles.navLinkActiveClass : ''].filter(Boolean).join(' ')}
-            >
-              {label}
-            </NavLink>
+        <div className="hidden min-w-0 flex-1 items-center justify-center gap-4 lg:flex lg:gap-5 xl:gap-6">
+          {links.map((link) => (
+            <NavItem
+              key={`${link.to}-${link.label}`}
+              link={link}
+              navLinkClass={styles.navLinkClass}
+              navLinkActiveClass={styles.navLinkActiveClass}
+              onNavigate={closeMobile}
+            />
           ))}
         </div>
 
@@ -151,7 +222,7 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
-            className={[styles.iconBtnClass, 'md:hidden'].join(' ')}
+            className={[styles.iconBtnClass, 'lg:hidden'].join(' ')}
             aria-expanded={mobileOpen}
             aria-controls="site-mobile-menu"
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
@@ -167,28 +238,15 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
         aria-label="Mobile navigation"
         aria-hidden={!mobileOpen}
         className={[
-          'md:hidden overflow-hidden border-t transition-[max-height,opacity] duration-200 ease-out',
+          'lg:hidden overflow-hidden border-t transition-[max-height,opacity] duration-200 ease-out',
+          usePill ? 'rounded-b-3xl' : '',
           styles.mobileMenuBg,
-          mobileOpen ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
+          mobileOpen ? 'max-h-[min(32rem,80dvh)] overflow-y-auto opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
         ].join(' ')}
       >
-        <div className={[scrolled ? 'mx-auto w-full px-5' : LAYOUT_CONTAINER, 'flex flex-col gap-1 py-5'].join(' ')}>
-          {SITE_NAV_LINKS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => [
-                'rounded-lg px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] transition-colors duration-200 ease-out',
-                isActive
-                  ? 'bg-orange-500/10 text-orange-500 dark:text-orange-400'
-                  : styles.isHero
-                    ? 'text-white/80 hover:bg-white/[0.07] hover:text-white'
-                    : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800',
-              ].join(' ')}
-              onClick={closeMobile}
-            >
-              {label}
-            </NavLink>
+        <div className={[usePill ? 'mx-auto w-full px-5 sm:px-8' : LAYOUT_CONTAINER, 'flex flex-col gap-1 py-5'].join(' ')}>
+          {links.map((link) => (
+            <MobileNavItem key={`${link.to}-${link.label}`} link={link} styles={styles} onNavigate={closeMobile} />
           ))}
         </div>
       </div>

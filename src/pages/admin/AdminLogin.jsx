@@ -1,10 +1,29 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { signInWithEmailOrUsername } from '../../services/auth'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import { isAdminRole } from '../../lib/rbac'
+import { signInWithEmailOrUsername, signOut } from '../../services/auth'
+import { getMyProfile } from '../../services/db'
 import { LAYOUT_CONTAINER, SITE_HEADER_OFFSET } from '../../components/layout/headerTokens'
+
+function postLoginPath(search) {
+  const next = new URLSearchParams(search).get('next')
+  if (!next) return '/admin/overview'
+  try {
+    const path = decodeURIComponent(next)
+    if (path.startsWith('/admin') && path !== '/admin' && path !== '/admin/') {
+      return path
+    }
+  } catch {
+    /* ignore */
+  }
+  return '/admin/overview'
+}
 
 export function AdminLoginPage() {
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
+  const [searchParams] = useSearchParams()
   const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -24,11 +43,21 @@ export function AdminLoginPage() {
       setError('Please enter your password.')
       return
     }
+    const pwd = String(p ?? '')
+    if (!pwd) {
+      setError('Please enter your password.')
+      return
+    }
     setSubmitting(true)
     try {
-      await signInWithEmailOrUsername({ emailOrUsername: trimmed, password: p })
-      // AdminRoute validates the staff role and renders the admin shell only for authorized staff.
-      navigate('/admin/content', { replace: true })
+      await signInWithEmailOrUsername({ emailOrUsername: trimmed, password: pwd })
+      const profile = (await getMyProfile().catch(() => null)) ?? (await refreshProfile())
+      if (!isAdminRole(profile?.role)) {
+        await signOut().catch(() => {})
+        setError('Staff access only. Use a CMS admin account (admin or super_admin).')
+        return
+      }
+      navigate(postLoginPath(searchParams.toString()), { replace: true })
     } catch (err) {
       const msg = err?.message || 'Unable to login. Please try again.'
       if (msg.toLowerCase().includes('email') && msg.toLowerCase().includes('confirm')) {

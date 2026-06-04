@@ -17,7 +17,7 @@ export const APP_SHELL_MAIN_OFFSET = 'pt-8'
 export const SITE_HEADER_Z = 'z-50'
 
 /** Selector for full-bleed hero sections (home + inner marketing pages). */
-export const HERO_GATEWAY_SELECTOR = '#home-gateway, [data-section="hero-gateway"]'
+export const HERO_GATEWAY_SELECTOR = '[data-section="hero-gateway"]'
 
 /** Attribute on the fixed site header for scroll measurements. */
 export const SITE_HEADER_ATTR = 'data-site-header'
@@ -40,6 +40,7 @@ export const SITE_NAV_LINKS = [
   { to: '/about', label: 'About' },
   { to: '/programs', label: 'Programs' },
   { to: '/resources', label: 'Resources' },
+  { to: '/gallery', label: 'Gallery' },
   { to: '/contact', label: 'Contact' },
   { to: '/community', label: 'Community' },
 ]

@@ -1,55 +1,68 @@
 import { useNavigate } from 'react-router-dom'
 import { MainDashboardLayout, DashboardNavLink } from '../../components/layout/MainDashboardLayout'
-import { SITE_BTN_SECONDARY } from '../../components/ui/siteDesignTokens'
 import { useAuth } from '../../hooks/useAuth'
+import { can } from '../../lib/rbac'
 import { signOut } from '../../services/auth'
+
+const GHOST_BTN =
+  'inline-flex items-center rounded-md px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
 
 export function AdminLayout() {
   const { profile, user } = useAuth()
   const navigate = useNavigate()
+  const role = profile?.role
 
   const renderNav = ({ onNavigate } = {}) => (
-    <div className="grid gap-2">
+    <div className="space-y-0.5">
       <DashboardNavLink to="/admin/overview" end onNavigate={onNavigate}>
-        Overview
+        Dashboard
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/content" onNavigate={onNavigate}>
-        Content
+      <DashboardNavLink to="/admin/pages/manage" onNavigate={onNavigate}>
+        Pages
+      </DashboardNavLink>
+      <DashboardNavLink to="/admin/home" onNavigate={onNavigate}>
+        Homepage
+      </DashboardNavLink>
+      <DashboardNavLink to="/admin/programs" onNavigate={onNavigate}>
+        Programs
+      </DashboardNavLink>
+      <DashboardNavLink to="/admin/heroes" onNavigate={onNavigate}>
+        Page heroes
       </DashboardNavLink>
       <DashboardNavLink to="/admin/media" onNavigate={onNavigate}>
-        Media
+        Media library
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/resources" onNavigate={onNavigate}>
-        Resources
+      <DashboardNavLink to="/admin/gallery" onNavigate={onNavigate}>
+        Gallery
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/logs" onNavigate={onNavigate}>
-        Logs
+      <DashboardNavLink to="/admin/navigation" onNavigate={onNavigate}>
+        Navigation
       </DashboardNavLink>
       <DashboardNavLink to="/admin/settings" onNavigate={onNavigate}>
-        Settings
+        Site settings
       </DashboardNavLink>
+      {can(role, 'manage_users') ? (
+        <DashboardNavLink to="/admin/users" onNavigate={onNavigate}>
+          Users
+        </DashboardNavLink>
+      ) : null}
     </div>
   )
 
   return (
     <MainDashboardLayout
       workspaceLabel="CMS"
-      workspaceTitle="Site editor"
-      workspaceDescription="Edit marketing copy, media, downloadable resources, and site settings."
-      mobileMenuTitle="CMS navigation"
+      workspaceTitle="Content management"
+      workspaceDescription="Manage pages, media, gallery, navigation, and site settings."
+      mobileMenuTitle="CMS menu"
       renderNav={renderNav}
       bannerActions={
         <>
-          <a
-            href="/"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600 transition hover:border-orange-300 hover:text-orange-600 sm:inline dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300"
-          >
+          <a href="/" target="_blank" rel="noreferrer" className={`${GHOST_BTN} hidden sm:inline-flex`}>
             View site
           </a>
-          <span className="hidden rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600 sm:inline dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300">
-            {profile?.full_name || user?.email || 'Staff'}
+          <span className={`${GHOST_BTN} hidden max-w-[140px] truncate sm:inline-flex`} title={profile?.full_name || user?.email}>
+            {profile?.full_name || user?.email || 'Admin'}
           </span>
           <button
             type="button"
@@ -60,7 +73,7 @@ export function AdminLayout() {
                 navigate('/', { replace: true })
               }
             }}
-            className={`${SITE_BTN_SECONDARY} !px-4 !py-2 text-xs`}
+            className={GHOST_BTN}
           >
             Sign out
           </button>

@@ -31,8 +31,8 @@ if (!email || !password) {
   console.error('Usage: node scripts/create-admin.mjs --email you@company.com --password "..." [--name "Full Name"]')
   process.exit(1)
 }
-if (password.length < 10) {
-  console.error('Password must be at least 10 characters.')
+if (password.length < 8) {
+  console.error('Password must be at least 8 characters.')
   process.exit(1)
 }
 
@@ -60,7 +60,7 @@ if (existing?.user_id) {
   }
   const origin = devOrigin()
   console.log(`Promoted existing user to ${role}: ${email}`)
-  console.log(`Login at ${origin}/login → ${origin}/admin/dashboard`)
+  console.log(`Login at ${origin}/admin`)
   process.exit(0)
 }
 
@@ -99,8 +99,14 @@ if (createErr) {
     process.exit(1)
   }
   userId = user.id
-  const { error: pwdErr } = await supabase.auth.admin.updateUserById(userId, { password })
-  if (pwdErr) console.warn('Note: could not update password:', pwdErr.message)
+  const { error: pwdErr } = await supabase.auth.admin.updateUserById(userId, {
+    password,
+    email_confirm: true,
+  })
+  if (pwdErr) {
+    console.error('Password update failed:', pwdErr.message)
+    process.exit(1)
+  }
   console.log(`Auth user already exists; linking profile for ${email}`)
 } else {
   userId = created.user?.id
@@ -132,6 +138,19 @@ if (profErr) {
 }
 
 const { data: saved } = await supabase.from('profiles').select('role').eq('user_id', userId).single()
+
+const anonKey = process.env.VITE_SUPABASE_ANON_KEY?.trim()
+const pubUrl = process.env.VITE_SUPABASE_URL?.trim() || url
+if (anonKey) {
+  const pub = createClient(pubUrl, anonKey, { auth: { persistSession: false } })
+  const { error: verifyErr } = await pub.auth.signInWithPassword({ email, password })
+  if (verifyErr) {
+    console.error('Login verification failed:', verifyErr.message)
+    console.error('Check VITE_SUPABASE_ANON_KEY matches this project.')
+    process.exit(1)
+  }
+}
+
 const origin = devOrigin()
 console.log(`Created ${saved?.role ?? 'admin'}: ${email}`)
-console.log(`Login at ${origin}/login → ${origin}/admin/dashboard`)
+console.log(`Login at ${origin}/admin`)

@@ -1,71 +1,89 @@
-# CMS / Admin platform — The Ember Network (Atlantic Catering & Logistics)
+# CMS v2 Architecture — The Ember Network
 
-This project ships as a **React 19 + Vite SPA** with **Supabase (PostgreSQL + Auth + Storage + RLS)** as the primary backend. Deploying on **Vercel** hosts static assets and rewrites; **data plane and authorization** remain on Supabase (recommended for production).
+## Overview
 
-## 1. Frontend (React Router)
+Production CMS with:
 
-| Area | Path pattern | Guard |
-|------|--------------|--------|
-| Public | `/`, `/about`, `/services`, `/apply`, `/login` | None |
-| Member | `/member`, `/member/profile`, `/member/activity`, `/member/courses/*` | `ProtectedRoute` (session required) |
-| Admin | `/admin`, `/admin/dashboard`, … | `AdminGate` (staff roles only; login UI at `/admin` when logged out) |
+- **Dynamic pages** (`pages` + `page_blocks`) — block-based page builder
+- **Global settings** (`site_settings`) — branding, contact, SEO defaults, analytics
+- **Navigation** (`navigation` + `navigation_items`) — main menu
+- **Media library** (`media_assets`) — images, PDFs, videos
+- **Blog** (`blog_posts`, categories, tags)
+- **Legacy sections** (`cms_content`) — section editor (bridged until migrated to blocks)
+- **Site JSON** (`site_content`) — home hero key `home.hero.v1`
 
-Legacy paths (`/dashboard`, `/profile`, `/courses`) **redirect** to `/member` equivalents for bookmarks and SEO continuity.
+Public site loads content via Express API (`/api/public/cms/*`). Admin writes use service role with staff guards.
 
-**State & auth:** `AuthContext` wraps Supabase session. Profile row in `public.profiles` drives **RBAC** client-side for UX; **RLS** enforces security server-side.
+## Schema (core tables)
 
-## 2. “Backend” on Vercel (options)
+| Table | Purpose |
+|-------|---------|
+| `profiles` | Auth users; roles: `super_admin`, `admin`, `editor`, `viewer`, `staff` |
+| `site_settings` | Global JSON (`global.v1`) |
+| `site_content` | Keyed JSON blobs (hero, legacy) |
+| `pages` | Slug, title, status, SEO fields |
+| `page_blocks` | Block type + JSON content, sort order |
+| `block_types` | Reference list of block types |
+| `cms_content` | Legacy page/section rows |
+| `navigation` / `navigation_items` | Menus |
+| `media_assets` | File metadata |
+| `blog_posts` / `blog_categories` / `blog_tags` | Blog CMS |
+| `applications` | Membership intake |
+| `activity_logs` | Audit trail |
+| `courses` / `modules` / `lessons` | Learning content (admin) |
 
-| Pattern | Use when |
-|---------|----------|
-| **Supabase-only (current)** | CRUD via `@supabase/supabase-js` + RLS policies. No Node server required. |
-| **Vercel Serverless** (`/api/*`) | Rate-limited auth proxy, invite-user webhooks, payment webhooks, heavy validation. |
-| **Supabase Edge Functions** | Same as serverless but colocated with DB; good for invite flows and secrets. |
+## Roles
 
-Auth tokens today are **Supabase-managed** (not custom JWT cookies). For strict HTTP-only cookie sessions, add a thin **serverless session exchange** (optional upgrade).
+| Role | Access |
+|------|--------|
+| `super_admin` | Full CMS + assign super_admin |
+| `admin` | Content, settings, users |
+| `editor` | Content edit |
+| `viewer` | Dashboard read-only (no writes in UI) |
+| `staff` | Legacy alias → editor |
 
-## 3. Database (PostgreSQL / Supabase)
+## Public API
 
-- **`auth.users`**: identities (managed by Supabase Auth).
-- **`public.profiles`**: `role` (`student` | `mentor` | `staff` | `admin` | `super_admin`), `status`, profile fields. Maps to product roles: `student`/`mentor` ≈ **member**, `staff`/`admin`/`super_admin` ≈ **admin**.
-- **`public.applications`**: intake; public insert; staff update (`platform.sql`).
-- **`public.site_content`**: JSON CMS blocks (e.g. hero) (`cms.sql`).
-- **`public.cms_content`**: structured page/section rows (draft/publish) — see `supabase/platform_cms_v2.sql`.
-- **`public.activity_logs`**: audit trail for admin actions — see `supabase/platform_cms_v2.sql`.
-- **`public.notifications`**: in-app notifications (existing).
+- `GET /api/public/cms/settings?key=global.v1`
+- `GET /api/public/cms/navigation/:key`
+- `GET /api/public/cms/pages`
+- `GET /api/public/cms/pages/:slug` — page + enabled blocks
+- `GET /api/public/site-content/:key`
+- `GET /api/public/cms-content`
 
-Indexes: `(email)`, `(status, created_at)` on applications; `(created_at desc)` on activity_logs.
+## Admin API (staff JWT)
 
-## 4. RBAC (see `src/lib/rbac.js`)
+- Pages/blocks: `/api/admin/pages`, `/api/admin/pages/:id/blocks`, reorder, block-types
+- Settings: `/api/admin/site-settings`
+- Navigation: `/api/admin/navigation/:key`
+- Users: `/api/admin/users` (admin+)
+- Summary: `/api/admin/cms-summary`
+- Blog, media, courses, applications — existing routes in `server/adminRoutes.js`
 
-| Action | super_admin | admin / staff | member (student/mentor) |
-|--------|---------------|----------------|-------------------------|
-| `/admin` UI | Yes | Yes | No |
-| Settings / manage admins | Yes | No | No |
-| Applications, members, CMS | Yes | Yes | No |
-| Member dashboard | Yes (optional) | Yes | Yes |
+## Frontend
 
-**Enforcement:** RLS `is_staff()` / `is_admin()` in SQL; UI uses `can()` to hide routes.
+| Path | Usage |
+|------|--------|
+| `src/hooks/useCmsPage.js` | Load page + blocks |
+| `src/hooks/useSiteSettings.js` | Global settings |
+| `src/hooks/useNavigation.js` | Main nav |
+| `src/components/cms/CmsPublicPage.jsx` | CMS-first page wrapper |
+| `src/components/cms/CmsBlockRenderer.jsx` | Block → React |
+| `src/pages/admin/AdminPageBuilder.jsx` | Block editor |
+| `src/pages/admin/AdminPagesManager.jsx` | Page CRUD |
 
-## 5. Route protection
+## Migration from v1
 
-- **Client:** `ProtectedRoute`, `AdminGate`, `SuperAdminRoute`.
-- **Vercel:** `vercel.json` rewrites all paths to `index.html` for SPA + security headers.
-- **Edge middleware (optional):** cookie session validation if you add serverless auth.
+1. Archive old migrations (done).
+2. `supabase db reset` locally or push v2 chain to new project.
+3. Run `bootstrap:cms` for hero JSON.
+4. Build pages in admin → Pages → Edit blocks, or use Page content tabs for legacy sections.
+5. Publish pages (`status = published`) for public block rendering.
 
-## 6. Security
+## Production checklist
 
-- **RLS** on every sensitive table.
-- **Input trimming / max lengths** on forms; rich text should be sanitized server-side when you add HTML CMS.
-- **Rate limiting:** add Vercel middleware or Supabase Edge Function for `/login` and application submit (recommended).
-- **Audit:** insert into `activity_logs` on critical mutations (extend `admin` service calls).
-
-## 7. Scalability
-
-- Lazy-loaded admin routes (already).
-- Pagination on large tables (extend list queries with `range()`).
-- Cache public CMS reads (SWR/React Query or `stale-while-revalidate` headers on static pages if you prerender).
-
-## 8. CI/CD (Vercel)
-
-Connect Git → Preview deployments on PR → Production on main. Set env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, service keys only in serverless/Edge (never in client).
+- [ ] `supabase db push` on production project
+- [ ] Bootstrap admin + CMS seed
+- [ ] Supabase Auth redirect URLs for `/admin`
+- [ ] Env: `VITE_SUPABASE_*`, `SUPABASE_SERVICE_ROLE_KEY`
+- [ ] Verify RLS + staff routes with test editor account

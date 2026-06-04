@@ -1,16 +1,18 @@
--- Ember Network — optional reference seed (no auth users; use bootstrap scripts instead).
---
--- Recommended local setup (from repo root):
---   npm run bootstrap:cms
---   npm run bootstrap:admin -- --email you@example.com --password 'YourSecurePass10'
---   npm run bootstrap:mentor -- --email mentor@example.com --password 'YourSecurePass10'
---   npm run bootstrap:sample
---   npm run bootstrap:resources
---
--- This file is intentionally minimal so `supabase db reset` does not fail.
--- Add only idempotent reference data below if needed.
+-- Local seed — run after migrations via `supabase db reset`
+-- site_content rows use ON CONFLICT DO NOTHING in migration 20260401000013 for heroes/programs.
 
--- Example: ensure home hero key exists when not using bootstrap:cms
--- INSERT INTO public.site_content (key, value)
--- VALUES ('home.hero.v1', '{"headline":"The Ember Network"}'::jsonb)
--- ON CONFLICT (key) DO NOTHING;
+INSERT INTO public.site_content (key, value) VALUES (
+  'home.hero.v1',
+  '{
+    "badge": "A COMMUNITY OF IGNITION & EMPOWERMENT",
+    "headline_before": "Small sparks ignite",
+    "headline_emphasis": "big dreams at The Ember Network",
+    "description": "We help aspiring entrepreneurs and early-stage founders transform bold ideas into lasting ventures through mentorship, structured learning, and meaningful connections.",
+    "cta_primary_label": "Apply for Membership",
+    "cta_primary_href": "/apply",
+    "cta_secondary_label": "Explore Our Story",
+    "cta_secondary_href": "/about",
+    "background_image": "/assets/images/1523240795612-9a054b0db644.jpg",
+    "background_video": ""
+  }'::jsonb
+) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now();

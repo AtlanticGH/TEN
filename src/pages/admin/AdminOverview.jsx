@@ -10,33 +10,45 @@ import {
   DashboardSkeleton,
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
-import { listActivityLogs } from '../../services/activityLogs'
-import { listCmsSummary } from '../../services/admin'
+import { apiFetch } from '@/lib/apiClient'
+import { getCmsSummary } from '../../services/cms/pages'
+
+const QUICK_LINKS = [
+  ['All pages', '/admin/pages/manage'],
+  ['Homepage hero', '/admin/home'],
+  ['Programs page', '/admin/programs'],
+  ['Page heroes', '/admin/heroes'],
+  ['Media library', '/admin/media'],
+  ['Gallery', '/admin/gallery'],
+  ['Navigation', '/admin/navigation'],
+  ['Site settings', '/admin/settings'],
+]
 
 export function AdminOverviewPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [summary, setSummary] = useState(null)
-  const [logs, setLogs] = useState([])
+  const [activity, setActivity] = useState([])
 
   useEffect(() => {
     let alive = true
-    const run = async () => {
+    ;(async () => {
       setLoading(true)
       setError('')
       try {
-        const [s, l] = await Promise.all([listCmsSummary(), listActivityLogs({ limit: 8 }).catch(() => [])])
+        const [s, logs] = await Promise.all([
+          getCmsSummary(),
+          apiFetch('/api/admin/activity-logs/recent?limit=8').catch(() => []),
+        ])
         if (!alive) return
         setSummary(s)
-        setLogs(l || [])
+        setActivity(Array.isArray(logs) ? logs : [])
       } catch (err) {
-        if (!alive) return
-        setError(err?.message || 'Unable to load overview.')
+        if (alive) setError(err?.message || 'Unable to load overview.')
       } finally {
         if (alive) setLoading(false)
       }
-    }
-    run()
+    })()
     return () => {
       alive = false
     }
@@ -45,11 +57,12 @@ export function AdminOverviewPage() {
   if (loading) {
     return (
       <DashboardPage>
-        <DashboardSkeleton className="h-8 w-48" />
-        <div className="grid gap-4 md:grid-cols-3">
-          <DashboardSkeleton className="h-28" />
-          <DashboardSkeleton className="h-28" />
-          <DashboardSkeleton className="h-28" />
+        <DashboardSkeleton className="h-7 w-40" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <DashboardSkeleton className="h-24" />
+          <DashboardSkeleton className="h-24" />
+          <DashboardSkeleton className="h-24" />
+          <DashboardSkeleton className="h-24" />
         </div>
       </DashboardPage>
     )
@@ -65,56 +78,47 @@ export function AdminOverviewPage() {
 
   return (
     <DashboardPage>
-      <DashboardPageIntro label="CMS" title="Site at a glance" />
+      <DashboardPageIntro label="Dashboard" title="Content overview" description="Published content and recent CMS activity." />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <DashboardMetricTile label="Content blocks" value={summary?.content_blocks ?? 0} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <DashboardMetricTile label="Pages" value={summary?.pages ?? 0} />
+        <DashboardMetricTile label="Content blocks" value={summary?.page_blocks ?? 0} />
         <DashboardMetricTile label="Media assets" value={summary?.media_assets ?? 0} />
-        <DashboardMetricTile label="Resources" value={summary?.resources ?? 0} />
+        <DashboardMetricTile label="Pending applications" value={summary?.applications_pending ?? 0} />
       </div>
 
       <DashboardSplit>
         <DashboardPanel>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">Quick links</p>
-          <ul className="mt-4 space-y-2 text-sm">
-            <li>
-              <Link to="/admin/content" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400">
-                Edit site content →
-              </Link>
-            </li>
-            <li>
-              <Link to="/admin/media" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400">
-                Manage media library →
-              </Link>
-            </li>
-            <li>
-              <Link to="/admin/resources" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400">
-                Update resources →
-              </Link>
-            </li>
+          <p className="text-xs font-medium text-zinc-500">Quick links</p>
+          <ul className="mt-3 space-y-1.5">
+            {QUICK_LINKS.map(([label, to]) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  className="text-sm font-medium text-zinc-700 underline-offset-2 hover:text-zinc-900 hover:underline dark:text-zinc-300"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </DashboardPanel>
         <DashboardPanel>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">Recent activity</p>
-          <ul className="mt-4 space-y-3">
-            {logs.length ? (
-              logs.map((r) => (
-                <li key={r.id}>
-                  <DashboardListItem>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                        {r.action}
-                        <span className="font-normal text-zinc-500"> · {r.entity_type}</span>
-                      </p>
-                      <p className="text-xs text-zinc-500">{new Date(r.created_at).toLocaleString()}</p>
-                    </div>
-                  </DashboardListItem>
+          <p className="text-xs font-medium text-zinc-500">Recent activity</p>
+          {activity.length ? (
+            <ul className="mt-3 space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+              {activity.map((log) => (
+                <li key={log.id}>
+                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{log.action}</span>
+                  {log.entity_type ? ` · ${log.entity_type}` : ''}
                 </li>
-              ))
-            ) : (
-              <li className="text-sm text-zinc-500">No activity yet.</li>
-            )}
-          </ul>
+              ))}
+            </ul>
+          ) : (
+            <DashboardListItem className="mt-3 border-0 bg-transparent p-0 text-sm text-zinc-500">
+              Activity will appear as editors save pages and settings.
+            </DashboardListItem>
+          )}
         </DashboardPanel>
       </DashboardSplit>
     </DashboardPage>
