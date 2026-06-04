@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getMyProfile } from '../services/db'
 import { AuthContext } from './AuthContextBase'
 import { getSupabase, supabaseIsConfigured } from '@/lib/supabaseClient'
+import { isAdminRole, isSuperAdmin as checkSuperAdmin } from '../lib/rbac'
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
@@ -95,6 +96,8 @@ export function AuthProvider({ children }) {
       profileLoading,
       refreshProfile,
       isAuthed: !!user,
+      isAdmin: isAdminRole(profile?.role),
+      isSuperAdmin: checkSuperAdmin(profile?.role),
       authMode: 'supabase',
     }),
     [loading, session, user, profile, profileError, profileLoading, refreshProfile]

@@ -49,6 +49,21 @@ const AdminPeoplePage = lazy(() => import('./pages/admin/AdminPeople').then((m) 
 const AdminResourcesPage = lazy(() =>
   import('./pages/admin/AdminResources').then((m) => ({ default: m.AdminResourcesPage })),
 )
+const AdminApplicationsPage = lazy(() =>
+  import('./pages/admin/AdminApplications').then((m) => ({ default: m.AdminApplicationsPage })),
+)
+const AdminCoursesPage = lazy(() =>
+  import('./pages/admin/AdminCourses').then((m) => ({ default: m.AdminCoursesPage })),
+)
+const AdminCourseEditorPage = lazy(() =>
+  import('./pages/admin/AdminCourseEditor').then((m) => ({ default: m.AdminCourseEditorPage })),
+)
+const AdminLogsPage = lazy(() =>
+  import('./pages/admin/AdminLogsPage').then((m) => ({ default: m.AdminLogsPage })),
+)
+const ResetPasswordPage = lazy(() =>
+  import('./pages/ResetPassword').then((m) => ({ default: m.ResetPasswordPage })),
+)
 
 const router = createBrowserRouter([
   {
@@ -105,13 +120,13 @@ const router = createBrowserRouter([
       { path: 'blog', element: <Navigate to="/admin/gallery" replace /> },
       { path: 'media', element: <AdminMediaPage /> },
       { path: 'settings', element: <AdminGlobalSettingsPage /> },
+      { path: 'applications', element: <AdminApplicationsPage /> },
+      { path: 'courses', element: <AdminCoursesPage /> },
+      { path: 'courses/:courseId/edit', element: <AdminCourseEditorPage /> },
+      { path: 'logs', element: <AdminLogsPage /> },
       { path: 'content', element: <Navigate to="/admin/home" replace /> },
       { path: 'hero', element: <Navigate to="/admin/heroes" replace /> },
       { path: 'sections', element: <Navigate to="/admin/overview" replace /> },
-      { path: 'courses', element: <Navigate to="/admin/overview" replace /> },
-      { path: 'courses/:courseId/edit', element: <Navigate to="/admin/overview" replace /> },
-      { path: 'applications', element: <Navigate to="/admin/overview" replace /> },
-      { path: 'logs', element: <Navigate to="/admin/overview" replace /> },
       { path: 'members', element: <Navigate to="/admin/overview" replace /> },
       { path: 'announcements', element: <Navigate to="/admin/overview" replace /> },
       { path: 'sessions', element: <Navigate to="/admin/overview" replace /> },
@@ -124,11 +139,11 @@ const router = createBrowserRouter([
   { path: '/admin/login', element: <AdminLoginRedirect /> },
   { path: '/login', element: <Navigate to="/admin" replace /> },
   { path: '/auth', element: <Navigate to="/admin" replace /> },
-  { path: '/apply', element: <Navigate to="/contact#contact-form" replace /> },
+  { path: '/apply', element: <Navigate to="/community" replace /> },
   { path: '/join', element: <Navigate to="/community" replace /> },
-  { path: '/dashboard', element: <Navigate to="/admin" replace /> },
+  { path: '/dashboard', element: <Navigate to="/admin/overview" replace /> },
   { path: '/forgot-password', element: <Navigate to="/" replace /> },
-  { path: '/reset-password', element: <Navigate to="/" replace /> },
+  { path: '/reset-password', element: <PageFallback><ResetPasswordPage /></PageFallback> },
   { path: '/member/*', element: <Navigate to="/" replace /> },
   { path: '/mentor/*', element: <Navigate to="/" replace /> },
 ])

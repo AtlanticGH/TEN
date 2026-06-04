@@ -15,6 +15,7 @@ import { getCmsSummary } from '../../services/cms/pages'
 
 const QUICK_LINKS = [
   ['Homepage hero', '/admin/home'],
+  ['Applications', '/admin/applications'],
   ['Programs page', '/admin/programs'],
   ['Page heroes', '/admin/heroes'],
   ['Media library', '/admin/media'],

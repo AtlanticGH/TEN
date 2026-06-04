@@ -28,7 +28,9 @@ export const supabase: SupabaseClient<Database> | null = supabaseIsConfigured
 /** Returns the live client or throws when env vars are missing. */
 export function getSupabase(): SupabaseClient<Database> {
   if (!supabase) {
-    throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.')
+    throw new Error(
+      'Missing Supabase config. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env.local file.',
+    )
   }
   return supabase
 }

@@ -54,7 +54,7 @@ export function AdminLoginPage() {
       const profile = (await getMyProfile().catch(() => null)) ?? (await refreshProfile())
       if (!isAdminRole(profile?.role)) {
         await signOut().catch(() => {})
-        setError('Staff access only. Use a CMS admin account (admin or super_admin).')
+        setError('Staff access only. Use a CMS staff account (admin, editor, or super_admin).')
         return
       }
       navigate(postLoginPath(searchParams.toString()), { replace: true })
@@ -95,8 +95,9 @@ export function AdminLoginPage() {
             }}
           >
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Email or username</label>
+              <label htmlFor="admin-login-identifier" className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Email or username</label>
               <input
+                id="admin-login-identifier"
                 type="text"
                 value={emailOrUsername}
                 onChange={(ev) => setEmailOrUsername(ev.target.value)}
@@ -106,9 +107,10 @@ export function AdminLoginPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Password</label>
+              <label htmlFor="admin-login-password" className="block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Password</label>
               <div className="mt-2 flex items-center gap-2 rounded-2xl border border-zinc-300 bg-white px-4 py-2.5 transition focus-within:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/40">
                 <input
+                  id="admin-login-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(ev) => setPassword(ev.target.value)}
