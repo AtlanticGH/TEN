@@ -8,7 +8,20 @@ const base = (process.env.PRODUCTION_URL || 'https://ember-network-qc25.vercel.a
 const checks = [
   { name: 'SPA home', path: '/', expectStatus: 200, expectBody: (t) => t.includes('The Ember Network') },
   {
-    name: 'API healthz',
+    name: 'API env-status',
+    path: '/api/env-status',
+    expectStatus: 200,
+    expectBody: (t) => {
+      try {
+        const j = JSON.parse(t)
+        return j.ok === true && j.projectRef === expectedProject
+      } catch {
+        return false
+      }
+    },
+    hintOn500: 'Set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in Vercel (Production + Preview) and redeploy.',
+  },
+  {
     path: '/api/healthz',
     expectStatus: 200,
     expectBody: (t) => t.trim() === 'ok' || (() => { try { return JSON.parse(t).ok !== false } catch { return false } })(),

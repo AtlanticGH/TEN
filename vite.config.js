@@ -39,8 +39,40 @@ function manualChunks(id) {
   return undefined
 }
 
+const EXPECTED_SUPABASE_PROJECT = 'aidcfsxtjcnzqkzumtwt'
+
+/** Fail Vercel builds when Supabase env vars are missing or point at the wrong project. */
+function assertVercelSupabaseEnv() {
+  return {
+    name: 'assert-vercel-supabase-env',
+    buildStart() {
+      if (!process.env.VERCEL) return
+
+      const url = String(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim()
+      const anon = String(process.env.VITE_SUPABASE_ANON_KEY || '').trim()
+      const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
+
+      if (!url.includes(EXPECTED_SUPABASE_PROJECT)) {
+        throw new Error(
+          `Vercel build: VITE_SUPABASE_URL must be https://${EXPECTED_SUPABASE_PROJECT}.supabase.co (got "${url || 'empty'}"). Update Vercel → Settings → Environment Variables for Production and Preview, then redeploy.`,
+        )
+      }
+      if (!anon) {
+        throw new Error(
+          'Vercel build: VITE_SUPABASE_ANON_KEY is missing. Add it in Vercel → Settings → Environment Variables (Production + Preview).',
+        )
+      }
+      if (!serviceKey) {
+        throw new Error(
+          'Vercel build: SUPABASE_SERVICE_ROLE_KEY is missing. Add the service_role secret for Production + Preview in Vercel, then redeploy.',
+        )
+      }
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [assertVercelSupabaseEnv(), react(), tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

@@ -15,6 +15,7 @@ function publicObjectUrl(supabaseUrl, bucket, path) {
 }
 
 export function registerResourcesRoutes(app, { supabase, verifyUser, requireStaff, requireSupabase, supabaseUrl }) {
+  const resolveSupabaseUrl = () => (typeof supabaseUrl === 'function' ? supabaseUrl() : supabaseUrl)
   app.get('/api/public/resources', async (req, res) => {
     try {
       if (!requireSupabase(res)) return
@@ -56,7 +57,7 @@ export function registerResourcesRoutes(app, { supabase, verifyUser, requireStaf
       const path = p.path ? String(p.path).trim() : ''
       let fileUrl = p.file_url ? String(p.file_url).trim() : ''
       if (!fileUrl && bucket && path) {
-        fileUrl = publicObjectUrl(supabaseUrl, bucket, path)
+        fileUrl = publicObjectUrl(resolveSupabaseUrl(), bucket, path)
       }
       if (!fileUrl) return res.status(400).json({ error: 'file_url or uploaded file path is required' })
       const { data, error } = await supabase

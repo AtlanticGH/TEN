@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { loadProjectEnv } from './loadEnv.js'
-import { createSupabaseServiceClient, readSupabaseServerEnv } from './supabaseEnv.js'
+import { createSupabaseProxy, getSupabaseAdmin, hasSupabaseServerEnv, readSupabaseEnvStatus, readSupabaseServerEnv } from './supabaseEnv.js'
 import { registerAdminRoutes } from './adminRoutes.js'
 import { registerCmsRoutes } from './cmsRoutes.js'
 import { registerGalleryEnsureRoute } from './galleryEnsureRoute.js'
@@ -65,10 +65,9 @@ app.use(
 // JSON for normal API routes
 app.use(express.json({ limit: '2mb' }))
 
-const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = readSupabaseServerEnv()
-const supabase = createSupabaseServiceClient(createClient)
+const supabase = createSupabaseProxy(createClient)
 
-if (!supabase) {
+if (!hasSupabaseServerEnv()) {
   // eslint-disable-next-line no-console
   console.warn(
     '[server] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY — copy .env.example → .env.local, add keys from Supabase Dashboard → Settings → API, then restart (npm run dev:all)',
@@ -76,20 +75,21 @@ if (!supabase) {
 }
 
 function requireSupabase(res) {
-  if (supabase) return true
+  if (getSupabaseAdmin(createClient)) return true
   res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
   return false
 }
 
 async function verifyUser(req, res, next) {
   try {
-    if (!supabase) return res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
+    const db = getSupabaseAdmin(createClient)
+    if (!db) return res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
     const h = req.headers?.authorization || req.headers?.Authorization || ''
     const m = String(h).match(/^Bearer\s+(.+)$/i)
     const token = m ? m[1] : ''
     if (!token) return res.status(401).json({ error: 'No token' })
 
-    const { data, error } = await supabase.auth.getUser(token)
+    const { data, error } = await db.auth.getUser(token)
     if (error || !data?.user?.id) return res.status(401).json({ error: 'Invalid session' })
 
     req.user = data.user
@@ -101,7 +101,8 @@ async function verifyUser(req, res, next) {
 }
 
 async function ensureProfileRow(user) {
-  if (!supabase) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
+  const db = getSupabaseAdmin(createClient)
+  if (!db) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
   const userId = user?.id
   if (!userId) throw new Error('Missing user id')
 
@@ -131,9 +132,10 @@ async function ensureProfileRow(user) {
 }
 
 async function enrichProfileAvatar(row) {
-  if (!row?.avatar_path || !supabase) return row
+  const db = getSupabaseAdmin(createClient)
+  if (!row?.avatar_path || !db) return row
   try {
-    const { data, error } = await supabase.storage.from('avatars').createSignedUrl(row.avatar_path, 60 * 60)
+    const { data, error } = await db.storage.from('avatars').createSignedUrl(row.avatar_path, 60 * 60)
     if (error || !data?.signedUrl) return row
     return { ...row, avatar_url: data.signedUrl, profile_image_url: data.signedUrl }
   } catch {
@@ -142,8 +144,9 @@ async function enrichProfileAvatar(row) {
 }
 
 async function getMyProfileRow(userId, authUser = null) {
-  if (!supabase) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
-  const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle()
+  const db = getSupabaseAdmin(createClient)
+  if (!db) throw new Error('Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
+  const { data, error } = await db.from('profiles').select('*').eq('user_id', userId).maybeSingle()
   if (error) throw error
   let row = data
   if (!row && authUser?.id === userId) row = await ensureProfileRow(authUser)
@@ -218,7 +221,9 @@ function validateUpload(req) {
 
 async function requireStaff(req, res, next) {
   try {
-    if (!supabase) return res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
+    if (!getSupabaseAdmin(createClient)) {
+      return res.status(500).json({ error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
+    }
     const actor = await getMyProfileRow(req.user.id, req.user)
     if (!actor || actor.status !== 'active' || !isStaffRole(actor.role)) {
       return res.status(403).json({ error: 'Forbidden' })
@@ -231,10 +236,11 @@ async function requireStaff(req, res, next) {
 }
 
 async function healthzHandler(_req, res) {
-  if (!supabase) {
+  const db = getSupabaseAdmin(createClient)
+  if (!db) {
     return res.status(503).json({ ok: false, error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY' })
   }
-  const { error } = await supabase.from('site_content').select('key').limit(1)
+  const { error } = await db.from('site_content').select('key').limit(1)
   if (error) {
     return res.status(503).json({ ok: false, error: error.message })
   }
@@ -243,6 +249,9 @@ async function healthzHandler(_req, res) {
 
 app.get('/healthz', healthzHandler)
 app.get('/api/healthz', healthzHandler)
+app.get('/api/env-status', (_req, res) => {
+  res.json(readSupabaseEnvStatus())
+})
 
 // -------------------------
 // Hybrid API (frontend → backend → Supabase DB)
@@ -674,7 +683,7 @@ registerResourcesRoutes(app, {
   verifyUser,
   requireStaff,
   requireSupabase,
-  supabaseUrl: SUPABASE_URL,
+  supabaseUrl: () => readSupabaseServerEnv().SUPABASE_URL,
 })
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
