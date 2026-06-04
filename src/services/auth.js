@@ -1,4 +1,5 @@
 import { getSupabase } from '@/lib/supabaseClient'
+import { publicApiFetch } from '@/lib/apiClient'
 
 export async function signUpWithEmail({ email, password, fullName }) {
   // Public signup is intentionally disabled. Accounts are created only after an approved application.
@@ -13,6 +14,24 @@ export async function signInWithEmail({ email, password }) {
   const { data, error } = await getSupabase().auth.signInWithPassword({ email, password })
   if (error) throw error
   return data
+}
+
+/** Accepts email or profiles.username (case-insensitive). */
+export async function signInWithEmailOrUsername({ emailOrUsername, password }) {
+  const identifier = String(emailOrUsername || '').trim()
+  if (!identifier) throw new Error('Please enter your email or username.')
+  let email = identifier
+  if (!identifier.includes('@')) {
+    const resolved = await publicApiFetch('/api/public/auth/resolve-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier }),
+    })
+    email = resolved.email
+  } else {
+    email = identifier.toLowerCase()
+  }
+  return signInWithEmail({ email, password })
 }
 
 export async function signOut() {

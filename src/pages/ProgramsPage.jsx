@@ -8,7 +8,7 @@ export function ProgramsPage() {
         badge="Programs"
         heading="Operational learning journey"
         description="From weekly execution tasks to quarterly pitch competitions, TEN guides members through a practical, accountability-driven path from idea to venture growth."
-        image="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1800&q=80"
+        image="/assets/images/1498050108023-c5249f4df085.jpg"
       />
 
       <section id="module-navigator" data-section="module-navigator" className="mx-auto max-w-7xl px-8 pt-10 md:px-12 lg:px-10">
@@ -38,7 +38,7 @@ export function ProgramsPage() {
           <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="min-h-[260px]">
               <img
-                src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1500&q=80"
+                src="/assets/images/1454165804606-c3d57bc86b40.jpg"
                 alt="Weekly module planning and collaboration session"
                 className="h-full w-full object-cover"
                 loading="lazy"
@@ -77,7 +77,7 @@ export function ProgramsPage() {
             </div>
             <div className="order-1 min-h-[260px] lg:order-2">
               <img
-                src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1500&q=80"
+                src="/assets/images/1552664730-d307ca884978.jpg"
                 alt="Monthly workshop and mentorship session"
                 className="h-full w-full object-cover"
                 loading="lazy"
@@ -92,7 +92,7 @@ export function ProgramsPage() {
           <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="min-h-[260px]">
               <img
-                src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1500&q=80"
+                src="/assets/images/1542744173-8e7e53415bb0.jpg"
                 alt="Quarterly pitch and judging session"
                 className="h-full w-full object-cover"
                 loading="lazy"

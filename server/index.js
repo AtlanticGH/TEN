@@ -6,13 +6,6 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
 
-// Existing business endpoints (already implemented in /api/*)
-import inviteApplicant from '../api/inviteApplicant.js'
-import approveApplication from '../api/applications/approve.js'
-import rejectApplication from '../api/applications/reject.js'
-import markComplete from '../api/progress/mark-complete.js'
-import markIncomplete from '../api/progress/mark-incomplete.js'
-import { registerMentorRoutes } from './mentorRoutes.js'
 
 // Load .env then .env.local (Vite-style: local overrides base).
 dotenv.config({ path: ['.env', '.env.local'], override: true })
@@ -201,18 +194,6 @@ const PROFILE_SELF_UPDATABLE = [
   'avatar_path',
   'avatar_url',
 ]
-const APPLICATION_STAFF_UPDATABLE = ['status', 'notes', 'invited_user_id', 'invited_at']
-const APPLICATION_STATUSES = new Set(['submitted', 'waitlist', 'approved', 'rejected'])
-const MODULE_STAFF_UPDATABLE = ['title', 'description', 'position', 'content']
-const LESSON_STAFF_UPDATABLE = [
-  'title',
-  'description',
-  'position',
-  'content',
-  'status',
-  'published_at',
-]
-const LESSON_STATUSES = new Set(['draft', 'published'])
 const MEDIA_STAFF_UPDATABLE = ['title', 'alt', 'tags']
 
 // Upload validation: enforce content-type allowlist + per-type size limits.
@@ -306,84 +287,6 @@ app.put('/api/profile', verifyUser, async (req, res) => {
   }
 })
 
-app.get('/api/teams', verifyUser, async (req, res) => {
-  try {
-    // Matches existing frontend expectations: [{ team_id, role, teams: {...} }]
-    const { data, error } = await supabase
-      .from('team_members')
-      .select('team_id, role, teams(*)')
-      .eq('user_id', req.user.id)
-      .order('created_at', { ascending: false })
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Teams error' })
-  }
-})
-
-app.post('/api/teams', verifyUser, async (req, res) => {
-  try {
-    const name = String(req.body?.name || '').trim()
-    if (!name) return res.status(400).json({ error: 'Team name is required.' })
-
-    const { data, error } = await supabase
-      .from('teams')
-      .insert({ name, owner_user_id: req.user.id })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Create team error' })
-  }
-})
-
-app.get('/api/teams/:teamId/members', verifyUser, async (req, res) => {
-  try {
-    const teamId = String(req.params.teamId || '')
-    if (!teamId) return res.status(400).json({ error: 'Missing teamId' })
-    const { data, error } = await supabase
-      .from('team_members')
-      .select('team_id, user_id, role, created_at, profiles:profiles(full_name,email,username,avatar_path)')
-      .eq('team_id', teamId)
-      .order('created_at', { ascending: true })
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Team members error' })
-  }
-})
-
-app.post('/api/teams/:teamId/members', verifyUser, async (req, res) => {
-  try {
-    const teamId = String(req.params.teamId || '')
-    const userId = String(req.body?.userId || '')
-    const role = String(req.body?.role || 'member')
-    if (!teamId || !userId) return res.status(400).json({ error: 'Missing teamId/userId' })
-
-    const { error } = await supabase.from('team_members').insert({ team_id: teamId, user_id: userId, role })
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Add team member error' })
-  }
-})
-
-app.get('/api/courses', verifyUser, async (req, res) => {
-  try {
-    const actor = await getMyProfileRow(req.user.id, req.user)
-    let q = supabase.from('courses').select('*').order('created_at', { ascending: false })
-    if (!isStaffRole(actor?.role)) {
-      q = q.eq('published', true)
-    }
-    const { data, error } = await q
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Courses error' })
-  }
-})
-
 // -------------------------
 // Public endpoints (no Supabase client usage in browser)
 // -------------------------
@@ -445,23 +348,31 @@ app.post('/api/public/contact', async (req, res) => {
   }
 })
 
-app.post('/api/public/applications', async (req, res) => {
+app.post('/api/public/auth/resolve-login', async (req, res) => {
   try {
     if (!requireSupabase(res)) return
-    const payload = req.body && typeof req.body === 'object' ? req.body : {}
-    const row = {
-      full_name: payload.full_name,
-      email: payload.email,
-      phone: payload.phone || null,
-      address: payload.address || null,
-      interest_role: payload.interest_role || null,
-      message: payload.message || null,
+    const raw = String(req.body?.identifier ?? '').trim()
+    if (!raw) {
+      res.status(400).json({ error: 'Missing email or username' })
+      return
     }
-    const { data, error } = await supabase.from('applications').insert(row).select('id, created_at').single()
+    if (raw.includes('@')) {
+      res.json({ email: raw.toLowerCase() })
+      return
+    }
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('username', raw)
+      .maybeSingle()
     if (error) throw error
-    res.json({ ok: true, data })
+    if (!data?.email) {
+      res.status(404).json({ error: 'No account found for that username' })
+      return
+    }
+    res.json({ email: String(data.email).trim().toLowerCase() })
   } catch (err) {
-    res.status(400).json({ error: err?.message || 'Application submit error' })
+    res.status(400).json({ error: err?.message || 'Login lookup error' })
   }
 })
 
@@ -754,641 +665,32 @@ app.delete('/api/admin/media-assets/:id', verifyUser, requireStaff, async (req, 
 })
 
 // -------------------------
-// Quizzes + attempts (member reads/writes; staff manages questions)
-// -------------------------
-
-app.get('/api/lessons/:lessonId/quizzes', verifyUser, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const { data, error } = await supabase.from('quizzes').select('*').eq('lesson_id', lessonId).order('created_at', { ascending: true })
-    if (error) throw error
-    res.json((data || []).map((q) => ({ ...q, options: Array.isArray(q.options_json) ? q.options_json : [] })))
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Quiz list error' })
-  }
-})
-
-app.post('/api/admin/lessons/:lessonId/quizzes', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const q = String(req.body?.question || '').trim()
-    const opts = Array.isArray(req.body?.options) ? req.body.options.map((x) => String(x || '').trim()).filter(Boolean) : []
-    const ans = String(req.body?.correctAnswer || '').trim()
-    if (!lessonId) return res.status(400).json({ error: 'Missing lessonId' })
-    if (!q) return res.status(400).json({ error: 'Question is required' })
-    if (opts.length < 2) return res.status(400).json({ error: 'Provide at least 2 options' })
-    if (!ans) return res.status(400).json({ error: 'Correct answer is required' })
-    if (!opts.includes(ans)) return res.status(400).json({ error: 'Correct answer must match one of the options' })
-
-    const { data, error } = await supabase
-      .from('quizzes')
-      .insert({ lesson_id: lessonId, question: q, options_json: opts, correct_answer: ans })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Quiz create error' })
-  }
-})
-
-app.delete('/api/admin/quizzes/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const { error } = await supabase.from('quizzes').delete().eq('id', id)
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Quiz delete error' })
-  }
-})
-
-app.post('/api/lessons/:lessonId/quiz-attempts', verifyUser, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    if (!lessonId) return res.status(400).json({ error: 'Missing lessonId' })
-
-    const { data: questions, error: qErr } = await supabase.from('quizzes').select('*').eq('lesson_id', lessonId)
-    if (qErr) throw qErr
-    const total = (questions || []).length
-    const answers = req.body?.answersByQuestionId && typeof req.body.answersByQuestionId === 'object' ? req.body.answersByQuestionId : {}
-    let score = 0
-    ;(questions || []).forEach((q) => {
-      const picked = String(answers[q.id] || '')
-      if (picked && picked === q.correct_answer) score += 1
-    })
-
-    const { data, error } = await supabase
-      .from('quiz_attempts')
-      .insert({ user_id: req.user.id, lesson_id: lessonId, score, total, answers_json: answers })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json({ attempt: data, score, total })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Quiz attempt error' })
-  }
-})
-
-app.get('/api/lessons/:lessonId/quiz-attempts', verifyUser, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const limit = Math.max(1, Math.min(50, Number(req.query?.limit || 10)))
-    const { data, error } = await supabase
-      .from('quiz_attempts')
-      .select('*')
-      .eq('user_id', req.user.id)
-      .eq('lesson_id', lessonId)
-      .order('created_at', { ascending: false })
-      .limit(limit)
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Quiz attempts list error' })
-  }
-})
-
-// -------------------------
-// Lesson files (member reads; staff manages)
-// -------------------------
-
-app.get('/api/lessons/:lessonId/files', verifyUser, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const { data, error } = await supabase
-      .from('lesson_files')
-      .select('*')
-      .eq('lesson_id', lessonId)
-      .order('position', { ascending: true })
-      .order('created_at', { ascending: false })
-    if (error) throw error
-    const rows = (data || []).map((f) => ({
-      ...f,
-      download_url: f.file_url || (f.path ? publicObjectUrl(f.bucket || 'public', f.path) : ''),
-    }))
-    res.json(rows)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Lesson files error' })
-  }
-})
-
-app.post('/api/admin/lessons/:lessonId/files', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const p = req.body && typeof req.body === 'object' ? req.body : {}
-    const { data, error } = await supabase
-      .from('lesson_files')
-      .insert({
-        lesson_id: lessonId,
-        title: p.title || null,
-        bucket: p.bucket || 'public',
-        path: p.path || null,
-        file_url: p.file_url || null,
-        mime_type: p.mime_type || null,
-        size_bytes: p.size_bytes || null,
-        file_type: p.file_type || null,
-        position: 1,
-      })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Create lesson file error' })
-  }
-})
-
-app.delete('/api/admin/lesson-files/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const { data: row, error: getErr } = await supabase.from('lesson_files').select('*').eq('id', id).single()
-    if (getErr) throw getErr
-    if (row?.path) await supabase.storage.from(row.bucket || 'public').remove([row.path]).catch(() => {})
-    const { error } = await supabase.from('lesson_files').delete().eq('id', id)
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Delete lesson file error' })
-  }
-})
-
-// -------------------------
-// Assignments (member reads; staff manages)
-// -------------------------
-
-app.get('/api/lessons/:lessonId/assignments', verifyUser, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const { data, error } = await supabase
-      .from('assignments')
-      .select('*')
-      .eq('lesson_id', lessonId)
-      .order('created_at', { ascending: false })
-    if (error) throw error
-    const rows = (data || []).map((a) => ({
-      ...a,
-      download_url: a.file_url || (a.path ? publicObjectUrl(a.bucket || 'public', a.path) : ''),
-    }))
-    res.json(rows)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Assignments list error' })
-  }
-})
-
-app.post('/api/admin/lessons/:lessonId/assignments', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const lessonId = String(req.params.lessonId || '')
-    const p = req.body && typeof req.body === 'object' ? req.body : {}
-    const { data, error } = await supabase
-      .from('assignments')
-      .insert({
-        lesson_id: lessonId,
-        title: String(p.title || '').trim(),
-        description: (p.description || '').trim() || null,
-        bucket: p.bucket || 'public',
-        path: p.path || null,
-        file_url: p.file_url || null,
-      })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Create assignment error' })
-  }
-})
-
-app.delete('/api/admin/assignments/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const { data: row, error: getErr } = await supabase.from('assignments').select('*').eq('id', id).single()
-    if (getErr) throw getErr
-    if (row?.path) await supabase.storage.from(row.bucket || 'public').remove([row.path]).catch(() => {})
-    const { error } = await supabase.from('assignments').delete().eq('id', id)
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Delete assignment error' })
-  }
-})
-
-registerMentorRoutes(app, { supabase, verifyUser, getMyProfileRow, pickFields, validateUpload })
-
-// -------------------------
-// Admin: summary + applications
+// Admin: CMS summary
 // -------------------------
 
 app.get('/api/admin/summary', verifyUser, requireStaff, async (_req, res) => {
   try {
-    const [{ count: applications_submitted, error: aErr }, { count: members, error: pErr }, { count: courses, error: cErr }] =
-      await Promise.all([
-        supabase.from('applications').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
-        supabase.from('profiles').select('user_id', { count: 'exact', head: true }),
-        supabase.from('courses').select('id', { count: 'exact', head: true }).eq('published', true),
-      ])
-    if (aErr) throw aErr
-    if (pErr) throw pErr
+    const [
+      { count: content_blocks, error: cErr },
+      { count: media_assets, error: mErr },
+      { count: resources, error: rErr },
+    ] = await Promise.all([
+      supabase.from('site_content').select('key', { count: 'exact', head: true }),
+      supabase.from('media_assets').select('id', { count: 'exact', head: true }),
+      supabase.from('resources').select('id', { count: 'exact', head: true }),
+    ])
     if (cErr) throw cErr
-    res.json({ applications_submitted: applications_submitted || 0, members: members || 0, courses: courses || 0 })
+    if (mErr) throw mErr
+    if (rErr) throw rErr
+    res.json({
+      content_blocks: content_blocks || 0,
+      media_assets: media_assets || 0,
+      resources: resources || 0,
+    })
   } catch (err) {
     res.status(400).json({ error: err?.message || 'Summary error' })
   }
 })
-
-app.get('/api/admin/applications', verifyUser, requireStaff, async (_req, res) => {
-  try {
-    const { data, error } = await supabase.from('applications').select('*').order('created_at', { ascending: false })
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Applications list error' })
-  }
-})
-
-app.put('/api/admin/applications/:id/status', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const status = String(req.body?.status || '')
-    if (!APPLICATION_STATUSES.has(status)) {
-      return res.status(400).json({ error: `Invalid status: ${status}` })
-    }
-    const { data, error } = await supabase
-      .from('applications')
-      .update({ status, reviewed_by: req.user.id, reviewed_at: new Date().toISOString() })
-      .eq('id', id)
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Update application status error' })
-  }
-})
-
-app.put('/api/admin/applications/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const patch = pickFields(req.body, APPLICATION_STAFF_UPDATABLE)
-    if (Object.keys(patch).length === 0) {
-      return res.status(400).json({ error: 'No updatable fields provided' })
-    }
-    if (patch.status !== undefined && !APPLICATION_STATUSES.has(String(patch.status))) {
-      return res.status(400).json({ error: `Invalid status: ${patch.status}` })
-    }
-    // Server uses service-role; auth.uid() is NULL inside triggers, so stamp explicitly.
-    patch.reviewed_by = req.user.id
-    patch.reviewed_at = new Date().toISOString()
-    const { data, error } = await supabase
-      .from('applications')
-      .update(patch)
-      .eq('id', id)
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Update application error' })
-  }
-})
-
-// -------------------------
-// Admin course builder (courses/modules/lessons)
-// -------------------------
-
-app.get('/api/admin/courses/:courseId', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const courseId = String(req.params.courseId || '')
-    const { data, error } = await supabase.from('courses').select('*').eq('id', courseId).single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Get course error' })
-  }
-})
-
-app.get('/api/admin/courses/:courseId/modules', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const courseId = String(req.params.courseId || '')
-    const { data, error } = await supabase.from('modules').select('*').eq('course_id', courseId).order('position', { ascending: true })
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'List modules error' })
-  }
-})
-
-app.post('/api/admin/courses/:courseId/modules', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const courseId = String(req.params.courseId || '')
-    const { data: existing, error: countErr } = await supabase
-      .from('modules')
-      .select('id', { count: 'exact', head: true })
-      .eq('course_id', courseId)
-    if (countErr) throw countErr
-    const position = (existing?.length ? existing.length : 0) + 1
-    const { data, error } = await supabase
-      .from('modules')
-      .insert({ course_id: courseId, title: req.body?.title, description: req.body?.description, position })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Create module error' })
-  }
-})
-
-app.put('/api/admin/modules/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const patch = pickFields(req.body, MODULE_STAFF_UPDATABLE)
-    if (Object.keys(patch).length === 0) {
-      return res.status(400).json({ error: 'No updatable fields provided' })
-    }
-    if (patch.position !== undefined && !(Number.isInteger(patch.position) && patch.position > 0)) {
-      return res.status(400).json({ error: 'position must be a positive integer' })
-    }
-    const { data, error } = await supabase
-      .from('modules')
-      .update(patch)
-      .eq('id', id)
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Update module error' })
-  }
-})
-
-app.delete('/api/admin/modules/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const { error } = await supabase.from('modules').delete().eq('id', id)
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Delete module error' })
-  }
-})
-
-app.post('/api/admin/courses/:courseId/modules/reorder', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const courseId = String(req.params.courseId || '')
-    const ordered = Array.isArray(req.body?.orderedModuleIds) ? req.body.orderedModuleIds : []
-    for (let i = 0; i < ordered.length; i += 1) {
-      const id = ordered[i]
-      const { error } = await supabase.from('modules').update({ position: 1000 + i + 1 }).eq('id', id).eq('course_id', courseId)
-      if (error) throw error
-    }
-    for (let i = 0; i < ordered.length; i += 1) {
-      const id = ordered[i]
-      const { error } = await supabase.from('modules').update({ position: i + 1 }).eq('id', id).eq('course_id', courseId)
-      if (error) throw error
-    }
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Reorder modules error' })
-  }
-})
-
-app.get('/api/admin/modules/:moduleId/lessons', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const moduleId = String(req.params.moduleId || '')
-    const { data, error } = await supabase.from('lessons').select('*').eq('module_id', moduleId).order('position', { ascending: true })
-    if (error) throw error
-    res.json(data || [])
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'List lessons error' })
-  }
-})
-
-app.post('/api/admin/modules/:moduleId/lessons', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const moduleId = String(req.params.moduleId || '')
-    const { data: existing, error: countErr } = await supabase
-      .from('lessons')
-      .select('id', { count: 'exact', head: true })
-      .eq('module_id', moduleId)
-    if (countErr) throw countErr
-    const position = (existing?.length ? existing.length : 0) + 1
-    const { data, error } = await supabase
-      .from('lessons')
-      .insert({ module_id: moduleId, title: req.body?.title, description: req.body?.description, position, status: 'draft' })
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Create lesson error' })
-  }
-})
-
-app.put('/api/admin/lessons/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const patch = pickFields(req.body, LESSON_STAFF_UPDATABLE)
-    if (Object.keys(patch).length === 0) {
-      return res.status(400).json({ error: 'No updatable fields provided' })
-    }
-    if (patch.status !== undefined && !LESSON_STATUSES.has(String(patch.status))) {
-      return res.status(400).json({ error: `Invalid status: ${patch.status}` })
-    }
-    if (patch.position !== undefined && !(Number.isInteger(patch.position) && patch.position > 0)) {
-      return res.status(400).json({ error: 'position must be a positive integer' })
-    }
-    const { data, error } = await supabase
-      .from('lessons')
-      .update(patch)
-      .eq('id', id)
-      .select('*')
-      .single()
-    if (error) throw error
-    res.json(data)
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Update lesson error' })
-  }
-})
-
-app.delete('/api/admin/lessons/:id', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const id = String(req.params.id || '')
-    const { error } = await supabase.from('lessons').delete().eq('id', id)
-    if (error) throw error
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Delete lesson error' })
-  }
-})
-
-app.post('/api/admin/modules/:moduleId/lessons/reorder', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const moduleId = String(req.params.moduleId || '')
-    const ordered = Array.isArray(req.body?.orderedLessonIds) ? req.body.orderedLessonIds : []
-    for (let i = 0; i < ordered.length; i += 1) {
-      const id = ordered[i]
-      const { error } = await supabase.from('lessons').update({ position: 1000 + i + 1 }).eq('id', id).eq('module_id', moduleId)
-      if (error) throw error
-    }
-    for (let i = 0; i < ordered.length; i += 1) {
-      const id = ordered[i]
-      const { error } = await supabase.from('lessons').update({ position: i + 1 }).eq('id', id).eq('module_id', moduleId)
-      if (error) throw error
-    }
-    res.json({ ok: true })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Reorder lessons error' })
-  }
-})
-
-// -------------------------
-// Admin: member progress lookup (single endpoint for the admin page)
-// -------------------------
-
-app.get('/api/admin/member-progress', verifyUser, requireStaff, async (req, res) => {
-  try {
-    const email = String(req.query?.email || '').trim()
-    if (!email) return res.status(400).json({ error: 'Enter a member email.' })
-
-    const { data: p, error: pErr } = await supabase
-      .from('profiles')
-      .select('user_id,email,full_name,role,status')
-      .eq('email', email)
-      .maybeSingle()
-    if (pErr) throw pErr
-    if (!p?.user_id) return res.status(404).json({ error: 'No member found for that email.' })
-
-    const userId = p.user_id
-
-    const [
-      { data: enrollments, error: eErr },
-      { data: courseCompletions, error: ccErr },
-      { data: moduleCompletions, error: mcErr },
-      { data: lessonCompletions, error: lcErr },
-    ] = await Promise.all([
-      supabase.from('enrollments').select('*').eq('user_id', userId).order('enrolled_at', { ascending: false }),
-      supabase.from('course_completions').select('*').eq('user_id', userId),
-      supabase.from('module_completions').select('*').eq('user_id', userId),
-      supabase.from('lesson_completions').select('*').eq('user_id', userId),
-    ])
-    if (eErr) throw eErr
-    if (ccErr) throw ccErr
-    if (mcErr) throw mcErr
-    if (lcErr) throw lcErr
-
-    const courseIds = Array.from(new Set((enrollments || []).map((x) => x.course_id))).filter(Boolean)
-
-    let courses = []
-    let modules = []
-    let lessons = []
-    if (courseIds.length) {
-      const [{ data: cs, error: cErr }, { data: ms, error: mErr }, { data: ls, error: lErr }] = await Promise.all([
-        supabase.from('courses').select('*').in('id', courseIds),
-        supabase.from('modules').select('*').in('course_id', courseIds).order('position', { ascending: true }),
-        supabase.from('lessons').select('*, modules!inner(course_id)').in('modules.course_id', courseIds).order('position', { ascending: true }),
-      ])
-      if (cErr) throw cErr
-      if (mErr) throw mErr
-      if (lErr) throw lErr
-      courses = cs || []
-      modules = ms || []
-      lessons = (ls || []).map((x) => ({ ...x, course_id: x.modules?.course_id }))
-    }
-
-    const actorIds = Array.from(
-      new Set(
-        []
-          .concat((courseCompletions || []).map((x) => x.marked_by).filter(Boolean))
-          .concat((moduleCompletions || []).map((x) => x.marked_by).filter(Boolean))
-          .concat((lessonCompletions || []).map((x) => x.marked_by).filter(Boolean)),
-      ),
-    )
-    let actorMap = {}
-    if (actorIds.length) {
-      const { data: actors, error: aErr } = await supabase.from('profiles').select('user_id,email,full_name').in('user_id', actorIds.slice(0, 50))
-      if (aErr) throw aErr
-      actorMap = {}
-      ;(actors || []).forEach((pp) => {
-        actorMap[pp.user_id] = pp.full_name || pp.email || pp.user_id
-      })
-    }
-
-    res.json({
-      profile: p,
-      enrollments: enrollments || [],
-      courses,
-      modules,
-      lessons,
-      courseCompletions: courseCompletions || [],
-      moduleCompletions: moduleCompletions || [],
-      lessonCompletions: lessonCompletions || [],
-      actorMap,
-    })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Unable to load progress.' })
-  }
-})
-
-// Avatar upload (no Supabase storage client in browser)
-const AVATAR_ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-app.post(
-  '/api/me/avatar',
-  verifyUser,
-  express.raw({ type: '*/*', limit: '8mb' }),
-  async (req, res) => {
-    try {
-      const contentType = String(req.headers['content-type'] || '').toLowerCase().split(';')[0].trim()
-      if (!AVATAR_ALLOWED_MIME.has(contentType)) {
-        return res.status(400).json({ error: `Unsupported avatar content-type: ${contentType || 'unknown'}` })
-      }
-      const size = Buffer.isBuffer(req.body) ? req.body.length : 0
-      if (size <= 0) return res.status(400).json({ error: 'Empty upload body' })
-      if (size > 5 * 1024 * 1024) return res.status(400).json({ error: 'Avatar exceeds 5MB limit' })
-
-      const fileName = String(req.query?.filename || 'avatar').replace(/[^\w.\-]+/g, '-').slice(0, 120)
-      const path = `${req.user.id}/${Date.now()}-${fileName}`
-
-      const { error } = await supabase.storage.from('avatars').upload(path, req.body, {
-        upsert: false,
-        contentType,
-      })
-      if (error) throw error
-
-      await supabase
-        .from('profiles')
-        .update({ avatar_path: path })
-        .eq('user_id', req.user.id)
-
-      res.json({ path })
-    } catch (err) {
-      res.status(400).json({ error: err?.message || 'Avatar upload error' })
-    }
-  },
-)
-
-app.get('/api/me/avatar-url', verifyUser, async (req, res) => {
-  try {
-    const path = String(req.query?.path || '')
-    const expiresIn = Number(req.query?.expiresIn || 60 * 60)
-    if (!path) return res.status(400).json({ error: 'Missing path' })
-
-    const { data, error } = await supabase.storage.from('avatars').createSignedUrl(path, expiresIn)
-    if (error) throw error
-    res.json({ signedUrl: data?.signedUrl || null })
-  } catch (err) {
-    res.status(400).json({ error: err?.message || 'Avatar url error' })
-  }
-})
-
-// -------------------------
-// Existing admin/business endpoints (kept as-is)
-// -------------------------
-
-app.post('/api/inviteApplicant', (req, res) => inviteApplicant(req, res))
-app.post('/api/applications/approve', (req, res) => approveApplication(req, res))
-app.post('/api/applications/reject', (req, res) => rejectApplication(req, res))
-app.post('/api/progress/mark-complete', (req, res) => markComplete(req, res))
-app.post('/api/progress/mark-incomplete', (req, res) => markIncomplete(req, res))
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const distDir = join(__dirname, '..', 'dist')

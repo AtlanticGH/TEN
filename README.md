@@ -47,7 +47,7 @@ Forgot-password, invite, and recovery flows all redirect to `/reset-password` (n
 
 ## Supabase
 
-**Project ref:** `vawqdpalwuoyqntseqni`
+**Project ref:** `aidcfsxtjcnzqkzumtwt`
 
 ```bash
 supabase login
@@ -59,7 +59,7 @@ npm run supabase:push    # apply migrations
 Marketing copy is managed in **Admin → Website content** (not SQL seed files).  
 To remove legacy test accounts: `scripts/cleanup-demo-test-data.sql` (review before running).
 
-Set `VITE_SUPABASE_URL=https://vawqdpalwuoyqntseqni.supabase.co` and keys from the dashboard.  
+Set `VITE_SUPABASE_URL=https://aidcfsxtjcnzqkzumtwt.supabase.co` and keys from the dashboard.  
 Full guide: `supabase/SETUP.md`. Verify SQL: `scripts/verify-supabase-schema.sql`.
 
 ## Documentation

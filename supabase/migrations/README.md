@@ -21,6 +21,7 @@ Migrations apply in **filename timestamp** order. Do not insert `ALTER` before `
 | 015 | `20260321130116_mentor_student_communication.sql` | `mentor_students`, `mentor_announcements`, recipients, peer profile RLS, realtime |
 | 016 | `20260321130117_fix_mentor_announcements_rls.sql` | Break `mentor_announcements` ↔ recipients RLS recursion |
 | 017 | `20260321130118_resources_file_metadata.sql` | `resources.mime_type`, `resources.size_bytes` + schema cache reload |
+| 018 | `20260321130119_application_decision_cols.sql` | Application decision email columns (`rejection_reason`, etc.) |
 
 Full architecture: `docs/DATABASE_ARCHITECTURE.md`
 

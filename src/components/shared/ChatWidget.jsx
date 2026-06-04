@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom'
 const storageKey = 'ten-help-open'
 
 const links = [
-  { label: 'Apply for membership', to: '/apply' },
   { label: 'Programs', to: '/programs' },
   { label: 'Contact us', to: '/contact' },
-  { label: 'Member login', to: '/login' },
+  { label: 'Community', to: '/community' },
+  { label: 'CMS login', to: '/admin/login' },
 ]
 
 export function ChatWidget() {

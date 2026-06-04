@@ -22,25 +22,17 @@ const ResourcesPage = lazy(() => import('./pages/ResourcesPage').then((m) => ({ 
 const ContactPage = lazy(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })))
 const JoinCommunityPage = lazy(() => import('./pages/JoinCommunityPage').then((m) => ({ default: m.JoinCommunityPage })))
 
-// ── Admin pages (lazy) ──────────────────────────────────────────────────────
+// ── Admin CMS (lazy) ──────────────────────────────────────────────────────
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLogin').then((m) => ({ default: m.AdminLoginPage })))
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
 const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverview').then((m) => ({ default: m.AdminOverviewPage })))
-const AdminApplicationsPage = lazy(() => import('./pages/admin/AdminApplications').then((m) => ({ default: m.AdminApplicationsPage })))
-const AdminMembersPage = lazy(() => import('./pages/admin/AdminMembers').then((m) => ({ default: m.AdminMembersPage })))
-const AdminCoursesPage = lazy(() => import('./pages/admin/AdminCourses').then((m) => ({ default: m.AdminCoursesPage })))
-const AdminCourseEditorPage = lazy(() => import('./pages/admin/AdminCourseEditor').then((m) => ({ default: m.AdminCourseEditorPage })))
 const AdminContentPage = lazy(() => import('./pages/admin/AdminContent').then((m) => ({ default: m.AdminContentPage })))
-const AdminAnnouncementsPage = lazy(() => import('./pages/admin/AdminAnnouncements').then((m) => ({ default: m.AdminAnnouncementsPage })))
 const AdminMediaPage = lazy(() => import('./pages/admin/AdminMedia').then((m) => ({ default: m.AdminMediaPage })))
 const AdminResourcesPage = lazy(() => import('./pages/admin/AdminResources').then((m) => ({ default: m.AdminResourcesPage })))
-const AdminSessionsPage = lazy(() => import('./pages/admin/AdminSessions').then((m) => ({ default: m.AdminSessionsPage })))
-const AdminMemberProgressPage = lazy(() => import('./pages/admin/AdminMemberProgress').then((m) => ({ default: m.AdminMemberProgressPage })))
 const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })))
 const AdminLogsPage = lazy(() => import('./pages/admin/AdminLogsPage').then((m) => ({ default: m.AdminLogsPage })))
 
 const router = createBrowserRouter([
-  // ── Public marketing site (wrapped in MainLayout via App) ──────────────────
   {
     path: '/',
     element: <App />,
@@ -55,10 +47,8 @@ const router = createBrowserRouter([
     ],
   },
 
-  // ── Admin login (standalone) ───────────────────────────────────────────────
   { path: '/admin/login', element: <PageFallback><AdminLoginPage /></PageFallback> },
 
-  // ── Admin CMS (protected) ──────────────────────────────────────────────────
   {
     path: '/admin',
     element: (
@@ -70,26 +60,25 @@ const router = createBrowserRouter([
     ),
     errorElement: <RouterErrorBoundary />,
     children: [
-      { index: true, element: <Navigate to="overview" replace /> },
+      { index: true, element: <Navigate to="content" replace /> },
       { path: 'overview', element: <AdminOverviewPage /> },
-      { path: 'applications', element: <AdminApplicationsPage /> },
-      { path: 'members', element: <AdminMembersPage /> },
-      { path: 'courses', element: <AdminCoursesPage /> },
-      { path: 'courses/:courseId/edit', element: <AdminCourseEditorPage /> },
       { path: 'content', element: <AdminContentPage /> },
-      { path: 'announcements', element: <AdminAnnouncementsPage /> },
       { path: 'media', element: <AdminMediaPage /> },
       { path: 'resources', element: <AdminResourcesPage /> },
-      { path: 'sessions', element: <AdminSessionsPage /> },
-      { path: 'progress', element: <AdminMemberProgressPage /> },
-      { path: 'settings', element: <SuperAdminRoute><AdminSettingsPage /></SuperAdminRoute> },
       { path: 'logs', element: <AdminLogsPage /> },
+      { path: 'settings', element: <SuperAdminRoute><AdminSettingsPage /></SuperAdminRoute> },
+      { path: 'applications', element: <Navigate to="/admin/content" replace /> },
+      { path: 'members', element: <Navigate to="/admin/content" replace /> },
+      { path: 'courses', element: <Navigate to="/admin/content" replace /> },
+      { path: 'courses/:courseId/edit', element: <Navigate to="/admin/content" replace /> },
+      { path: 'announcements', element: <Navigate to="/admin/content" replace /> },
+      { path: 'sessions', element: <Navigate to="/admin/content" replace /> },
+      { path: 'progress', element: <Navigate to="/admin/content" replace /> },
     ],
   },
 
-  // ── Redirects for removed member/applicant routes ──────────────────────────
-  { path: '/login', element: <Navigate to="/" replace /> },
-  { path: '/auth', element: <Navigate to="/" replace /> },
+  { path: '/login', element: <Navigate to="/admin/login" replace /> },
+  { path: '/auth', element: <Navigate to="/admin/login" replace /> },
   { path: '/apply', element: <Navigate to="/community" replace /> },
   { path: '/join', element: <Navigate to="/community" replace /> },
   { path: '/dashboard', element: <Navigate to="/admin" replace /> },

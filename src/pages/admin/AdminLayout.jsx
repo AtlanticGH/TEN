@@ -13,32 +13,14 @@ export function AdminLayout() {
       <DashboardNavLink to="/admin/overview" end onNavigate={onNavigate}>
         Overview
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/applications" onNavigate={onNavigate}>
-        Applications
-      </DashboardNavLink>
-      <DashboardNavLink to="/admin/members" onNavigate={onNavigate}>
-        Members
-      </DashboardNavLink>
-      <DashboardNavLink to="/admin/courses" onNavigate={onNavigate}>
-        Courses
-      </DashboardNavLink>
-      <DashboardNavLink to="/admin/progress" onNavigate={onNavigate}>
-        Progress
-      </DashboardNavLink>
-      <DashboardNavLink to="/admin/resources" onNavigate={onNavigate}>
-        Resources
-      </DashboardNavLink>
       <DashboardNavLink to="/admin/content" onNavigate={onNavigate}>
         Content
       </DashboardNavLink>
       <DashboardNavLink to="/admin/media" onNavigate={onNavigate}>
         Media
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/announcements" onNavigate={onNavigate}>
-        Announcements
-      </DashboardNavLink>
-      <DashboardNavLink to="/admin/sessions" onNavigate={onNavigate}>
-        Sessions
+      <DashboardNavLink to="/admin/resources" onNavigate={onNavigate}>
+        Resources
       </DashboardNavLink>
       <DashboardNavLink to="/admin/logs" onNavigate={onNavigate}>
         Logs
@@ -51,13 +33,21 @@ export function AdminLayout() {
 
   return (
     <MainDashboardLayout
-      workspaceLabel="Admin"
-      workspaceTitle="Platform management"
-      workspaceDescription="Applications, members, structured content, and operations — optimized for responsive SaaS workflows."
-      mobileMenuTitle="Admin navigation"
+      workspaceLabel="CMS"
+      workspaceTitle="Site editor"
+      workspaceDescription="Edit marketing copy, media, downloadable resources, and site settings."
+      mobileMenuTitle="CMS navigation"
       renderNav={renderNav}
       bannerActions={
         <>
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600 transition hover:border-orange-300 hover:text-orange-600 sm:inline dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300"
+          >
+            View site
+          </a>
           <span className="hidden rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600 sm:inline dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300">
             {profile?.full_name || user?.email || 'Staff'}
           </span>

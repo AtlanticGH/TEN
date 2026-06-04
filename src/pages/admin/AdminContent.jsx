@@ -132,11 +132,20 @@ export function AdminContentPage() {
             />
           </Field>
 
-          <Field label="Background image URL" hint="Use a full https URL. Prefer 1600–2400px wide images.">
+          <Field label="Background image URL" hint="Image or video poster. Use a media-library URL or a local /assets path. Prefer 1600–2400px wide.">
             <input
               value={value.background_image}
               onChange={(e) => setValue((v) => ({ ...v, background_image: e.target.value }))}
               className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+            />
+          </Field>
+
+          <Field label="Background video URL (optional)" hint="If set, the hero plays this video (muted, looping) with the image above as its poster/fallback. Upload a video in Media, then paste its URL.">
+            <input
+              value={value.background_video || ''}
+              onChange={(e) => setValue((v) => ({ ...v, background_video: e.target.value }))}
+              className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+              placeholder="e.g. /assets/videos/hero.mp4"
             />
           </Field>
 

@@ -8,7 +8,7 @@ export function ProgramComponentsPage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1800&q=80')",
+              "url('/assets/images/1521737604893-d14cc237f11d.jpg')",
           }}
         />
         <div className="absolute inset-0 bg-black/70" />
@@ -45,7 +45,7 @@ export function ProgramComponentsPage() {
         <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
             <img
-              src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1500&q=80"
+              src="/assets/images/1454165804606-c3d57bc86b40.jpg"
               alt="Weekly planning and presentation workflow"
               className="h-full min-h-[260px] w-full object-cover"
               loading="lazy"
@@ -82,7 +82,7 @@ export function ProgramComponentsPage() {
               </ul>
             </div>
             <img
-              src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1500&q=80"
+              src="/assets/images/1552664730-d307ca884978.jpg"
               alt="Monthly workshop and mentoring session"
               className="order-1 h-full min-h-[260px] w-full object-cover lg:order-2"
               loading="lazy"
@@ -95,7 +95,7 @@ export function ProgramComponentsPage() {
         <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
             <img
-              src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1500&q=80"
+              src="/assets/images/1542744173-8e7e53415bb0.jpg"
               alt="Quarterly pitch competition and expert panel"
               className="h-full min-h-[260px] w-full object-cover"
               loading="lazy"
@@ -130,7 +130,7 @@ export function ProgramComponentsPage() {
               </Link>
             </div>
             <img
-              src="https://images.unsplash.com/photo-1573496774426-fe3db3dd1731?auto=format&fit=crop&w=1200&q=80"
+              src="/assets/images/1573496774426-fe3db3dd1731.jpg"
               alt="Founder leadership portrait"
               className="order-1 h-full min-h-[260px] w-full object-cover lg:order-2"
               loading="lazy"

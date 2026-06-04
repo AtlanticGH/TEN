@@ -11,22 +11,6 @@ import {
   siteHeaderStyles,
 } from './headerTokens'
 
-function SunIcon({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-    </svg>
-  )
-}
-
-function MoonIcon({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752a9.753 9.753 0 0 0-4.497 4.497 9.72 9.72 0 0 0-2.25 12.003A9.744 9.744 0 0 0 12 21.75c2.305 0 4.408-.867 6-2.292Z" />
-    </svg>
-  )
-}
-
 export function ThemeToggleButton({ className }) {
   const { dark, toggle } = useTheme()
   const btnClass =
@@ -40,20 +24,26 @@ export function ThemeToggleButton({ className }) {
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={dark ? 'Light mode' : 'Dark mode'}
     >
-      <span className="relative inline-flex h-[18px] w-[18px]" aria-hidden>
-        <SunIcon
-          className={[
-            'absolute inset-0 h-[18px] w-[18px] transition-all duration-200',
-            dark ? 'scale-100 rotate-0 opacity-100' : 'scale-75 -rotate-90 opacity-0',
-          ].join(' ')}
-        />
-        <MoonIcon
-          className={[
-            'absolute inset-0 h-[18px] w-[18px] transition-all duration-200',
-            dark ? 'scale-75 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100',
-          ].join(' ')}
-        />
-      </span>
+      {/* Flat minimal line icon — sun when dark (→ light), crescent when light (→ dark) */}
+      <svg
+        className="h-[17px] w-[17px]"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {dark ? (
+          <>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+          </>
+        ) : (
+          <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z" />
+        )}
+      </svg>
     </button>
   )
 }
@@ -75,6 +65,7 @@ function HamburgerIcon({ open }) {
 /** Fixed marketing site navbar (public pages). */
 export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
   const visualMode = mobileOpen ? 'scrolled' : mode
   const styles = siteHeaderStyles(visualMode)
@@ -99,20 +90,44 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
     }
   }, [mobileOpen, closeMobile])
 
+  // Floating "hover header": past ~70px the bar morphs into a centred pill.
+  useEffect(() => {
+    const THRESHOLD = 70
+    let raf = 0
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => setScrolled(window.scrollY >= THRESHOLD))
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [])
+
   return (
     <header
       data-site-header
       className={[
-        'fixed inset-x-0 top-0 border-b',
-        'transition-[background-color,border-color,box-shadow,backdrop-filter,-webkit-backdrop-filter] duration-300 ease-out',
+        'site-header fixed inset-x-0 mx-auto overflow-hidden',
         SITE_HEADER_Z,
         styles.headerClass,
+        scrolled
+          ? 'is-pill top-3 max-w-[calc(100vw-32px)] rounded-full border sm:max-w-6xl'
+          : 'top-0 max-w-[100vw] rounded-none border-b',
       ].join(' ')}
     >
-      <nav className={`${LAYOUT_CONTAINER} flex items-center justify-between py-4`} aria-label="Primary navigation">
+      <nav
+        className={[
+          'flex items-center justify-between transition-[max-width,padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
+          scrolled ? 'mx-auto max-w-6xl px-8 py-3.5' : `${LAYOUT_CONTAINER} py-4`,
+        ].join(' ')}
+        aria-label="Primary navigation"
+      >
         <Link
           to="/"
-          className={`text-[1.1rem] font-semibold tracking-tight transition-colors duration-200 ease-out ${styles.brandTextClass}`}
+          className={`whitespace-nowrap text-[1.1rem] font-semibold tracking-tight transition-colors duration-200 ease-out ${styles.brandTextClass}`}
           onClick={closeMobile}
         >
           The <span className={styles.brandAccentClass}>Ember Network</span>
@@ -157,7 +172,7 @@ export const SiteNavbar = memo(function SiteNavbar({ mode = 'scrolled' }) {
           mobileOpen ? 'max-h-[28rem] opacity-100' : 'max-h-0 opacity-0 pointer-events-none',
         ].join(' ')}
       >
-        <div className={`${LAYOUT_CONTAINER} flex flex-col gap-1 py-5`}>
+        <div className={[scrolled ? 'mx-auto w-full px-5' : LAYOUT_CONTAINER, 'flex flex-col gap-1 py-5'].join(' ')}>
           {SITE_NAV_LINKS.map(({ to, label }) => (
             <NavLink
               key={to}

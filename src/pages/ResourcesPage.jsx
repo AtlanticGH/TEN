@@ -64,7 +64,7 @@ export function ResourcesPage() {
         badge="Resources"
         heading="Practical guides for purposeful growth"
         description="Explore actionable playbooks, templates, and mentorship notes to help you move from idea to measurable progress."
-        image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1800&q=80"
+        image="/assets/images/1454165804606-c3d57bc86b40.jpg"
       />
 
       <section id="featured-resources" className="mx-auto max-w-7xl px-8 py-14 md:px-12 lg:px-10">

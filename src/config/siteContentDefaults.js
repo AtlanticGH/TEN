@@ -11,8 +11,8 @@ export const DEFAULT_HOME_HERO = {
   cta_primary_href: '/apply',
   cta_secondary_label: 'Explore Our Story',
   cta_secondary_href: '/about',
-  background_image:
-    'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1600&q=80',
+  background_image: '/assets/images/1523240795612-9a054b0db644.jpg',
+  background_video: '',
 }
 
 /** Empty form shape for admin editor before load. */
@@ -26,6 +26,7 @@ export const EMPTY_HOME_HERO = {
   cta_secondary_label: '',
   cta_secondary_href: '/about',
   background_image: '',
+  background_video: '',
 }
 
 export const HOME_HERO_FIELD_KEYS = Object.keys(DEFAULT_HOME_HERO)

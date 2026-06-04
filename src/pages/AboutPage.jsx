@@ -9,25 +9,25 @@ export function AboutPage() {
       title: 'Program Lead',
       desc: 'Designs weekly and monthly activities that keep members accountable and growth-focused.',
       image: '/assets/images/profiles/team-program-lead.jpg',
-      fallback: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80',
+      fallback: '/assets/images/1560250097-0b93528c311a.jpg',
     },
     {
       title: 'Mentor Relations',
       desc: 'Connects members with experienced founders, experts, and strategic advisors.',
       image: '/assets/images/profiles/team-mentor-relations.jpg',
-      fallback: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80',
+      fallback: '/assets/images/1573497019940-1c28c88b4f3e.jpg',
     },
     {
       title: 'Member Engagement Lead',
       desc: 'Cultivates engagement across circles, events, and founder collaboration touchpoints.',
       image: '/assets/images/profiles/team-community-manager.jpg',
-      fallback: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?auto=format&fit=crop&w=800&q=80',
+      fallback: '/assets/images/1542744173-05336fcc7ad4.jpg',
     },
     {
       title: 'Partnerships & Growth',
       desc: 'Builds ecosystem partnerships that expand opportunity for TEN members.',
       image: '/assets/images/profiles/team-partnerships-growth.jpg',
-      fallback: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=800&q=80',
+      fallback: '/assets/images/1520607162513-77705c0f0d4a.jpg',
     },
   ]
 
@@ -37,7 +37,7 @@ export function AboutPage() {
         badge="About"
         heading="Who we are and why TEN exists"
         description="The Ember Network is a transformative hub for emerging entrepreneurs, turning ambitious ideas into thriving enterprises through mentorship and strategic guidance."
-        image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1800&q=80"
+        image="/assets/images/1519389950473-47ba0277781c.jpg"
       />
 
       <section id="vision-mission" data-section="vision-mission" className="mx-auto grid max-w-7xl gap-10 px-8 py-20 md:px-12 lg:grid-cols-2 lg:px-10">
@@ -85,7 +85,7 @@ export function AboutPage() {
           <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="min-h-[250px]">
               <img
-                src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80"
+                src="/assets/images/1520607162513-77705c0f0d4a.jpg"
                 alt="Entrepreneurs collaborating in a learning session"
                 className="h-full w-full object-cover"
                 loading="lazy"
@@ -115,7 +115,7 @@ export function AboutPage() {
             <div className="relative min-h-[260px]">
               <ImageWithFallback
                 src="/assets/images/profiles/ceo portrat 7.png"
-                fallbackSrc="https://images.unsplash.com/photo-1573496774426-fe3db3dd1731?auto=format&fit=crop&w=1200&q=80"
+                fallbackSrc="/assets/images/1573496774426-fe3db3dd1731.jpg"
                 alt="Portrait representing founder leadership"
                 className="h-full w-full object-cover"
                 loading="lazy"

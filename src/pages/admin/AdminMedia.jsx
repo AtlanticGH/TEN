@@ -98,6 +98,7 @@ export function AdminMediaPage() {
         <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <input
             type="file"
+            accept="image/*,video/*,application/pdf"
             className="w-full text-sm text-zinc-600 file:mr-4 file:rounded-full file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-400 dark:text-zinc-300"
             onChange={async (e) => {
               const file = e.target.files?.[0]
@@ -130,6 +131,7 @@ export function AdminMediaPage() {
           {filtered.map((a) => {
             const url = getPublicAssetUrl({ bucket: a.bucket, path: a.path })
             const isImage = String(a.mime_type || '').startsWith('image/')
+            const isVideo = String(a.mime_type || '').startsWith('video/')
             return (
               <button
                 key={a.id}
@@ -147,6 +149,8 @@ export function AdminMediaPage() {
                 <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/40">
                   {isImage ? (
                     <img src={url} alt={a.alt || a.title || 'Media'} className="h-36 w-full object-cover" loading="lazy" />
+                  ) : isVideo ? (
+                    <video src={url} className="h-36 w-full object-cover" muted playsInline preload="metadata" />
                   ) : (
                     <div className="grid h-36 place-content-center text-sm font-semibold text-zinc-600 dark:text-zinc-300">
                       {a.mime_type || 'file'}

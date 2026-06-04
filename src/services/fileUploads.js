@@ -58,8 +58,8 @@ export async function uploadStorageFile({ file, bucket = 'public', folder = 'upl
   const filename = `${base}-${stamp}${ext ? `.${ext}` : ''}`
   const buf = await file.arrayBuffer()
 
-  const uploadPath =
-    uploadRole === 'mentor' ? '/api/mentor/storage/upload' : '/api/admin/storage/upload'
+  const uploadPath = '/api/admin/storage/upload'
+  void uploadRole
 
   const upload = await apiFetch(
     `${uploadPath}?bucket=${encodeURIComponent(bucket)}&folder=${encodeURIComponent(folder)}&filename=${encodeURIComponent(

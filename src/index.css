@@ -153,6 +153,33 @@ body {
   text-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
+/* Floating "hover header" — morphs the fixed bar into a centred pill on scroll.
+   Shape + chrome animate together; the frosted-glass background is supplied by
+   the existing scrolled header styles, so colours are unchanged. */
+.site-header {
+  transition:
+    max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    -webkit-backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-header.is-pill {
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header {
+    transition: none;
+  }
+}
+
 /* Legacy class — home hero uses Tailwind gradient with text-orange-300 fallback */
 .ten-hero-emphasis {
   color: #fdba74;

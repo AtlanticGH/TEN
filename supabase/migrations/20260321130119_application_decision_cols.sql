@@ -1,5 +1,6 @@
 -- Add columns required by the email decision system
 -- (idempotent — safe to run multiple times)
+-- Must run after 20260321130103_courses.sql (creates public.applications)
 
 ALTER TABLE public.applications
   ADD COLUMN IF NOT EXISTS rejection_reason       text,

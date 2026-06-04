@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   DashboardAlert,
   DashboardListItem,
@@ -10,26 +11,7 @@ import {
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
 import { listActivityLogs } from '../../services/activityLogs'
-import { listAdminSummary } from '../../services/admin'
-
-function MiniBars({ values }) {
-  const max = Math.max(1, ...values.map((v) => Number(v) || 0))
-  return (
-    <div className="flex h-24 items-end gap-1">
-      {values.map((v, idx) => {
-        const h = Math.max(8, Math.round(((Number(v) || 0) / max) * 100))
-        return (
-          <div
-            key={idx}
-            className="w-2 rounded-full bg-gradient-to-t from-orange-500 to-amber-300"
-            style={{ height: `${h}%` }}
-            title={`${v}`}
-          />
-        )
-      })}
-    </div>
-  )
-}
+import { listCmsSummary } from '../../services/admin'
 
 export function AdminOverviewPage() {
   const [loading, setLoading] = useState(true)
@@ -43,13 +25,13 @@ export function AdminOverviewPage() {
       setLoading(true)
       setError('')
       try {
-        const [s, l] = await Promise.all([listAdminSummary(), listActivityLogs({ limit: 8 }).catch(() => [])])
+        const [s, l] = await Promise.all([listCmsSummary(), listActivityLogs({ limit: 8 }).catch(() => [])])
         if (!alive) return
         setSummary(s)
         setLogs(l || [])
       } catch (err) {
         if (!alive) return
-        setError(err?.message || 'Unable to load admin overview.')
+        setError(err?.message || 'Unable to load overview.')
       } finally {
         if (alive) setLoading(false)
       }
@@ -59,8 +41,6 @@ export function AdminOverviewPage() {
       alive = false
     }
   }, [])
-
-  const trend = [2, 3, 4, 3, 6, 8, 7, 9, 10, 8, 12, 11]
 
   if (loading) {
     return (
@@ -85,26 +65,37 @@ export function AdminOverviewPage() {
 
   return (
     <DashboardPage>
-      <DashboardPageIntro label="Overview" title="At a glance" />
+      <DashboardPageIntro label="CMS" title="Site at a glance" />
 
       <div className="grid gap-4 md:grid-cols-3">
-        <DashboardMetricTile label="Submitted applications" value={summary?.applications_submitted ?? 0} />
-        <DashboardMetricTile label="Members" value={summary?.members ?? 0} />
-        <DashboardMetricTile label="Published courses" value={summary?.courses ?? 0} />
+        <DashboardMetricTile label="Content blocks" value={summary?.content_blocks ?? 0} />
+        <DashboardMetricTile label="Media assets" value={summary?.media_assets ?? 0} />
+        <DashboardMetricTile label="Resources" value={summary?.resources ?? 0} />
       </div>
 
       <DashboardSplit>
         <DashboardPanel>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">Engagement trend</p>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
-            Illustrative series — wire to `/api/admin/analytics` or a SQL view when ready.
-          </p>
-          <div className="mt-4">
-            <MiniBars values={trend} />
-          </div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">Quick links</p>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li>
+              <Link to="/admin/content" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400">
+                Edit site content →
+              </Link>
+            </li>
+            <li>
+              <Link to="/admin/media" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400">
+                Manage media library →
+              </Link>
+            </li>
+            <li>
+              <Link to="/admin/resources" className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-400">
+                Update resources →
+              </Link>
+            </li>
+          </ul>
         </DashboardPanel>
         <DashboardPanel>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">Recent audit</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-400 dark:text-zinc-500">Recent activity</p>
           <ul className="mt-4 space-y-3">
             {logs.length ? (
               logs.map((r) => (
@@ -121,7 +112,7 @@ export function AdminOverviewPage() {
                 </li>
               ))
             ) : (
-              <li className="text-sm text-zinc-500">No audit entries yet.</li>
+              <li className="text-sm text-zinc-500">No activity yet.</li>
             )}
           </ul>
         </DashboardPanel>

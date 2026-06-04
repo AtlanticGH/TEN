@@ -35,7 +35,7 @@ if (!url || !serviceKey) {
 
 const supabase = createClient(url, serviceKey, { auth: { persistSession: false } })
 
-const tables = ['profiles', 'courses', 'teams', 'team_members', 'site_content', 'applications']
+const tables = ['profiles', 'site_content', 'media_assets', 'resources']
 for (const t of tables) {
   const { count, error } = await supabase.from(t).select('*', { count: 'exact', head: true })
   if (error) fail(`Table ${t}: ${error.message}`)

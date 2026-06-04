@@ -1,7 +1,7 @@
 # Ember Network — Supabase database architecture
 
 Reverse-engineered from `supabase/migrations/`, `server/`, `api/`, and `src/services/`.  
-**Project ref:** `lfdttxwvjgypljuhgjeu`
+**Project ref:** `aidcfsxtjcnzqkzumtwt`
 
 ## Architecture pattern
 

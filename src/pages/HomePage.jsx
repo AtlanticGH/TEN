@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Reveal } from '../components/shared/Reveal'
+import { useHomeHero } from '../hooks/useHomeHero'
+
+const HERO_IMAGE_FALLBACK = '/assets/images/1523240795612-9a054b0db644.jpg'
 
 /* ─── Shared style tokens ──────────────────────────────────────────────── */
 const SECTION_PAD = 'py-20 md:py-28 lg:py-32'
@@ -7,6 +10,58 @@ const CONTAINER = 'mx-auto max-w-7xl px-6 sm:px-8 lg:px-10'
 const EYEBROW = 'block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-500 mb-4'
 const HEADLINE = 'text-4xl md:text-5xl font-black leading-tight tracking-tight mb-6'
 const ORANGE_GRADIENT = { backgroundImage: 'linear-gradient(135deg, #F97316, #FBBF24)' }
+
+/* ─── Flat line icons (stroke-only, no fill) ───────────────────────────── */
+function LineIcon({ children, label }) {
+  return (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      role="img"
+      aria-label={label}
+    >
+      {children}
+    </svg>
+  )
+}
+
+const IconBeaker = () => (
+  <LineIcon label="Ignition Labs">
+    <path d="M9 3h6M10 3v6l-4.6 8.1A2 2 0 0 0 7.2 20h9.6a2 2 0 0 0 1.8-2.9L14 9V3" />
+    <path d="M7.5 14h9" />
+  </LineIcon>
+)
+const IconBolt = () => (
+  <LineIcon label="Spark Challenge">
+    <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
+  </LineIcon>
+)
+const IconMic = () => (
+  <LineIcon label="Fireside Dialogues">
+    <rect x="9" y="2" width="6" height="11" rx="3" />
+    <path d="M5 10v1a7 7 0 0 0 14 0v-1" />
+    <path d="M12 18v3M8 21h8" />
+  </LineIcon>
+)
+const IconUsers = () => (
+  <LineIcon label="Founder Mastermind">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+  </LineIcon>
+)
+const IconGlobe = () => (
+  <LineIcon label="Impact Ventures">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </LineIcon>
+)
 
 /* ─── Content data ─────────────────────────────────────────────────────── */
 const FIRE = [
@@ -48,27 +103,27 @@ const TORCHBEARER_STATS = [
 
 const PROGRAMS = [
   {
-    icon: '🔥',
+    Icon: IconBeaker,
     title: 'Ignition Labs',
     desc: 'Hands-on workshops equipping founders with practical skills in strategy, branding, finance, product development and business growth. From idea validation to execution.',
   },
   {
-    icon: '⚡',
+    Icon: IconBolt,
     title: 'Spark Challenge',
     desc: 'Competitive pitch experiences that sharpen ideas, build confidence and expose founders to expert feedback and recognition.',
   },
   {
-    icon: '🎙',
+    Icon: IconMic,
     title: 'Fireside Dialogues',
     desc: 'Exclusive conversations with accomplished entrepreneurs, investors and industry leaders. Real stories. Real lessons. Real access.',
   },
   {
-    icon: '🤝',
+    Icon: IconUsers,
     title: 'Founder Mastermind',
     desc: 'Collaborative circles where founders discuss challenges, exchange ideas and receive strategic feedback from mentors and peers.',
   },
   {
-    icon: '🌍',
+    Icon: IconGlobe,
     title: 'Impact Ventures',
     desc: 'Build businesses that create meaningful change. Innovation combined with social impact for ventures that create lasting value.',
   },
@@ -134,17 +189,17 @@ const TESTIMONIALS = [
   {
     name: 'Future Founder',
     quote: 'Placeholder for founder transformation stories.',
-    avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=200&q=80',
+    avatar: '/assets/images/1531123897727-8f129e1688ce.jpg',
   },
   {
     name: 'Mentor Story',
     quote: 'Placeholder for mentorship impact experiences.',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    avatar: '/assets/images/1507003211169-0a1dd7228f2d.jpg',
   },
   {
     name: 'Community Impact',
     quote: 'Placeholder for ventures creating social change.',
-    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=200&q=80',
+    avatar: '/assets/images/1573497019940-1c28c88b4f3e.jpg',
   },
 ]
 
@@ -166,8 +221,12 @@ function CheckIcon() {
 
 /* ─── Page ─────────────────────────────────────────────────────────────── */
 export function HomePage() {
+  const { heroCopy } = useHomeHero()
+  const heroImage = heroCopy.background_image || HERO_IMAGE_FALLBACK
+  const heroVideo = heroCopy.background_video
+
   return (
-    <main id="page-main" data-component="page-main" className="overflow-x-hidden bg-[#0A0A0A]">
+    <main id="page-main" data-component="page-main" className="overflow-x-hidden bg-white dark:bg-zinc-950">
 
       {/* ── SECTION 1 — HERO ─────────────────────────────────────────────── */}
       <section
@@ -175,13 +234,27 @@ export function HomePage() {
         data-section="hero-gateway"
         className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden bg-[#0A0A0A]"
       >
-        <img
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1920&q=80"
-          alt="Entrepreneurs collaborating around a table"
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="eager"
-          fetchpriority="high"
-        />
+        {heroVideo ? (
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            poster={heroImage}
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-hidden="true"
+          >
+            <source src={heroVideo} />
+          </video>
+        ) : (
+          <img
+            src={heroImage}
+            alt="Entrepreneurs collaborating around a table"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        )}
         <div
           className="absolute inset-0"
           style={{
@@ -193,10 +266,10 @@ export function HomePage() {
 
         <div className={`relative z-10 ${CONTAINER} pb-28 pt-36 md:pb-32 md:pt-40`}>
           <div className="max-w-4xl">
-            <h1 className="text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[1.02] tracking-tight text-white ten-hero-text-shadow">
-              <span className="block">Welcome to The Ember Network</span>
+            <h1 className="text-[clamp(1.875rem,4.5vw,3.5rem)] font-black leading-[1.12] tracking-tight text-white ten-hero-text-shadow">
+              <span className="block pb-0.5">Welcome to The Ember Network</span>
               <span
-                className="block bg-clip-text text-transparent"
+                className="block bg-clip-text pb-1 text-transparent"
                 style={{ ...ORANGE_GRADIENT, WebkitBackgroundClip: 'text' }}
               >
                 Here, Small Sparks Ignite Big Dreams
@@ -234,7 +307,7 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 2 — THE SPARK ────────────────────────────────────────── */}
-      <section className={`bg-[#0A0A0A] ${SECTION_PAD}`}>
+      <section className={`bg-gradient-to-br from-zinc-950 via-zinc-900 to-orange-700 ${SECTION_PAD}`}>
         <div className={`${CONTAINER} flex flex-col items-center text-center`}>
           <Reveal className="max-w-[640px]">
             <span className={EYEBROW}>Our Purpose</span>
@@ -267,17 +340,17 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 3 — WHO WE ARE ───────────────────────────────────────── */}
-      <section className={`bg-white ${SECTION_PAD}`}>
+      <section className={`bg-white ${SECTION_PAD} dark:bg-zinc-950`}>
         <div className={CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className={EYEBROW}>Who We Are</span>
-            <h2 className={`${HEADLINE} text-zinc-900`}>More Than A Network</h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600">
+            <h2 className={`${HEADLINE} text-zinc-900 dark:text-white`}>More Than A Network</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
               We are a transformative ecosystem for emerging entrepreneurs, equipping ambitious
               innovators with mentorship, strategic guidance, collaboration and the tools to thrive
               in today&rsquo;s world.
             </p>
-            <p className="mx-auto mt-5 max-w-[640px] text-[17px] leading-[1.7] text-zinc-600">
+            <p className="mx-auto mt-5 max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
               We exist to nurture bold thinkers, resilient builders and purpose-driven founders who
               are ready to shape industries and uplift communities.
             </p>
@@ -288,10 +361,10 @@ export function HomePage() {
             <Reveal
               as="article"
               delay={100}
-              className="rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-8"
+              className="rounded-2xl border border-orange-100 bg-orange-50/60 p-8 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <p className={EYEBROW}>Our Mission</p>
-              <p className="text-[16px] leading-[1.7] text-zinc-700">
+              <p className="text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">
                 To ignite and sustain a thriving entrepreneurial ecosystem that empowers young
                 innovators through mentorship, resources and opportunities to transform bold ideas
                 into lasting ventures.
@@ -300,10 +373,10 @@ export function HomePage() {
             <Reveal
               as="article"
               delay={200}
-              className="rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-8"
+              className="rounded-2xl border border-orange-100 bg-orange-50/60 p-8 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <p className={EYEBROW}>Our Vision</p>
-              <p className="text-[16px] leading-[1.7] text-zinc-700">
+              <p className="text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">
                 To build a global network of forward-thinking entrepreneurs who drive innovation,
                 lead with resilience and create meaningful impact.
               </p>
@@ -313,7 +386,7 @@ export function HomePage() {
           {/* The FIRE Philosophy */}
           <Reveal className="mt-20 text-center">
             <span className={EYEBROW}>The FIRE Philosophy</span>
-            <h3 className="text-2xl font-black tracking-tight text-zinc-900 md:text-3xl">
+            <h3 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white md:text-3xl">
               What Keeps Our Flame Burning
             </h3>
           </Reveal>
@@ -323,24 +396,24 @@ export function HomePage() {
                 key={letter}
                 as="article"
                 delay={(i + 1) * 100}
-                className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-7 transition-all duration-300 hover:border-orange-500/50 hover:shadow-[0_0_40px_rgba(249,115,22,0.12)]"
+                className="rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <span className="text-5xl font-black text-orange-500">{letter}</span>
                 <div className="mt-2 mb-4 h-[3px] w-10 rounded-full bg-orange-500" />
-                <h4 className="text-lg font-bold text-white">{title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{body}</p>
+                <h4 className="text-lg font-bold text-zinc-900 dark:text-white">{title}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{body}</p>
               </Reveal>
             ))}
           </div>
         </div>
 
-        {/* Stats strip — full-width dark band */}
-        <div className="mt-20 border-y border-zinc-800 bg-zinc-950 py-12">
+        {/* Stats strip — dark contrast band for high text visibility */}
+        <div className="mt-20 bg-gradient-to-r from-zinc-900 to-zinc-800 py-12">
           <div className={`${CONTAINER} grid grid-cols-2 gap-8 md:grid-cols-4`}>
             {WHO_STATS.map(({ value, label }) => (
               <div key={label} className="text-center">
-                <p className="text-3xl font-black text-orange-500 md:text-4xl">{value}</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.18em] text-zinc-400">{label}</p>
+                <p className="text-3xl font-black text-orange-400 md:text-4xl">{value}</p>
+                <p className="mt-2 text-xs uppercase tracking-[0.18em] text-zinc-300">{label}</p>
               </div>
             ))}
           </div>
@@ -348,13 +421,15 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 4 — THE TORCHBEARER ──────────────────────────────────── */}
-      <section className={`bg-[#111111] ${SECTION_PAD}`}>
+      <section
+        className={`bg-gradient-to-br from-zinc-50 to-orange-50/50 ${SECTION_PAD} dark:from-zinc-900 dark:to-zinc-950`}
+      >
         <div className={CONTAINER}>
           <Reveal className="flex flex-col items-center gap-10 lg:flex-row lg:items-stretch lg:gap-14">
-            <div className="w-full lg:w-1/2">
-              <div className="relative overflow-hidden rounded-2xl border border-zinc-800">
+            <div className="flex w-full justify-center lg:w-1/2 lg:justify-start">
+              <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-800 lg:mx-0 lg:h-full lg:w-auto lg:max-w-none">
                 <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80"
+                  src="/assets/images/1573496359142-b8d87734a5a2.jpg"
                   alt="Portrait of Maud Lindsay-Gamrat, founder of The Ember Network"
                   className="h-full w-full object-cover"
                   loading="lazy"
@@ -364,19 +439,19 @@ export function HomePage() {
 
             <div className="w-full lg:flex lg:w-1/2 lg:flex-col lg:justify-center">
               <span className={EYEBROW}>Leadership</span>
-              <h2 className={`${HEADLINE} text-white`}>Meet the Torchbearer</h2>
-              <p className="text-2xl font-bold text-white">Maud Lindsay-Gamrat</p>
-              <p className="mt-2 text-[16px] text-orange-400">
+              <h2 className={`${HEADLINE} text-zinc-900 dark:text-white`}>Meet the Torchbearer</h2>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-white">Maud Lindsay-Gamrat</p>
+              <p className="mt-2 text-[16px] text-orange-600 dark:text-orange-400">
                 Entrepreneur. Mentor. Builder of Possibilities.
               </p>
-              <p className="mt-1 text-[15px] italic text-zinc-400">The Flame Behind the Vision</p>
+              <p className="mt-1 text-[15px] italic text-zinc-500 dark:text-zinc-400">The Flame Behind the Vision</p>
 
               {/* Highlights strip */}
-              <div className="mt-8 grid grid-cols-2 gap-6 border-t border-zinc-800 pt-8 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+              <div className="mt-8 grid grid-cols-2 gap-6 border-t border-zinc-200 pt-8 dark:border-zinc-800 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                 {TORCHBEARER_STATS.map(({ value, label }) => (
                   <div key={label}>
                     <p className="text-2xl font-black text-orange-500">{value}</p>
-                    <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-zinc-400">{label}</p>
+                    <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">{label}</p>
                   </div>
                 ))}
               </div>
@@ -386,11 +461,11 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 5 — FOUNDER QUOTE ────────────────────────────────────── */}
-      <section className="bg-[#0D0D0D] py-24">
+      <section className="bg-gradient-to-br from-zinc-950 via-zinc-900 to-orange-700 py-24">
         <Reveal>
           <div className="relative mx-auto max-w-4xl px-6 text-center">
             <span
-              className="pointer-events-none absolute -top-8 left-0 select-none font-serif text-[9rem] leading-none text-orange-500/20"
+              className="pointer-events-none absolute -top-8 left-0 select-none font-serif text-[9rem] leading-none text-orange-400/30"
               aria-hidden="true"
             >
               &ldquo;
@@ -399,36 +474,38 @@ export function HomePage() {
               When young people are empowered with guidance and opportunity, they don&rsquo;t just
               build businesses &mdash; they transform communities.
             </blockquote>
-            <p className="mt-8 font-semibold text-orange-400">&mdash; Maud Lindsay-Gamrat, Founder</p>
+            <p className="mt-8 font-semibold text-orange-200">&mdash; Maud Lindsay-Gamrat, Founder</p>
           </div>
         </Reveal>
       </section>
 
       {/* ── SECTION 6 — PROGRAMS & EXPERIENCES ───────────────────────────── */}
-      <section className={`bg-white ${SECTION_PAD}`}>
+      <section className={`bg-white ${SECTION_PAD} dark:bg-zinc-950`}>
         <div className={CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className={EYEBROW}>Programs &amp; Experiences</span>
-            <h2 className={`${HEADLINE} text-zinc-900`}>How We Build Our Founders</h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600">
+            <h2 className={`${HEADLINE} text-zinc-900 dark:text-white`}>How We Build Our Founders</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
               The Ember Network combines mentorship, practical learning and collaborative experiences
               to help entrepreneurs move confidently from idea to execution.
             </p>
           </Reveal>
 
           <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PROGRAMS.map(({ icon, title, desc }, i) => (
+            {PROGRAMS.map(({ Icon, title, desc }, i) => (
               <Reveal
                 key={title}
                 as="article"
                 delay={(i % 3) * 100}
-                className="cursor-pointer overflow-hidden rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/60 hover:shadow-[0_20px_60px_rgba(249,115,22,0.15)]"
+                className="group cursor-pointer overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <div className="h-[3px] w-full bg-gradient-to-r from-orange-500 to-amber-400" />
                 <div className="p-6">
-                  <span className="text-3xl" aria-hidden="true">{icon}</span>
-                  <h3 className="mt-4 text-lg font-bold text-white">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">{desc}</p>
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-500 transition-colors duration-300 group-hover:bg-orange-100 dark:bg-orange-500/10">
+                    <Icon />
+                  </span>
+                  <h3 className="mt-4 text-lg font-bold text-zinc-900 dark:text-white">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{desc}</p>
                 </div>
               </Reveal>
             ))}
@@ -437,7 +514,7 @@ export function HomePage() {
           {/* Growth Cycle timeline */}
           <Reveal className="mt-20 text-center">
             <span className={EYEBROW}>The Growth Cycle</span>
-            <h3 className="text-2xl font-black tracking-tight text-zinc-900 md:text-3xl">
+            <h3 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white md:text-3xl">
               A Rhythm Built for Momentum
             </h3>
           </Reveal>
@@ -452,14 +529,14 @@ export function HomePage() {
                 key={num}
                 as="article"
                 delay={i * 100}
-                className="relative flex-1 rounded-2xl border border-zinc-200 bg-[#F9FAFB] p-7"
+                className="relative flex-1 rounded-2xl border border-orange-100 bg-orange-50/50 p-7 dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <span className="relative z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-base font-black text-white">
                   {num}
                 </span>
-                <h4 className="mt-5 text-lg font-bold text-zinc-900">{title}</h4>
-                <p className="mt-1 text-sm font-semibold text-orange-500">{tagline}</p>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-600">{body}</p>
+                <h4 className="mt-5 text-lg font-bold text-zinc-900 dark:text-white">{title}</h4>
+                <p className="mt-1 text-sm font-semibold text-orange-600 dark:text-orange-400">{tagline}</p>
+                <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{body}</p>
               </Reveal>
             ))}
           </div>
@@ -467,12 +544,14 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 7 — COMMUNITY & MEMBERSHIP ───────────────────────────── */}
-      <section className={`bg-[#0A0A0A] ${SECTION_PAD}`}>
+      <section
+        className={`bg-gradient-to-b from-orange-100 to-white ${SECTION_PAD} dark:from-zinc-900 dark:to-zinc-950`}
+      >
         <div className={CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className={EYEBROW}>Community &amp; Membership</span>
-            <h2 className={`${HEADLINE} text-white`}>Find Your Circle</h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-400">
+            <h2 className={`${HEADLINE} text-zinc-900 dark:text-white`}>Find Your Circle</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
               Built for ambitious individuals ready to learn, collaborate and grow within a community
               of forward-thinking entrepreneurs.
             </p>
@@ -488,8 +567,8 @@ export function HomePage() {
                 className={[
                   'relative flex flex-col rounded-2xl p-8',
                   featured
-                    ? 'border-2 border-orange-500 bg-zinc-900 shadow-[0_0_50px_rgba(249,115,22,0.2)]'
-                    : 'border border-zinc-800 bg-zinc-900',
+                    ? 'border-2 border-orange-500 bg-white shadow-[0_10px_40px_rgba(249,115,22,0.18)] dark:bg-zinc-900'
+                    : 'border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900',
                 ].join(' ')}
               >
                 {featured ? (
@@ -497,15 +576,15 @@ export function HomePage() {
                     Most Popular
                   </span>
                 ) : null}
-                <h3 className="text-xl font-bold text-white">{name}</h3>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-400">{desc}</p>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{name}</h3>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{desc}</p>
                 <Link
                   to={to}
                   className={[
                     'mt-7 inline-flex min-h-[52px] items-center justify-center rounded-full px-8 text-[15px] font-bold transition-all duration-200 ease-out active:scale-[0.98]',
                     featured
                       ? 'bg-orange-500 text-white hover:bg-orange-400'
-                      : 'border-2 border-zinc-700 text-white hover:border-orange-500',
+                      : 'border-2 border-zinc-300 text-zinc-800 hover:border-orange-500 hover:text-orange-600 dark:border-zinc-700 dark:text-white',
                   ].join(' ')}
                 >
                   {cta}
@@ -520,7 +599,7 @@ export function HomePage() {
               {BENEFITS.map((benefit) => (
                 <li key={benefit} className="flex items-center gap-3">
                   <CheckIcon />
-                  <span className="text-[15px] text-zinc-300">{benefit}</span>
+                  <span className="text-[15px] text-zinc-700 dark:text-zinc-300">{benefit}</span>
                 </li>
               ))}
             </ul>
@@ -529,12 +608,12 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 8 — IMPACT STORIES ───────────────────────────────────── */}
-      <section className={`bg-[#F9FAFB] ${SECTION_PAD}`}>
+      <section className={`bg-zinc-50 ${SECTION_PAD} dark:bg-zinc-900`}>
         <div className={CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className={EYEBROW}>Impact Stories</span>
-            <h2 className={`${HEADLINE} text-zinc-900`}>Sparks Becoming Success Stories</h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600">
+            <h2 className={`${HEADLINE} text-zinc-900 dark:text-white`}>Sparks Becoming Success Stories</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
               Every entrepreneur begins with potential. Through mentorship, collaboration and
               opportunity, those sparks evolve into stories of growth, resilience and transformation.
             </p>
@@ -546,9 +625,9 @@ export function HomePage() {
                 key={name}
                 as="article"
                 delay={(i + 1) * 100}
-                className="flex flex-col rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-sm"
+                className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
               >
-                <p className="flex-1 text-[16px] leading-[1.7] text-zinc-700">&ldquo;{quote}&rdquo;</p>
+                <p className="flex-1 text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">&ldquo;{quote}&rdquo;</p>
                 <div className="mt-6 flex items-center gap-3">
                   <img
                     src={avatar}
@@ -556,7 +635,7 @@ export function HomePage() {
                     className="h-12 w-12 rounded-full object-cover"
                     loading="lazy"
                   />
-                  <span className="font-semibold text-zinc-900">{name}</span>
+                  <span className="font-semibold text-zinc-900 dark:text-white">{name}</span>
                 </div>
               </Reveal>
             ))}
@@ -565,7 +644,7 @@ export function HomePage() {
       </section>
 
       {/* ── SECTION 9 — JOIN THE MOVEMENT (CTA band) ─────────────────────── */}
-      <section className="bg-[#F97316] py-20 md:py-28 lg:py-32">
+      <section className="bg-gradient-to-br from-orange-600 to-orange-500 py-20 md:py-28 lg:py-32">
         <div className={`${CONTAINER} text-center`}>
           <Reveal className="mx-auto max-w-3xl">
             <span className="mb-4 block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-100">
@@ -574,7 +653,7 @@ export function HomePage() {
             <h2 className="mb-6 text-4xl font-black leading-tight tracking-tight text-white md:text-5xl">
               The Future Needs Builders Like You
             </h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-orange-50/90">
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-orange-50/95">
               Your ideas matter. Your vision deserves guidance. Your future deserves community. The
               Ember Network exists to help ambitious entrepreneurs ignite their potential and build
               lasting impact.
@@ -595,7 +674,7 @@ export function HomePage() {
               </Link>
             </div>
 
-            <p className="mt-8 text-sm font-medium text-orange-50/90">
+            <p className="mt-8 text-sm font-medium text-orange-50/95">
               info@theembernetwork.com &middot; +233 50 940 4673 &middot; www.theembernetwork.com
             </p>
           </Reveal>
