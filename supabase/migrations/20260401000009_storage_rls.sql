@@ -1,6 +1,5 @@
 -- Storage RLS — staff uploads, public read on public/avatars buckets
-
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Hosted Supabase already enables RLS on storage.objects; skip ALTER (requires table owner).
 
 -- Public bucket: anyone reads; staff uploads/updates/deletes
 DROP POLICY IF EXISTS storage_public_read ON storage.objects;
