@@ -2,4 +2,4 @@
 export const BLOCK_BUILDER_DISABLED = true
 
 export const BLOCK_BUILDER_DISABLED_MESSAGE =
-  'Page block editing is disabled. Use Gallery, People, Navigation, or Site settings to manage content.'
+  'Page block editing is disabled. Use Homepage, Programs, Page heroes, Gallery, People, Navigation, or Site settings instead.'

@@ -1,17 +1,17 @@
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { loadProjectEnv } from './loadEnv.js'
+import { createSupabaseServiceClient, readSupabaseServerEnv } from './supabaseEnv.js'
 import { registerAdminRoutes } from './adminRoutes.js'
 import { registerCmsRoutes } from './cmsRoutes.js'
 import { registerGalleryEnsureRoute } from './galleryEnsureRoute.js'
 import { registerResourcesRoutes } from './resourcesRoutes.js'
 
-// Load .env then .env.local (Vite-style: local overrides base).
-dotenv.config({ path: ['.env', '.env.local'], override: true })
+loadProjectEnv()
 
 const app = express()
 const PORT = Number(process.env.PORT || '3000')
@@ -65,28 +65,14 @@ app.use(
 // JSON for normal API routes
 app.use(express.json({ limit: '2mb' }))
 
-const SUPABASE_URL = (
-  process.env.SUPABASE_URL ||
-  process.env.VITE_SUPABASE_URL ||
-  ''
-).trim()
-
-const SUPABASE_SERVICE_ROLE_KEY = (
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_SERVICE_KEY ||
-  ''
-).trim().replace(/^['"]|['"]$/g, '')
-
-const supabase =
-  SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-      })
-    : null
+const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = readSupabaseServerEnv()
+const supabase = createSupabaseServiceClient(createClient)
 
 if (!supabase) {
   // eslint-disable-next-line no-console
-  console.warn('[server] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY')
+  console.warn(
+    '[server] Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY — copy .env.example → .env.local, add keys from Supabase Dashboard → Settings → API, then restart (npm run dev:all)',
+  )
 }
 
 function requireSupabase(res) {

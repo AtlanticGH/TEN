@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { readSupabaseServerEnv } from '../../server/supabaseEnv.js'
 
 function json(res, status, body) {
   res.statusCode = status
@@ -23,8 +24,7 @@ function isStaffRole(role) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'Method not allowed' })
 
-  const SUPABASE_URL = getEnv('SUPABASE_URL')
-  const SUPABASE_SERVICE_ROLE_KEY = getEnv('SUPABASE_SERVICE_ROLE_KEY')
+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = readSupabaseServerEnv()
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return json(res, 500, { ok: false, error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })
   }

@@ -48,6 +48,26 @@ let ok = true
 
 console.log(`\nProduction verify: ${base}\n`)
 
+// Detect client bundle pointing at a different Supabase project than expected.
+const expectedProject = 'aidcfsxtjcnzqkzumtwt'
+try {
+  const homeRes = await fetch(`${base}/`)
+  const homeHtml = await homeRes.text()
+  const jsMatch = homeHtml.match(/src="(\/assets\/index-[^"]+\.js)"/)
+  if (jsMatch) {
+    const jsRes = await fetch(`${base}${jsMatch[1]}`)
+    const js = await jsRes.text()
+    const urlMatch = js.match(/https:\/\/([a-z0-9]+)\.supabase\.co/)
+    if (urlMatch && urlMatch[1] !== expectedProject) {
+      console.log(
+        `⚠ Client bundle uses Supabase project "${urlMatch[1]}" — set VITE_SUPABASE_* on Vercel to project "${expectedProject}" and redeploy.`,
+      )
+    }
+  }
+} catch {
+  // non-fatal
+}
+
 for (const c of checks) {
   const url = `${base}${c.path}`
   try {

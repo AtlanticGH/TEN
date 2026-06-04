@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { readSupabaseServerEnv } from '../../server/supabaseEnv.js'
 import crypto from 'node:crypto'
 import { sendApprovedEmail } from '../../lib/email.js'
 
@@ -54,8 +55,7 @@ export default async function handler(req, res) {
   const ip = (req.headers['x-forwarded-for'] || '').toString().split(',')[0].trim() || 'unknown'
   if (!rateLimit(ip, 'approve', 10, 60_000)) return json(res, 429, { ok: false, error: 'Too many requests' })
 
-  const SUPABASE_URL = getEnv('SUPABASE_URL')
-  const SUPABASE_SERVICE_ROLE_KEY = getEnv('SUPABASE_SERVICE_ROLE_KEY')
+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = readSupabaseServerEnv()
   const SITE_URL = getEnv('SITE_URL') || 'http://localhost:5173'
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return json(res, 500, { ok: false, error: 'Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY' })

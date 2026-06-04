@@ -26,19 +26,12 @@ const CmsDynamicPage = lazy(() => import('./pages/CmsDynamicPage').then((m) => (
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLogin').then((m) => ({ default: m.AdminLoginPage })))
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
 const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverview').then((m) => ({ default: m.AdminOverviewPage })))
-const AdminPagesLayout = lazy(() => import('./pages/admin/AdminPagesLayout').then((m) => ({ default: m.AdminPagesLayout })))
 const AdminPageSlugRedirect = lazy(() =>
   import('./pages/admin/AdminPageSlugRedirect').then((m) => ({ default: m.AdminPageSlugRedirect })),
 )
 const AdminMediaPage = lazy(() => import('./pages/admin/AdminMedia').then((m) => ({ default: m.AdminMediaPage })))
 const AdminGlobalSettingsPage = lazy(() =>
   import('./pages/admin/AdminGlobalSettings').then((m) => ({ default: m.AdminGlobalSettingsPage })),
-)
-const AdminPagesManagerPage = lazy(() =>
-  import('./pages/admin/AdminPagesManager').then((m) => ({ default: m.AdminPagesManagerPage })),
-)
-const AdminPageBuilderPage = lazy(() =>
-  import('./pages/admin/AdminPageBuilder').then((m) => ({ default: m.AdminPageBuilderPage })),
 )
 const AdminGalleryPage = lazy(() =>
   import('./pages/admin/AdminGallery').then((m) => ({ default: m.AdminGalleryPage })),
@@ -102,28 +95,19 @@ const router = createBrowserRouter([
       { path: 'people', element: <AdminPeoplePage /> },
       { path: 'resources', element: <AdminResourcesPage /> },
       { path: 'gallery', element: <AdminGalleryPage /> },
-      { path: 'pages/manage', element: <AdminPagesManagerPage /> },
+      { path: 'pages/manage', element: <Navigate to="/admin/overview" replace /> },
       { path: 'pages/gallery/builder', element: <Navigate to="/admin/gallery" replace /> },
-      { path: 'pages/:pageSlug/builder', element: <AdminPageBuilderPage /> },
+      { path: 'pages/:pageSlug/builder', element: <Navigate to="/admin/overview" replace /> },
+      { path: 'pages/:pageSlug', element: <AdminPageSlugRedirect /> },
+      { path: 'pages', element: <Navigate to="/admin/overview" replace /> },
       { path: 'navigation', element: <AdminNavigationPage /> },
       { path: 'users', element: <AdminUsersPage /> },
       { path: 'blog', element: <Navigate to="/admin/gallery" replace /> },
       { path: 'media', element: <AdminMediaPage /> },
-      {
-        path: 'pages',
-        element: <AdminPagesLayout />,
-        children: [
-          { index: true, element: <Navigate to="/admin/pages/manage" replace /> },
-          { path: 'media', element: <AdminMediaPage /> },
-          { path: 'gallery/builder', element: <Navigate to="/admin/gallery" replace /> },
-          { path: ':pageSlug/builder', element: <AdminPageBuilderPage /> },
-          { path: ':pageSlug', element: <AdminPageSlugRedirect /> },
-        ],
-      },
       { path: 'settings', element: <AdminGlobalSettingsPage /> },
       { path: 'content', element: <Navigate to="/admin/home" replace /> },
       { path: 'hero', element: <Navigate to="/admin/heroes" replace /> },
-      { path: 'sections', element: <Navigate to="/admin/pages/manage" replace /> },
+      { path: 'sections', element: <Navigate to="/admin/overview" replace /> },
       { path: 'courses', element: <Navigate to="/admin/overview" replace /> },
       { path: 'courses/:courseId/edit', element: <Navigate to="/admin/overview" replace /> },
       { path: 'applications', element: <Navigate to="/admin/overview" replace /> },

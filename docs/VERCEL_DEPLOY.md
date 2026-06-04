@@ -34,6 +34,20 @@ Dashboard → **Authentication** → **URL Configuration**:
 
 Deployments → latest → **Redeploy** → enable **Use existing Build Cache** off if env just changed.
 
+## Troubleshooting: `Server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY`
+
+The API serverless function has no Supabase credentials at runtime.
+
+1. Vercel → Project → **Settings** → **Environment Variables**
+2. Add (or fix) for **Production** and **Preview**:
+   - `SUPABASE_URL` = `https://aidcfsxtjcnzqkzumtwt.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY` = service_role secret (not anon)
+3. **All four** Supabase vars must be from the **same** project:
+   - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+4. **Redeploy** with **Use existing Build Cache** turned **off**.
+
+If public pages load but admin fails, the client bundle may still point at an old Supabase project — update `VITE_*` vars and redeploy.
+
 ## Troubleshooting: `Invalid API key`
 
 The server env is set but Supabase rejected the key. In Vercel, fix:

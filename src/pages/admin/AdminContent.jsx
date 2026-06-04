@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { ImageUrlField } from '../../components/admin/ImageUrlField'
+import { VideoUrlField } from '../../components/admin/VideoUrlField'
+import { HomeLegacyHero } from '../../components/home/HomeLegacyHero'
 import {
   ADMIN_BTN_PRIMARY,
   ADMIN_FIELD_LABEL,
@@ -15,6 +17,8 @@ import {
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
 import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO, HOME_HERO_KEY } from '../../config/siteContentDefaults'
+import { useAuth } from '../../hooks/useAuth'
+import { canEditContent } from '../../lib/rbac'
 import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
 import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
 
@@ -29,15 +33,14 @@ function Field({ label, children, hint }) {
 }
 
 export function AdminContentPage() {
-  const nested = useLocation().pathname.includes('/admin/pages/')
+  const { profile } = useAuth()
+  const canEdit = canEditContent(profile?.role)
   const queryClient = useQueryClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [value, setValue] = useState(EMPTY_HOME_HERO)
-
-  const previewBg = useMemo(() => value.background_image, [value.background_image])
 
   useEffect(() => {
     let alive = true
@@ -64,33 +67,31 @@ export function AdminContentPage() {
   }, [])
 
   if (loading) {
-    const sk = (
-      <>
+    return (
+      <DashboardPage>
         <DashboardSkeleton className="h-8 w-48" />
         <DashboardSkeleton className="h-96" />
-      </>
+      </DashboardPage>
     )
-    return nested ? sk : <DashboardPage>{sk}</DashboardPage>
   }
 
-  const body = (
-    <>
-      {!nested ? (
-        <DashboardPageIntro
-          label="Home hero"
-          title="Homepage hero"
-          description="Edit the main homepage hero without deploying code."
-        />
-      ) : null}
+  return (
+    <DashboardPage>
+      <DashboardPageIntro
+        label="Home hero"
+        title="Homepage hero"
+        description="Edit the homepage hero copy, background image, and optional background video."
+      />
 
       {error ? <DashboardAlert message={error} /> : null}
       <DashboardNotice message={notice} />
 
-      <DashboardSplit className="lg:grid-cols-[1fr_0.9fr]">
+      <DashboardSplit className="lg:grid-cols-[1fr_0.95fr]">
         <form
           className="space-y-4"
           onSubmit={async (e) => {
             e.preventDefault()
+            if (!canEdit) return
             setSaving(true)
             setError('')
             setNotice('')
@@ -108,8 +109,9 @@ export function AdminContentPage() {
           <Field label="Home hero badge">
             <input
               value={value.badge}
+              disabled={!canEdit}
               onChange={(e) => setValue((v) => ({ ...v, badge: e.target.value }))}
-              className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+              className={ADMIN_INPUT_CLASS}
             />
           </Field>
 
@@ -117,15 +119,17 @@ export function AdminContentPage() {
             <Field label="Headline (before emphasis)">
               <input
                 value={value.headline_before}
+                disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, headline_before: e.target.value }))}
-                className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={ADMIN_INPUT_CLASS}
               />
             </Field>
             <Field label="Headline (emphasis)">
               <input
                 value={value.headline_emphasis}
+                disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, headline_emphasis: e.target.value }))}
-                className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={ADMIN_INPUT_CLASS}
               />
             </Field>
           </div>
@@ -133,41 +137,46 @@ export function AdminContentPage() {
           <Field label="Description">
             <textarea
               value={value.description}
+              disabled={!canEdit}
               onChange={(e) => setValue((v) => ({ ...v, description: e.target.value }))}
-              className="min-h-28 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+              className={ADMIN_TEXTAREA_CLASS}
+              rows={4}
             />
           </Field>
 
-          <Field label="Background image URL" hint="Image or video poster. Use a media-library URL or a local /assets path. Prefer 1600–2400px wide.">
-            <input
-              value={value.background_image}
-              onChange={(e) => setValue((v) => ({ ...v, background_image: e.target.value }))}
-              className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
-            />
-          </Field>
+          <ImageUrlField
+            label="Background image"
+            value={value.background_image}
+            disabled={!canEdit}
+            uploadFolder="cms"
+            onChange={(url) => setValue((v) => ({ ...v, background_image: url }))}
+          />
+          <p className="text-xs text-zinc-500">Poster and fallback when no video is set. Prefer 1600–2400px wide.</p>
 
-          <Field label="Background video URL (optional)" hint="If set, the hero plays this video (muted, looping) with the image above as its poster/fallback. Upload a video in Media, then paste its URL.">
-            <input
-              value={value.background_video || ''}
-              onChange={(e) => setValue((v) => ({ ...v, background_video: e.target.value }))}
-              className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
-              placeholder="e.g. /assets/videos/hero.mp4"
-            />
-          </Field>
+          <VideoUrlField
+            label="Background video (optional)"
+            value={value.background_video || ''}
+            disabled={!canEdit}
+            uploadFolder="cms"
+            onChange={(url) => setValue((v) => ({ ...v, background_video: url }))}
+          />
+          <p className="text-xs text-zinc-500">Plays muted and looping over the image poster. Upload in Media library or paste a URL.</p>
 
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Primary CTA label">
               <input
                 value={value.cta_primary_label}
+                disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, cta_primary_label: e.target.value }))}
-                className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={ADMIN_INPUT_CLASS}
               />
             </Field>
             <Field label="Primary CTA link">
               <input
                 value={value.cta_primary_href}
+                disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, cta_primary_href: e.target.value }))}
-                className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={ADMIN_INPUT_CLASS}
               />
             </Field>
           </div>
@@ -176,54 +185,44 @@ export function AdminContentPage() {
             <Field label="Secondary CTA label">
               <input
                 value={value.cta_secondary_label}
+                disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, cta_secondary_label: e.target.value }))}
-                className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={ADMIN_INPUT_CLASS}
               />
             </Field>
             <Field label="Secondary CTA link">
               <input
                 value={value.cta_secondary_href}
+                disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, cta_secondary_href: e.target.value }))}
-                className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 dark:border-zinc-700 dark:bg-zinc-950/30"
+                className={ADMIN_INPUT_CLASS}
               />
             </Field>
           </div>
 
-          <button type="submit" disabled={saving} className={`w-full ${ADMIN_BTN_PRIMARY} disabled:opacity-60`}>
-            {saving ? 'Saving…' : 'Save changes'}
-          </button>
+          {canEdit ? (
+            <button type="submit" disabled={saving} className={`w-full ${ADMIN_BTN_PRIMARY} disabled:opacity-60`}>
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+          ) : null}
         </form>
 
         <DashboardPanel className="lg:sticky lg:top-24 lg:self-start">
           <p className={ADMIN_FIELD_LABEL}>Preview</p>
+          <p className="mt-1 text-xs text-zinc-500">Matches the live homepage hero.</p>
           <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800">
-            <div
-              className="relative h-56 bg-cover bg-center"
-              style={{ backgroundImage: `url('${previewBg}')` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-zinc-950/90" />
-              <div className="relative p-5">
-                <p className="inline-block rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-white backdrop-blur">
-                  {value.badge}
-                </p>
-                <p className="mt-3 text-lg font-semibold text-white">
-                  {value.headline_before}{' '}
-                  <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-orange-600 bg-clip-text text-transparent">
-                    {value.headline_emphasis}
-                  </span>
-                </p>
-                <p className="mt-2 text-xs text-white/90 line-clamp-3">{value.description}</p>
-              </div>
-            </div>
+            <HomeLegacyHero heroCopy={value} preview />
           </div>
-          <p className="mt-3 text-xs text-zinc-500">
-            This is a lightweight preview. Check the real homepage after saving.
-          </p>
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-block text-sm font-medium text-orange-600 hover:text-orange-500"
+          >
+            View homepage →
+          </a>
         </DashboardPanel>
       </DashboardSplit>
-    </>
+    </DashboardPage>
   )
-
-  return nested ? body : <DashboardPage>{body}</DashboardPage>
 }
-

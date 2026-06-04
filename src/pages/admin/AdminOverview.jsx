@@ -14,7 +14,6 @@ import { apiFetch } from '@/lib/apiClient'
 import { getCmsSummary } from '../../services/cms/pages'
 
 const QUICK_LINKS = [
-  ['All pages', '/admin/pages/manage'],
   ['Homepage hero', '/admin/home'],
   ['Programs page', '/admin/programs'],
   ['Page heroes', '/admin/heroes'],
@@ -58,8 +57,7 @@ export function AdminOverviewPage() {
     return (
       <DashboardPage>
         <DashboardSkeleton className="h-7 w-40" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <DashboardSkeleton className="h-24" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <DashboardSkeleton className="h-24" />
           <DashboardSkeleton className="h-24" />
           <DashboardSkeleton className="h-24" />
@@ -80,10 +78,9 @@ export function AdminOverviewPage() {
     <DashboardPage>
       <DashboardPageIntro label="Dashboard" title="Content overview" description="Published content and recent CMS activity." />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <DashboardMetricTile label="Pages" value={summary?.pages ?? 0} />
-        <DashboardMetricTile label="Content blocks" value={summary?.page_blocks ?? 0} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <DashboardMetricTile label="Media assets" value={summary?.media_assets ?? 0} />
+        <DashboardMetricTile label="Blog posts" value={summary?.blog_posts ?? 0} />
         <DashboardMetricTile label="Pending applications" value={summary?.applications_pending ?? 0} />
       </div>
 
