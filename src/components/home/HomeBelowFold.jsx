@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
+import { TorchbearerSection } from '../marketing/TorchbearerSection'
 import { Reveal } from '../shared/Reveal'
+import { useHomeTorchbearer } from '../../hooks/usePeopleContent'
+import { HomeWhoStatsBar } from './HomeWhoStatsBar'
 import {
   HOME_BENEFITS,
   HOME_CONTAINER,
@@ -11,8 +14,6 @@ import {
   HOME_SECTION_PAD,
   HOME_TESTIMONIALS,
   HOME_TIERS,
-  HOME_TORCHBEARER_STATS,
-  HOME_WHO_STATS,
 } from './homeContentData.jsx'
 
 function CheckIcon() {
@@ -32,6 +33,8 @@ function CheckIcon() {
 
 /** Marketing home sections below the hero (Spark → Join CTA). */
 export function HomeBelowFold() {
+  const { data: torchbearer } = useHomeTorchbearer()
+
   return (
     <>
       <section className={`bg-gradient-to-br from-zinc-950 via-zinc-900 to-orange-700 ${HOME_SECTION_PAD}`}>
@@ -65,7 +68,7 @@ export function HomeBelowFold() {
         </div>
       </section>
 
-      <section className={`bg-white ${HOME_SECTION_PAD} dark:bg-zinc-950`}>
+      <section className="bg-white pt-20 pb-0 md:pt-28 lg:pt-32 dark:bg-zinc-950">
         <div className={HOME_CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className={HOME_EYEBROW}>Who We Are</span>
@@ -127,51 +130,11 @@ export function HomeBelowFold() {
             ))}
           </div>
         </div>
-
-        <div className="mt-20 bg-gradient-to-r from-zinc-900 to-zinc-800 py-12">
-          <div className={`${HOME_CONTAINER} grid grid-cols-2 gap-8 md:grid-cols-4`}>
-            {HOME_WHO_STATS.map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <p className="text-3xl font-black text-orange-400 md:text-4xl">{value}</p>
-                <p className="mt-2 text-xs uppercase tracking-[0.18em] text-zinc-300">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
-      <section className={`bg-gradient-to-br from-zinc-50 to-orange-50/50 ${HOME_SECTION_PAD} dark:from-zinc-900 dark:to-zinc-950`}>
-        <div className={HOME_CONTAINER}>
-          <Reveal className="flex flex-col items-center gap-10 lg:flex-row lg:items-stretch lg:gap-14">
-            <div className="flex w-full justify-center lg:w-1/2 lg:justify-start">
-              <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-800 lg:mx-0 lg:h-full lg:w-auto lg:max-w-none">
-                <img
-                  src="/assets/images/1573496359142-b8d87734a5a2.jpg"
-                  alt="Portrait of Maud Lindsay-Gamrat, founder of The Ember Network"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-            <div className="w-full lg:flex lg:w-1/2 lg:flex-col lg:justify-center">
-              <span className={HOME_EYEBROW}>Leadership</span>
-              <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>Meet the Torchbearer</h2>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">Maud Lindsay-Gamrat</p>
-              <p className="mt-2 text-[16px] text-orange-600 dark:text-orange-400">
-                Entrepreneur. Mentor. Builder of Possibilities.
-              </p>
-              <p className="mt-1 text-[15px] italic text-zinc-500 dark:text-zinc-400">The Flame Behind the Vision</p>
-              <div className="mt-8 grid grid-cols-2 gap-6 border-t border-zinc-200 pt-8 dark:border-zinc-800 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-                {HOME_TORCHBEARER_STATS.map(({ value, label }) => (
-                  <div key={label}>
-                    <p className="text-2xl font-black text-orange-500">{value}</p>
-                    <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-zinc-500 dark:text-zinc-400">{label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </div>
+      <section id="home-stats-torchbearer" data-section="stats-torchbearer" className="mt-20 overflow-hidden">
+        <HomeWhoStatsBar />
+        <TorchbearerSection content={torchbearer} embedded />
       </section>
 
       <section className="bg-gradient-to-br from-zinc-950 via-zinc-900 to-orange-700 py-24">

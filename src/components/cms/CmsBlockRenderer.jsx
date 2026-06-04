@@ -248,8 +248,9 @@ function CtaBlock({ content }) {
 function StatsBlock({ content }) {
   const items = content?.items || []
   const dark = content?.variant === 'dark' || content?.style === 'dark'
+  const Tag = dark ? 'div' : 'section'
   return (
-    <section className={dark ? 'bg-gradient-to-r from-zinc-900 to-zinc-800 py-12' : 'mx-auto max-w-7xl px-8 py-16 md:px-12'}>
+    <Tag className={dark ? 'bg-gradient-to-r from-zinc-900 to-zinc-800 py-12' : 'mx-auto max-w-7xl px-8 py-16 md:px-12'}>
       <div className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-4 ${dark ? 'mx-auto max-w-7xl px-6 sm:px-8 lg:px-10' : ''}`}>
         {items.map((item, i) => (
           <div
@@ -269,7 +270,7 @@ function StatsBlock({ content }) {
           </div>
         ))}
       </div>
-    </section>
+    </Tag>
   )
 }
 
