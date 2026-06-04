@@ -22,6 +22,7 @@ const checks = [
     hintOn500: 'Set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY in Vercel (Production + Preview) and redeploy.',
   },
   {
+    name: 'API healthz',
     path: '/api/healthz',
     expectStatus: 200,
     expectBody: (t) => t.trim() === 'ok' || (() => { try { return JSON.parse(t).ok !== false } catch { return false } })(),

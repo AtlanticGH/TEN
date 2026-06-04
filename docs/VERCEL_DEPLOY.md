@@ -46,6 +46,8 @@ The API serverless function has no Supabase credentials at runtime.
    - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 4. **Redeploy** with **Use existing Build Cache** turned **off**.
 
+Note: `SUPABASE_SERVICE_ROLE_KEY` is used at **API runtime** only (not during the Vite frontend build). After deploy, check `GET /api/env-status` returns `"ok": true`.
+
 If public pages load but admin fails, the client bundle may still point at an old Supabase project — update `VITE_*` vars and redeploy.
 
 ## Troubleshooting: `Invalid API key`

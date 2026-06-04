@@ -41,14 +41,14 @@ function manualChunks(id) {
 
 const EXPECTED_SUPABASE_PROJECT = 'aidcfsxtjcnzqkzumtwt'
 
-/** Fail Vercel builds when Supabase env vars are missing or point at the wrong project. */
+/** Fail Vercel builds when client Supabase env is wrong. Server keys are checked at API runtime. */
 function assertVercelSupabaseEnv() {
   return {
     name: 'assert-vercel-supabase-env',
     buildStart() {
       if (!process.env.VERCEL) return
 
-      const url = String(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim()
+      const url = String(process.env.VITE_SUPABASE_URL || '').trim()
       const anon = String(process.env.VITE_SUPABASE_ANON_KEY || '').trim()
       const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim()
 
@@ -63,8 +63,10 @@ function assertVercelSupabaseEnv() {
         )
       }
       if (!serviceKey) {
-        throw new Error(
-          'Vercel build: SUPABASE_SERVICE_ROLE_KEY is missing. Add the service_role secret for Production + Preview in Vercel, then redeploy.',
+        // Service role is server-only — often unavailable during Vite build on Vercel.
+        // Runtime API routes validate via /api/env-status and /api/healthz.
+        console.warn(
+          '[build] SUPABASE_SERVICE_ROLE_KEY not visible at build time — ensure it is set for Production + Preview in Vercel (required for /api/* at runtime).',
         )
       }
     },
