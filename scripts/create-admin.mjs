@@ -58,8 +58,27 @@ if (existing?.user_id) {
     console.error('Profile update failed:', upErr.message)
     process.exit(1)
   }
+  const { error: pwdErr } = await supabase.auth.admin.updateUserById(existing.user_id, {
+    password,
+    email_confirm: true,
+  })
+  if (pwdErr) {
+    console.error('Password update failed:', pwdErr.message)
+    process.exit(1)
+  }
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY?.trim()
+  const pubUrl = process.env.VITE_SUPABASE_URL?.trim() || url
+  if (anonKey) {
+    const pub = createClient(pubUrl, anonKey, { auth: { persistSession: false } })
+    const { error: verifyErr } = await pub.auth.signInWithPassword({ email, password })
+    if (verifyErr) {
+      console.error('Login verification failed:', verifyErr.message)
+      console.error('Check VITE_SUPABASE_ANON_KEY matches this project.')
+      process.exit(1)
+    }
+  }
   const origin = devOrigin()
-  console.log(`Promoted existing user to ${role}: ${email}`)
+  console.log(`Updated ${role} password and profile: ${email}`)
   console.log(`Login at ${origin}/admin`)
   process.exit(0)
 }
