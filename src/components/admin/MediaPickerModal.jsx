@@ -9,19 +9,39 @@ import {
   adminFilterPillClass,
 } from '../dashboard/DashboardChrome'
 import { Dialog } from '../ui/Dialog'
+import { useAuth } from '../../hooks/useAuth'
 import { MEDIA_LIBRARY_FOLDERS } from '../../lib/mediaAssetTypes'
-import { getPublicAssetUrl, listMediaAssets, uploadMediaFile } from '../../services/mediaAssets'
+import { canEditContent } from '../../lib/rbac'
+import {
+  confirmDeleteMediaAsset,
+  deleteMediaAsset,
+  getPublicAssetUrl,
+  listMediaAssets,
+  uploadMediaFile,
+} from '../../services/mediaAssets'
 
 /**
  * Modal grid to pick or upload an image/video; returns a public URL.
  */
-export function MediaPickerModal({ open, onClose, onSelect, accept = 'image/*', uploadFolder = 'cms' }) {
+export function MediaPickerModal({
+  open,
+  onClose,
+  onSelect,
+  accept = 'image/*',
+  uploadFolder = 'cms',
+  allowDelete = true,
+}) {
+  const { profile } = useAuth()
+  const canEdit = canEditContent(profile?.role)
+  const canDelete = allowDelete && canEdit
+
   const [loading, setLoading] = useState(false)
   const [items, setItems] = useState([])
   const [query, setQuery] = useState('')
   const [folder, setFolder] = useState(uploadFolder || 'cms')
   const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [deletingId, setDeletingId] = useState('')
 
   const videoMode = String(accept || '').includes('video')
 
@@ -52,6 +72,21 @@ export function MediaPickerModal({ open, onClose, onSelect, accept = 'image/*', 
     const t = setTimeout(() => refresh(), query ? 240 : 0)
     return () => clearTimeout(t)
   }, [open, refresh, query])
+
+  const removeAsset = async (asset) => {
+    if (!canDelete || !asset?.id) return
+    if (!confirmDeleteMediaAsset(asset)) return
+    setDeletingId(asset.id)
+    setError('')
+    try {
+      await deleteMediaAsset(asset)
+      await refresh()
+    } catch (err) {
+      setError(err?.message || 'Delete failed.')
+    } finally {
+      setDeletingId('')
+    }
+  }
 
   const emptyHint = useMemo(() => {
     const folderLabel = MEDIA_LIBRARY_FOLDERS.find((f) => f.id === folder)?.label || folder
@@ -86,32 +121,34 @@ export function MediaPickerModal({ open, onClose, onSelect, accept = 'image/*', 
           <button type="button" className={ADMIN_BTN_SECONDARY} onClick={refresh} disabled={loading}>
             Refresh
           </button>
-          <label className={`${ADMIN_BTN_PRIMARY} cursor-pointer`}>
-            {uploading ? 'Uploading…' : 'Upload new'}
-            <input
-              type="file"
-              accept={accept}
-              className="sr-only"
-              disabled={uploading}
-              onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
-                setUploading(true)
-                setError('')
-                try {
-                  const asset = await uploadMediaFile({ file, folder: folder || uploadFolder || 'cms' })
-                  const url = getPublicAssetUrl({ asset })
-                  if (url) onSelect(url)
-                  onClose()
-                } catch (err) {
-                  setError(err?.message || 'Upload failed.')
-                } finally {
-                  setUploading(false)
-                  e.target.value = ''
-                }
-              }}
-            />
-          </label>
+          {canEdit ? (
+            <label className={`${ADMIN_BTN_PRIMARY} cursor-pointer`}>
+              {uploading ? 'Uploading…' : 'Upload new'}
+              <input
+                type="file"
+                accept={accept}
+                className="sr-only"
+                disabled={uploading}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setUploading(true)
+                  setError('')
+                  try {
+                    const asset = await uploadMediaFile({ file, folder: folder || uploadFolder || 'cms' })
+                    const url = getPublicAssetUrl({ asset })
+                    if (url) onSelect(url)
+                    onClose()
+                  } catch (err) {
+                    setError(err?.message || 'Upload failed.')
+                  } finally {
+                    setUploading(false)
+                    e.target.value = ''
+                  }
+                }}
+              />
+            </label>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -127,6 +164,12 @@ export function MediaPickerModal({ open, onClose, onSelect, accept = 'image/*', 
           ))}
         </div>
 
+        {canDelete ? (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Click a thumbnail to select it, or use Delete to remove an uploaded file from the library.
+          </p>
+        ) : null}
+
         {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
 
         {loading ? (
@@ -136,20 +179,35 @@ export function MediaPickerModal({ open, onClose, onSelect, accept = 'image/*', 
             {items.map((a) => {
               const url = a.public_url || getPublicAssetUrl({ asset: a })
               return (
-                <button
+                <div
                   key={a.id}
-                  type="button"
-                  className="overflow-hidden rounded-lg border border-zinc-200 bg-white text-left transition hover:border-orange-400 dark:border-zinc-700 dark:bg-zinc-900"
-                  onClick={() => {
-                    onSelect(url)
-                    onClose()
-                  }}
+                  className="relative overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
                 >
-                  <MediaAssetThumb asset={a} className="h-28 w-full" />
-                  <p className="px-2 py-2 text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                    {a.title || a.path?.split('/').pop()}
-                  </p>
-                </button>
+                  {canDelete ? (
+                    <button
+                      type="button"
+                      title="Delete"
+                      disabled={deletingId === a.id}
+                      onClick={() => removeAsset(a)}
+                      className="absolute right-2 top-2 z-10 rounded-md bg-rose-600 px-2 py-1 text-[11px] font-semibold text-white shadow hover:bg-rose-500 disabled:opacity-60"
+                    >
+                      {deletingId === a.id ? '…' : 'Delete'}
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="block w-full text-left transition hover:border-orange-400"
+                    onClick={() => {
+                      onSelect(url)
+                      onClose()
+                    }}
+                  >
+                    <MediaAssetThumb asset={a} className="h-28 w-full" />
+                    <p className="px-2 py-2 text-xs font-medium text-zinc-800 dark:text-zinc-200">
+                      {a.title || a.path?.split('/').pop()}
+                    </p>
+                  </button>
+                </div>
               )
             })}
           </div>

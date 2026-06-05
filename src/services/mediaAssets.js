@@ -121,5 +121,13 @@ export async function updateMediaAsset(id, patch) {
 }
 
 export async function deleteMediaAsset(asset) {
-  await apiFetch(`/api/admin/media-assets/${encodeURIComponent(asset.id)}`, { method: 'DELETE' })
+  if (!asset?.id) throw new Error('Missing asset id')
+  return await apiFetch(`/api/admin/media-assets/${encodeURIComponent(asset.id)}`, { method: 'DELETE' })
+}
+
+export function confirmDeleteMediaAsset(asset) {
+  const name = asset?.title || asset?.path?.split('/').pop() || 'this file'
+  return window.confirm(
+    `Delete "${name}"?\n\nThis permanently removes the file from storage and the media library. Any page still using its URL will need a new image or video.`,
+  )
 }

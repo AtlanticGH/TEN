@@ -25,12 +25,15 @@ import {
   resolveAssetFolder,
 } from '../../lib/mediaAssetTypes'
 import {
+  confirmDeleteMediaAsset,
   deleteMediaAsset,
   getPublicAssetUrl,
   listMediaAssets,
   updateMediaAsset,
   uploadMediaFile,
 } from '../../services/mediaAssets'
+import { useAuth } from '../../hooks/useAuth'
+import { canEditContent } from '../../lib/rbac'
 
 function parseTags(raw) {
   return String(raw || '')
@@ -41,6 +44,8 @@ function parseTags(raw) {
 }
 
 export function AdminMediaPage() {
+  const { profile } = useAuth()
+  const canEdit = canEditContent(profile?.role)
   const nested = useLocation().pathname.includes('/admin/pages/')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -91,7 +96,7 @@ export function AdminMediaPage() {
   }, [items])
 
   const uploadFile = async (file) => {
-    if (!file) return
+    if (!file || !canEdit) return
     setError('')
     setNotice('')
     setBusy('upload')
@@ -113,13 +118,31 @@ export function AdminMediaPage() {
     }
   }
 
+  const removeAsset = async (asset, { closeDialog = false } = {}) => {
+    if (!canEdit || !asset?.id) return
+    if (!confirmDeleteMediaAsset(asset)) return
+    setBusy('delete')
+    setError('')
+    setNotice('')
+    try {
+      await deleteMediaAsset(asset)
+      setNotice('Deleted.')
+      if (closeDialog) setOpenId('')
+      await refresh()
+    } catch (err) {
+      setError(err?.message || 'Delete failed.')
+    } finally {
+      setBusy('')
+    }
+  }
+
   const body = (
     <>
       {!nested ? (
         <DashboardPageIntro
           label="Media"
           title="Media library"
-          description="Upload and organize images, videos, and PDFs. Pick assets from here in Programs, Page heroes, Gallery, and Resources editors."
+          description="Upload and organize images, videos, and PDFs. Click an asset to edit or delete it."
         />
       ) : null}
 
@@ -267,7 +290,7 @@ export function AdminMediaPage() {
             bordered={false}
             label="Library"
             title={`${items.length} asset${items.length === 1 ? '' : 's'}`}
-            description="Click a card to edit metadata or copy the public URL."
+            description="Click a card to edit metadata, copy the URL, or delete the file."
           />
 
           {loading ? (
@@ -278,33 +301,48 @@ export function AdminMediaPage() {
                 const folder = resolveAssetFolder(a)
                 const kind = mediaAssetKind(a)
                 return (
-                  <button
+                  <div
                     key={a.id}
-                    type="button"
-                    onClick={() => {
-                      setOpenId(a.id)
-                      setEdit({
-                        title: a.title || '',
-                        alt: a.alt || '',
-                        tags: (a.tags || []).join(', '),
-                        folder,
-                      })
-                    }}
-                    className="rounded-lg border border-zinc-200 bg-white p-3 text-left shadow-sm transition hover:border-orange-400 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
+                    className="relative rounded-lg border border-zinc-200 bg-white shadow-sm transition hover:border-orange-400 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900"
                   >
-                    <MediaAssetThumb asset={a} className="h-32 w-full" />
-                    <p className="mt-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                      {a.title || a.path?.split('/').pop() || 'Untitled'}
-                    </p>
-                    <p className="mt-1 break-all text-xs text-zinc-600 dark:text-zinc-400">{a.path}</p>
-                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                      <span className="font-medium text-zinc-700 dark:text-zinc-300">{folder}</span>
-                      {' · '}
-                      {kind}
-                      {' · '}
-                      {formatMediaBytes(a.size_bytes)}
-                    </p>
-                  </button>
+                    {canEdit ? (
+                      <button
+                        type="button"
+                        title="Delete"
+                        disabled={busy === 'delete'}
+                        onClick={() => removeAsset(a)}
+                        className="absolute right-2 top-2 z-10 rounded-md bg-rose-600 px-2 py-1 text-[11px] font-semibold text-white shadow hover:bg-rose-500 disabled:opacity-60"
+                      >
+                        Delete
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenId(a.id)
+                        setEdit({
+                          title: a.title || '',
+                          alt: a.alt || '',
+                          tags: (a.tags || []).join(', '),
+                          folder,
+                        })
+                      }}
+                      className="block w-full p-3 text-left"
+                    >
+                      <MediaAssetThumb asset={a} className="h-32 w-full" />
+                      <p className="mt-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        {a.title || a.path?.split('/').pop() || 'Untitled'}
+                      </p>
+                      <p className="mt-1 break-all text-xs text-zinc-600 dark:text-zinc-400">{a.path}</p>
+                      <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                        <span className="font-medium text-zinc-700 dark:text-zinc-300">{folder}</span>
+                        {' · '}
+                        {kind}
+                        {' · '}
+                        {formatMediaBytes(a.size_bytes)}
+                      </p>
+                    </button>
+                  </div>
                 )
               })}
             </div>
@@ -324,55 +362,46 @@ export function AdminMediaPage() {
         footer={
           selected ? (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                disabled={busy === 'delete'}
-                onClick={async () => {
-                  if (!confirm('Delete this asset? This removes it from storage and the database.')) return
-                  setBusy('delete')
-                  setError('')
-                  setNotice('')
-                  try {
-                    await deleteMediaAsset(selected)
-                    setNotice('Deleted.')
-                    setOpenId('')
-                    await refresh()
-                  } catch (err) {
-                    setError(err?.message || 'Delete failed.')
-                  } finally {
-                    setBusy('')
-                  }
-                }}
-                className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-60"
-              >
-                {busy === 'delete' ? 'Deleting…' : 'Delete'}
-              </button>
-              <button
-                type="button"
-                disabled={busy === 'save'}
-                onClick={async () => {
-                  setBusy('save')
-                  setError('')
-                  setNotice('')
-                  try {
-                    await updateMediaAsset(selected.id, {
-                      title: edit.title.trim() || null,
-                      alt: edit.alt.trim() || null,
-                      tags: parseTags(edit.tags),
-                      folder: edit.folder || 'general',
-                    })
-                    setNotice('Saved.')
-                    await refresh()
-                  } catch (err) {
-                    setError(err?.message || 'Save failed.')
-                  } finally {
-                    setBusy('')
-                  }
-                }}
-                className={`${ADMIN_BTN_PRIMARY} disabled:opacity-60`}
-              >
-                {busy === 'save' ? 'Saving…' : 'Save'}
-              </button>
+              {canEdit ? (
+                <button
+                  type="button"
+                  disabled={busy === 'delete'}
+                  onClick={() => removeAsset(selected, { closeDialog: true })}
+                  className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-60"
+                >
+                  {busy === 'delete' ? 'Deleting…' : 'Delete'}
+                </button>
+              ) : (
+                <span />
+              )}
+              {canEdit ? (
+                <button
+                  type="button"
+                  disabled={busy === 'save'}
+                  onClick={async () => {
+                    setBusy('save')
+                    setError('')
+                    setNotice('')
+                    try {
+                      await updateMediaAsset(selected.id, {
+                        title: edit.title.trim() || null,
+                        alt: edit.alt.trim() || null,
+                        tags: parseTags(edit.tags),
+                        folder: edit.folder || 'general',
+                      })
+                      setNotice('Saved.')
+                      await refresh()
+                    } catch (err) {
+                      setError(err?.message || 'Save failed.')
+                    } finally {
+                      setBusy('')
+                    }
+                  }}
+                  className={`${ADMIN_BTN_PRIMARY} disabled:opacity-60`}
+                >
+                  {busy === 'save' ? 'Saving…' : 'Save'}
+                </button>
+              ) : null}
             </div>
           ) : null
         }

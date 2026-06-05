@@ -714,7 +714,13 @@ app.delete('/api/admin/media-assets/:id', verifyUser, requireStaff, async (req, 
     const id = String(req.params.id || '')
     const { data: row, error: getErr } = await supabase.from('media_assets').select('*').eq('id', id).single()
     if (getErr) throw getErr
-    await supabase.storage.from(row.bucket || 'public').remove([row.path]).catch(() => {})
+
+    const bucket = row.bucket || 'public'
+    const { error: storageErr } = await supabase.storage.from(bucket).remove([row.path])
+    if (storageErr && !/not found|object not found|does not exist/i.test(storageErr.message)) {
+      throw new Error(`Storage delete failed: ${storageErr.message}`)
+    }
+
     const { error } = await supabase.from('media_assets').delete().eq('id', id)
     if (error) throw error
     res.json({ ok: true })
