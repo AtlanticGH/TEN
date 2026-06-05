@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { HeroHeadline, HeroHeadlineLines } from '../home/HeroHeadlineLines'
 
 const ORANGE_GRADIENT = { backgroundImage: 'linear-gradient(135deg, #F97316, #FBBF24)' }
 
@@ -33,15 +34,16 @@ export function HomeGatewayHero({ content }) {
           {c.badge ? (
             <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">{c.badge}</p>
           ) : null}
-          <h1 className="text-[clamp(1.875rem,4.5vw,3.5rem)] font-black leading-[1.12] tracking-tight text-white">
-            {c.headline_before ? <span className="block pb-0.5">{c.headline_before}</span> : null}
-            {c.headline_emphasis ? (
-              <span className="block bg-clip-text pb-1 text-transparent" style={{ ...ORANGE_GRADIENT, WebkitBackgroundClip: 'text' }}>
-                {c.headline_emphasis}
-              </span>
-            ) : (
-              c.headline ? <span className="block">{c.headline}</span> : null
-            )}
+          <h1 className="text-[clamp(1.875rem,4.5vw,3.5rem)] font-black leading-[1.08] tracking-tight text-white">
+            <HeroHeadline
+              before={c.headline_before}
+              emphasis={c.headline_emphasis}
+              emphasisClassName="bg-clip-text text-transparent"
+              emphasisStyle={{ ...ORANGE_GRADIENT, WebkitBackgroundClip: 'text' }}
+            />
+            {!c.headline_before && !c.headline_emphasis && c.headline ? (
+              <HeroHeadlineLines text={c.headline} />
+            ) : null}
           </h1>
           {c.description || c.subheadline ? (
             <p className="mt-7 max-w-[640px] text-[17px] leading-[1.7] text-zinc-200/90">{c.description || c.subheadline}</p>

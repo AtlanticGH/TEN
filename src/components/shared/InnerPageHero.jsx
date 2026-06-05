@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
+import { HeroHeadlineLines } from '../home/HeroHeadlineLines'
 import { LAYOUT_CONTAINER, SITE_HERO_OFFSET } from '../layout/headerTokens'
 import { fadeUp, heroBgTransition, heroStagger } from '../../lib/motion'
 
@@ -20,9 +21,9 @@ export function InnerPageHero({ badge, heading, description, image, actions, cla
       )}
       <motion.h1
         variants={fadeUp}
-        className="max-w-[660px] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold leading-[1.06] tracking-[-0.02em] text-white"
+        className="max-w-[660px] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold leading-[1.08] tracking-[-0.02em] text-white"
       >
-        {heading}
+        <HeroHeadlineLines text={heading} />
       </motion.h1>
       {description && (
         <motion.p
@@ -69,8 +70,8 @@ export function InnerPageHero({ badge, heading, description, image, actions, cla
                 {badge}
               </p>
             )}
-            <h1 className="max-w-[660px] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold leading-[1.06] tracking-[-0.02em] text-white">
-              {heading}
+            <h1 className="max-w-[660px] text-[clamp(1.8rem,5vw,3.5rem)] font-extrabold leading-[1.08] tracking-[-0.02em] text-white">
+              <HeroHeadlineLines text={heading} />
             </h1>
             {description && (
               <p className="mt-5 max-w-[520px] text-[15px] leading-[1.65] text-zinc-200/80 md:text-base">

@@ -5,6 +5,38 @@ import { Reveal } from '../../shared/Reveal'
 const CONTAINER = 'mx-auto max-w-7xl px-6 sm:px-8 lg:px-10'
 const EYEBROW = 'text-xs uppercase tracking-[0.18em] text-orange-500'
 
+function splitParagraphs(body) {
+  return String(body || '')
+    .split('\n\n')
+    .map((p) => p.trim())
+    .filter(Boolean)
+}
+
+export function VisionMissionSection({ vision, mission }) {
+  const visionParas = splitParagraphs(vision?.body)
+  const missionParas = splitParagraphs(mission?.body)
+  return (
+    <section id="vision-mission" data-section="vision-mission" className={`${CONTAINER} grid gap-10 py-20 lg:grid-cols-2`}>
+      <Reveal as="article" className="rounded-2xl border border-zinc-200 p-8 dark:border-zinc-800">
+        <h2 className="text-2xl font-semibold">{vision?.title || 'Vision'}</h2>
+        {visionParas.map((p, i) => (
+          <p key={i} className={`text-zinc-600 dark:text-zinc-300 ${i === 0 ? 'mt-4' : 'mt-4'}`}>
+            {p}
+          </p>
+        ))}
+      </Reveal>
+      <Reveal as="article" className="rounded-2xl border border-zinc-200 p-8 dark:border-zinc-800">
+        <h2 className="text-2xl font-semibold">{mission?.title || 'Mission'}</h2>
+        {missionParas.map((p, i) => (
+          <p key={i} className={`text-zinc-600 dark:text-zinc-300 ${i === 0 ? 'mt-4' : 'mt-4'}`}>
+            {p}
+          </p>
+        ))}
+      </Reveal>
+    </section>
+  )
+}
+
 export function FireListSection({ content }) {
   const items = content?.items || []
   return (

@@ -23,6 +23,9 @@ export function AdminLayout() {
       <DashboardNavLink to="/admin/programs" onNavigate={onNavigate}>
         Programs
       </DashboardNavLink>
+      <DashboardNavLink to="/admin/about" onNavigate={onNavigate}>
+        About page
+      </DashboardNavLink>
       <DashboardNavLink to="/admin/applications" onNavigate={onNavigate}>
         Applications
       </DashboardNavLink>
@@ -53,7 +56,7 @@ export function AdminLayout() {
     <MainDashboardLayout
       workspaceLabel="CMS"
       workspaceTitle="Content management"
-      workspaceDescription="Manage homepage, media, gallery, navigation, and site settings."
+      workspaceDescription="Manage homepage, about page, media, gallery, navigation, and site settings."
       mobileMenuTitle="CMS menu"
       renderNav={renderNav}
       bannerActions={

@@ -194,8 +194,7 @@ body {
 /* Legacy class — home hero uses Tailwind gradient with text-orange-300 fallback */
 .ten-hero-emphasis {
   color: #fdba74;
-  line-height: 1.15;
-  padding-bottom: 0.06em;
+  line-height: 1.08;
 }
 
 /* Hero copy stays on its own layer above background/overlay (no visual change) */

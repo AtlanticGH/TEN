@@ -5,6 +5,8 @@
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 import { DEFAULT_PAGE_HEROES, pageHeroKey } from '../src/config/pageHeroDefaults.js'
+import { DEFAULT_ABOUT_PAGE_CONTENT, ABOUT_PAGE_CONTENT_KEY } from '../src/config/aboutContentDefaults.js'
+import { DEFAULT_ABOUT_FOUNDER, DEFAULT_ABOUT_TEAM, ABOUT_FOUNDER_KEY, ABOUT_TEAM_KEY } from '../src/config/peopleContentDefaults.js'
 import { DEFAULT_PROGRAMS_PAGE_CONTENT, PROGRAMS_PAGE_CONTENT_KEY } from '../src/config/programsContentDefaults.js'
 import { DEFAULT_HOME_HERO, HOME_HERO_KEY } from '../src/config/siteContentDefaults.js'
 
@@ -25,6 +27,9 @@ const supabase = createClient(url, key, {
 const rows = [
   { key: HOME_HERO_KEY, value: DEFAULT_HOME_HERO },
   { key: PROGRAMS_PAGE_CONTENT_KEY, value: DEFAULT_PROGRAMS_PAGE_CONTENT },
+  { key: ABOUT_PAGE_CONTENT_KEY, value: DEFAULT_ABOUT_PAGE_CONTENT },
+  { key: ABOUT_FOUNDER_KEY, value: DEFAULT_ABOUT_FOUNDER },
+  { key: ABOUT_TEAM_KEY, value: DEFAULT_ABOUT_TEAM },
   ...Object.entries(DEFAULT_PAGE_HEROES).map(([slug, hero]) => ({
     key: pageHeroKey(slug),
     value: hero,

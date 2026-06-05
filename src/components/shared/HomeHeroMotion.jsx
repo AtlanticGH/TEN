@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
+import { HeroHeadline } from '../home/HeroHeadlineLines'
 import { fadeUp, heroBgTransition, heroStagger } from '../../lib/motion'
 
 function HeroCtas({ heroCopy, reduceMotion }) {
@@ -76,14 +77,14 @@ export function HomeHeroMotion({ heroCopy, bg }) {
           {(heroCopy.headline_before || heroCopy.headline_emphasis) ? (
             <motion.h1
               variants={reduceMotion ? undefined : fadeUp}
-              className="ten-home-headline text-[clamp(2rem,6vw,4.25rem)] font-extrabold leading-[1.04] text-white ten-hero-text-shadow"
+              className="ten-home-headline text-[clamp(2rem,6vw,4.25rem)] font-extrabold leading-[1.08] text-white ten-hero-text-shadow"
             >
-              {heroCopy.headline_before ? (
-                <span className="ten-home-headline-line block text-white">{heroCopy.headline_before}</span>
-              ) : null}
-              {heroCopy.headline_emphasis ? (
-                <span className="ten-home-headline-emphasis ten-hero-emphasis mt-1 block font-extrabold">{heroCopy.headline_emphasis}</span>
-              ) : null}
+              <HeroHeadline
+                before={heroCopy.headline_before}
+                emphasis={heroCopy.headline_emphasis}
+                lineClassName="text-white"
+                emphasisClassName="ten-home-headline-emphasis ten-hero-emphasis font-extrabold"
+              />
             </motion.h1>
           ) : (
             <motion.h1 variants={reduceMotion ? undefined : fadeUp} className="text-3xl font-bold text-white">

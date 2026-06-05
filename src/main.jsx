@@ -45,6 +45,7 @@ const AdminPageHeroesPage = lazy(() =>
   import('./pages/admin/AdminPageHeroes').then((m) => ({ default: m.AdminPageHeroesPage })),
 )
 const AdminProgramsPage = lazy(() => import('./pages/admin/AdminPrograms').then((m) => ({ default: m.AdminProgramsPage })))
+const AdminAboutPage = lazy(() => import('./pages/admin/AdminAbout').then((m) => ({ default: m.AdminAboutPage })))
 const AdminPeoplePage = lazy(() => import('./pages/admin/AdminPeople').then((m) => ({ default: m.AdminPeoplePage })))
 const AdminResourcesPage = lazy(() =>
   import('./pages/admin/AdminResources').then((m) => ({ default: m.AdminResourcesPage })),
@@ -107,6 +108,7 @@ const router = createBrowserRouter([
       { path: 'home', element: <AdminContentPage /> },
       { path: 'heroes', element: <AdminPageHeroesPage /> },
       { path: 'programs', element: <AdminProgramsPage /> },
+      { path: 'about', element: <AdminAboutPage /> },
       { path: 'people', element: <AdminPeoplePage /> },
       { path: 'resources', element: <AdminResourcesPage /> },
       { path: 'gallery', element: <AdminGalleryPage /> },

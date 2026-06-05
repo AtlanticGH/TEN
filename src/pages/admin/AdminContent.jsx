@@ -117,19 +117,23 @@ export function AdminContentPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Headline (before emphasis)">
-              <input
+              <textarea
                 value={value.headline_before}
                 disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, headline_before: e.target.value }))}
-                className={ADMIN_INPUT_CLASS}
+                className={ADMIN_TEXTAREA_CLASS}
+                rows={2}
+                placeholder="One line per row"
               />
             </Field>
             <Field label="Headline (emphasis)">
-              <input
+              <textarea
                 value={value.headline_emphasis}
                 disabled={!canEdit}
                 onChange={(e) => setValue((v) => ({ ...v, headline_emphasis: e.target.value }))}
-                className={ADMIN_INPUT_CLASS}
+                className={ADMIN_TEXTAREA_CLASS}
+                rows={2}
+                placeholder="One line per row"
               />
             </Field>
           </div>

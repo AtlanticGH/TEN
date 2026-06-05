@@ -3,9 +3,9 @@ export const ABOUT_TEAM_KEY = 'about.team.v1'
 export const HOME_TORCHBEARER_KEY = 'home.torchbearer.v1'
 
 export const DEFAULT_SOCIAL_LINKS = [
-  { label: 'LinkedIn', href: 'https://www.linkedin.com' },
-  { label: 'Instagram', href: 'https://www.instagram.com' },
-  { label: 'Facebook', href: 'https://www.facebook.com' },
+  { label: 'Instagram', href: 'https://www.instagram.com/theembernetwork' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/theembernetwork' },
+  { label: 'Facebook', href: 'https://www.facebook.com/theembernetwork' },
 ]
 
 export const DEFAULT_ABOUT_FOUNDER = {

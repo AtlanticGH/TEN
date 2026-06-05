@@ -3,8 +3,8 @@ export const HOME_HERO_KEY = 'home.hero.v1'
 /** Canonical home hero copy — used as merge fallback and CMS bootstrap default. */
 export const DEFAULT_HOME_HERO = {
   badge: 'A COMMUNITY OF IGNITION & EMPOWERMENT',
-  headline_before: 'Small sparks ignite',
-  headline_emphasis: 'big dreams at The Ember Network',
+  headline_before: 'Here, Small Sparks Ignite',
+  headline_emphasis: 'Big Dreams',
   description:
     'We help aspiring entrepreneurs and early-stage founders transform bold ideas into lasting ventures through mentorship, structured learning, and meaningful connections.',
   cta_primary_label: 'Apply for Membership',
