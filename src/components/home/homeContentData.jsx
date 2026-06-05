@@ -194,17 +194,16 @@ export const HOME_SECTION_PAD = 'py-20 md:py-28 lg:py-32'
 export const HOME_CONTAINER = 'mx-auto max-w-7xl px-6 sm:px-8 lg:px-10'
 
 /** Orange “Join The Movement” CTA band — shared compact layout */
-export const MOVEMENT_CTA_PAD = 'py-12 md:py-16'
+export const MOVEMENT_CTA_PAD = 'py-6 md:py-8'
 export const MOVEMENT_CTA_GRADIENT = `bg-gradient-to-br from-orange-600 to-orange-500 ${MOVEMENT_CTA_PAD}`
 export const MOVEMENT_CTA_SOLID = `bg-[#F97316] ${MOVEMENT_CTA_PAD}`
-export const MOVEMENT_CTA_EYEBROW = 'mb-3 block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-100'
-export const MOVEMENT_CTA_HEADLINE = 'mb-4 text-3xl font-black leading-tight tracking-tight text-white md:text-4xl'
+export const MOVEMENT_CTA_EYEBROW = 'mb-1.5 block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-100'
+export const MOVEMENT_CTA_HEADLINE = 'mb-2 text-3xl font-black leading-tight tracking-tight text-white md:text-4xl'
 export const MOVEMENT_CTA_BODY = 'mx-auto max-w-[640px] text-base leading-relaxed text-orange-50/95'
-export const MOVEMENT_CTA_ACTIONS = 'mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center sm:gap-3'
+export const MOVEMENT_CTA_ACTIONS = 'mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center sm:gap-2.5'
 export const MOVEMENT_CTA_BTN_PRIMARY =
-  'inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-bold text-orange-600 transition-all duration-200 ease-out hover:bg-orange-50 active:scale-[0.98] sm:w-auto'
+  'inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-1.5 text-xs font-bold text-orange-600 transition-all duration-200 ease-out hover:bg-orange-50 active:scale-[0.98] sm:w-auto'
 export const MOVEMENT_CTA_BTN_SECONDARY =
-  'inline-flex w-full items-center justify-center rounded-full border-2 border-white px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 ease-out hover:bg-white/10 active:scale-[0.98] sm:w-auto'
-export const MOVEMENT_CTA_FOOTNOTE = 'mt-5 text-xs font-medium text-orange-50/95'
+  'inline-flex w-full items-center justify-center rounded-full border border-white px-4 py-1.5 text-xs font-bold text-white transition-all duration-200 ease-out hover:bg-white/10 active:scale-[0.98] sm:w-auto'
 export const HOME_EYEBROW = 'block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-500 mb-4'
 export const HOME_HEADLINE = 'text-4xl md:text-5xl font-black leading-tight tracking-tight mb-6'

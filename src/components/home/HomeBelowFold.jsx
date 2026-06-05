@@ -14,6 +14,13 @@ import {
   HOME_SECTION_PAD,
   HOME_TESTIMONIALS,
   HOME_TIERS,
+  MOVEMENT_CTA_ACTIONS,
+  MOVEMENT_CTA_BODY,
+  MOVEMENT_CTA_BTN_PRIMARY,
+  MOVEMENT_CTA_BTN_SECONDARY,
+  MOVEMENT_CTA_EYEBROW,
+  MOVEMENT_CTA_GRADIENT,
+  MOVEMENT_CTA_HEADLINE,
 } from './homeContentData.jsx'
 
 function CheckIcon() {
@@ -300,34 +307,23 @@ export function HomeBelowFold() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-orange-600 to-orange-500 py-20 md:py-28 lg:py-32">
+      <section className={MOVEMENT_CTA_GRADIENT}>
         <div className={`${HOME_CONTAINER} text-center`}>
           <Reveal className="mx-auto max-w-3xl">
-            <span className="mb-4 block text-[11px] font-bold uppercase tracking-[0.2em] text-orange-100">Join The Movement</span>
-            <h2 className="mb-6 text-4xl font-black leading-tight tracking-tight text-white md:text-5xl">
-              The Future Needs Builders Like You
-            </h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-orange-50/95">
+            <span className={MOVEMENT_CTA_EYEBROW}>Join The Movement</span>
+            <h2 className={MOVEMENT_CTA_HEADLINE}>The Future Needs Builders Like You</h2>
+            <p className={MOVEMENT_CTA_BODY}>
               Your ideas matter. Your vision deserves guidance. Your future deserves community. The Ember Network exists
               to help ambitious entrepreneurs ignite their potential and build lasting impact.
             </p>
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
-              <Link
-                to="/community"
-                className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-white px-8 py-4 text-[15px] font-bold text-orange-600 transition-all duration-200 ease-out hover:bg-orange-50 active:scale-[0.98] sm:w-auto"
-              >
+            <div className={MOVEMENT_CTA_ACTIONS}>
+              <Link to="/community" className={MOVEMENT_CTA_BTN_PRIMARY}>
                 Become An Ember
               </Link>
-              <Link
-                to="/community"
-                className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border-2 border-white px-8 py-4 text-[15px] font-bold text-white transition-all duration-200 ease-out hover:bg-white/10 active:scale-[0.98] sm:w-auto"
-              >
+              <Link to="/community" className={MOVEMENT_CTA_BTN_SECONDARY}>
                 Join The Network
               </Link>
             </div>
-            <p className="mt-8 text-sm font-medium text-orange-50/95">
-              info@theembernetwork.com &middot; +233 50 940 4673 &middot; www.theembernetwork.com
-            </p>
           </Reveal>
         </div>
       </section>

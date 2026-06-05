@@ -6,7 +6,6 @@ import {
   MOVEMENT_CTA_BTN_PRIMARY,
   MOVEMENT_CTA_BTN_SECONDARY,
   MOVEMENT_CTA_EYEBROW,
-  MOVEMENT_CTA_FOOTNOTE,
   MOVEMENT_CTA_HEADLINE,
   MOVEMENT_CTA_SOLID,
 } from '../components/home/homeContentData.jsx'
@@ -259,7 +258,6 @@ function JoinCommunityPageContent() {
                 Talk To Us
               </Link>
             </div>
-            <p className={MOVEMENT_CTA_FOOTNOTE}>info@theembernetwork.com &middot; +233 50 940 4673</p>
           </Reveal>
         </div>
       </section>
