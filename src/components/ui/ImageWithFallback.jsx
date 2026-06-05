@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export function ImageWithFallback({
   src,
@@ -17,8 +17,13 @@ export function ImageWithFallback({
     return list.filter(Boolean)
   }, [fallbackSrc])
 
-  const [currentSrc, setCurrentSrc] = useState(src)
+  const [currentSrc, setCurrentSrc] = useState(src || '')
   const [fallbackIndex, setFallbackIndex] = useState(0)
+
+  useEffect(() => {
+    setCurrentSrc(src || '')
+    setFallbackIndex(0)
+  }, [src])
 
   const onError = () => {
     if (fallbackIndex >= fallbacks.length) return
@@ -26,6 +31,8 @@ export function ImageWithFallback({
     setFallbackIndex((i) => i + 1)
     setCurrentSrc(next)
   }
+
+  if (!currentSrc) return null
 
   return (
     <img
