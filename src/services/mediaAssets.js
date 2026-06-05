@@ -1,7 +1,9 @@
 import { apiFetch, publicApiFetch } from '@/lib/apiClient'
+import { getSupabase } from '@/lib/supabaseClient'
 import { buildPublicStorageUrl, resolveMediaAssetUrl } from '@/lib/storageUrls'
 
 const DEFAULT_BUCKET = 'public'
+const PROXY_UPLOAD_MAX_BYTES = 4 * 1024 * 1024
 
 function sanitizeFilename(name) {
   return String(name || '')
@@ -10,6 +12,11 @@ function sanitizeFilename(name) {
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9._-]/g, '')
     .slice(0, 120) || 'file'
+}
+
+function uploadPath(folder, filename) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  return `${String(folder || 'uploads').replace(/^\/+|\/+$/g, '')}/${stamp}-${filename}`
 }
 
 export function getPublicAssetUrl({ bucket = DEFAULT_BUCKET, path, asset }) {
@@ -43,8 +50,23 @@ export async function listMediaAssets({ limit = 100, query = '', folder = '', ty
   return await apiFetch(`/api/admin/media-assets?${params.toString()}`, { method: 'GET' })
 }
 
-export async function uploadMediaFile({ file, folder = 'uploads', title = '', alt = '', tags = [] } = {}) {
-  if (!file) throw new Error('Missing file')
+async function registerMediaAsset({ bucket, path, folder, mimeType, sizeBytes, title, alt, tags }) {
+  return await apiFetch('/api/admin/media-assets/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      bucket,
+      path,
+      folder,
+      mime_type: mimeType,
+      size_bytes: sizeBytes,
+      title,
+      alt,
+      tags: Array.isArray(tags) ? tags : [],
+    }),
+  })
+}
+
+async function uploadViaApiProxy({ file, folder, title, alt, tags }) {
   const safe = sanitizeFilename(file.name)
   const buf = await file.arrayBuffer()
   return await apiFetch(
@@ -59,6 +81,41 @@ export async function uploadMediaFile({ file, folder = 'uploads', title = '', al
   )
 }
 
+/** Upload large/video files directly to Supabase storage, then register in media_assets. */
+async function uploadDirectToStorage({ file, folder, title, alt, tags }) {
+  const safe = sanitizeFilename(file.name)
+  const path = uploadPath(folder, safe)
+  const supabase = getSupabase()
+  const { error: upErr } = await supabase.storage.from(DEFAULT_BUCKET).upload(path, file, {
+    contentType: file.type || 'application/octet-stream',
+    upsert: false,
+  })
+  if (upErr) throw new Error(upErr.message)
+
+  return registerMediaAsset({
+    bucket: DEFAULT_BUCKET,
+    path,
+    folder,
+    mimeType: file.type || 'application/octet-stream',
+    sizeBytes: file.size,
+    title: title || file.name,
+    alt,
+    tags,
+  })
+}
+
+export async function uploadMediaFile({ file, folder = 'uploads', title = '', alt = '', tags = [] } = {}) {
+  if (!file) throw new Error('Missing file')
+
+  const isVideo = String(file.type || '').startsWith('video/')
+  const useDirect = isVideo || file.size > PROXY_UPLOAD_MAX_BYTES
+
+  if (useDirect) {
+    return uploadDirectToStorage({ file, folder, title, alt, tags })
+  }
+  return uploadViaApiProxy({ file, folder, title, alt, tags })
+}
+
 export async function updateMediaAsset(id, patch) {
   return await apiFetch(`/api/admin/media-assets/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(patch || {}) })
 }
@@ -66,4 +123,3 @@ export async function updateMediaAsset(id, patch) {
 export async function deleteMediaAsset(asset) {
   await apiFetch(`/api/admin/media-assets/${encodeURIComponent(asset.id)}`, { method: 'DELETE' })
 }
-

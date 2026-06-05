@@ -2,17 +2,36 @@ import { getSupabase } from '@/lib/supabaseClient'
 import { apiUrl } from '@/lib/apiBase'
 
 const API_TIMEOUT_MS = 20_000
+const UPLOAD_TIMEOUT_MS = 5 * 60_000
+
+function isUploadBody(body) {
+  return body instanceof ArrayBuffer || body instanceof Blob
+}
+
+function requestTimeoutMs(body) {
+  return isUploadBody(body) ? UPLOAD_TIMEOUT_MS : API_TIMEOUT_MS
+}
 
 async function fetchWithTimeout(url, init = {}) {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), API_TIMEOUT_MS)
+  const timeoutMs = requestTimeoutMs(init.body)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
     return await fetch(url, { ...init, signal: controller.signal })
   } catch (err) {
     if (err?.name === 'AbortError') {
-      const timeoutErr = new Error('Request timed out — is the API server running? (npm run dev:all)')
+      const timeoutErr = new Error(
+        isUploadBody(init.body)
+          ? 'Upload timed out — try a smaller file (max 25 MB) or check your connection.'
+          : 'Request timed out — is the API server running? (npm run dev:all)',
+      )
       timeoutErr.cause = err
       throw timeoutErr
+    }
+    if (err?.message?.includes('Failed to fetch') || err?.message?.includes('NetworkError')) {
+      throw new Error(
+        'API server is not running. Stop dev:all (Ctrl+C) and run npm run dev:all again, or run npm start on port 3000.',
+      )
     }
     throw err
   } finally {

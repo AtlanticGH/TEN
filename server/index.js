@@ -196,27 +196,34 @@ const ALLOWED_UPLOAD_MIME = new Map([
   ['image/webp', { ext: ['webp'], maxBytes: 10 * 1024 * 1024 }],
   ['image/svg+xml', { ext: ['svg'], maxBytes: 1 * 1024 * 1024 }],
   ['application/pdf', { ext: ['pdf'], maxBytes: 25 * 1024 * 1024 }],
+  ['video/mp4', { ext: ['mp4'], maxBytes: 25 * 1024 * 1024 }],
+  ['video/webm', { ext: ['webm'], maxBytes: 25 * 1024 * 1024 }],
+  ['video/quicktime', { ext: ['mov'], maxBytes: 25 * 1024 * 1024 }],
 ])
 
-function validateUpload(req) {
-  const rawType = String(req.headers['content-type'] || '').toLowerCase()
-  const contentType = rawType.split(';')[0].trim()
+function validateUploadMeta(contentType, size, filename = '') {
   const spec = ALLOWED_UPLOAD_MIME.get(contentType)
   if (!spec) {
     return { error: `Unsupported content-type: ${contentType || 'unknown'}` }
   }
-  const size = Buffer.isBuffer(req.body) ? req.body.length : 0
   if (size <= 0) return { error: 'Empty upload body' }
   if (size > spec.maxBytes) {
     const mb = Math.floor(spec.maxBytes / 1024 / 1024)
     return { error: `File exceeds ${mb}MB limit for ${contentType}` }
   }
-  const filename = String(req.query?.filename || '')
-  const ext = (filename.split('.').pop() || '').toLowerCase()
+  const ext = (String(filename).split('.').pop() || '').toLowerCase()
   if (filename && ext && !spec.ext.includes(ext)) {
     return { error: `Filename extension ".${ext}" does not match content-type ${contentType}` }
   }
   return { contentType, size }
+}
+
+function validateUpload(req) {
+  const rawType = String(req.headers['content-type'] || '').toLowerCase()
+  const contentType = rawType.split(';')[0].trim()
+  const size = Buffer.isBuffer(req.body) ? req.body.length : 0
+  const filename = String(req.query?.filename || '')
+  return validateUploadMeta(contentType, size, filename)
 }
 
 async function requireStaff(req, res, next) {
@@ -633,6 +640,54 @@ app.post(
     }
   },
 )
+
+app.post('/api/admin/media-assets/register', verifyUser, requireStaff, async (req, res) => {
+  try {
+    const p = req.body && typeof req.body === 'object' ? req.body : {}
+    const bucket = String(p.bucket || 'public')
+    const path = String(p.path || '').replace(/^\/+/, '')
+    const folder = String(p.folder || 'uploads').replace(/^\/+|\/+$/g, '')
+    const filename = path.split('/').pop() || 'file'
+    const contentType = String(p.mime_type || p.contentType || '').split(';')[0].trim().toLowerCase()
+    const size = Number(p.size_bytes || p.size || 0)
+    const title = String(p.title || '')
+    const alt = String(p.alt || '')
+    const tags = Array.isArray(p.tags)
+      ? p.tags.map((t) => String(t).trim()).filter(Boolean).slice(0, 20)
+      : String(p.tags || '')
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+
+    if (!path) return res.status(400).json({ error: 'Missing path' })
+    if (bucket !== 'public') return res.status(400).json({ error: 'Only public bucket registrations are supported' })
+
+    const v = validateUploadMeta(contentType, size, filename)
+    if (v.error) return res.status(400).json({ error: v.error })
+
+    const { data, error } = await supabase
+      .from('media_assets')
+      .insert({
+        bucket,
+        path,
+        folder: folder || 'general',
+        mime_type: contentType || null,
+        size_bytes: size || null,
+        title: title || filename,
+        alt: alt || null,
+        tags,
+      })
+      .select('*')
+      .single()
+    if (error) throw error
+    res.json({
+      ...data,
+      public_url: publicObjectUrl(data.bucket || 'public', data.path),
+    })
+  } catch (err) {
+    res.status(400).json({ error: err?.message || 'Register media error' })
+  }
+})
 
 app.put('/api/admin/media-assets/:id', verifyUser, requireStaff, async (req, res) => {
   try {

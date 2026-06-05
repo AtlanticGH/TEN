@@ -187,7 +187,7 @@ export function AdminMediaPage() {
             bordered={false}
             label="Upload"
             title="Add new file"
-            description="Max 25 MB. Images, videos, and PDFs go to the public bucket."
+            description="Max 25 MB. Images and PDFs via API; videos upload directly to storage (MP4, WebM, MOV)."
           />
           <div className="mt-4 space-y-4">
             <label className="block">
