@@ -1,7 +1,7 @@
 # Supabase CLI — The Ember Network
 
-**Project ref:** `aidcfsxtjcnzqkzumtwt`  
-**URL:** `https://aidcfsxtjcnzqkzumtwt.supabase.co`
+**Project ref:** `zygkofiiurlsnrkcmaya`  
+**URL:** `https://zygkofiiurlsnrkcmaya.supabase.co`
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ supabase --version                   # expect 2.x
 
 ```bash
 supabase login
-supabase link --project-ref aidcfsxtjcnzqkzumtwt
+supabase link --project-ref zygkofiiurlsnrkcmaya
 ```
 
 Use your **database password** from:  
@@ -67,9 +67,9 @@ Public marketing copy is edited in **Admin → Website content** (`site_content`
 ## Env vars (`.env` / `.env.local`)
 
 ```env
-VITE_SUPABASE_URL=https://aidcfsxtjcnzqkzumtwt.supabase.co
+VITE_SUPABASE_URL=https://zygkofiiurlsnrkcmaya.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon key from dashboard>
-SUPABASE_URL=https://aidcfsxtjcnzqkzumtwt.supabase.co
+SUPABASE_URL=https://zygkofiiurlsnrkcmaya.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service role — server only, never commit>
 ```
 

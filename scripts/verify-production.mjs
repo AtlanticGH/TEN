@@ -63,7 +63,7 @@ let ok = true
 console.log(`\nProduction verify: ${base}\n`)
 
 // Detect client bundle pointing at a different Supabase project than expected.
-const expectedProject = 'aidcfsxtjcnzqkzumtwt'
+const expectedProject = 'zygkofiiurlsnrkcmaya'
 try {
   const homeRes = await fetch(`${base}/`)
   const homeHtml = await homeRes.text()

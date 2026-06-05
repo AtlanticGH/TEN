@@ -39,7 +39,7 @@ function manualChunks(id) {
   return undefined
 }
 
-const EXPECTED_SUPABASE_PROJECT = 'aidcfsxtjcnzqkzumtwt'
+const EXPECTED_SUPABASE_PROJECT = 'zygkofiiurlsnrkcmaya'
 
 /** Fail Vercel builds when client Supabase env is wrong. Server keys are checked at API runtime. */
 function assertVercelSupabaseEnv() {

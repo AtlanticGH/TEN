@@ -1,6 +1,6 @@
 # Vercel deployment checklist
 
-**Supabase project:** `aidcfsxtjcnzqkzumtwt` — https://aidcfsxtjcnzqkzumtwt.supabase.co  
+**Supabase project:** `zygkofiiurlsnrkcmaya` — https://zygkofiiurlsnrkcmaya.supabase.co  
 **Production URL:** https://ember-network-qc25.vercel.app
 
 > After switching Supabase projects, update **all** Vercel env vars to match local `.env` (URL + anon + service_role from the **same** project).
@@ -11,7 +11,7 @@ Vercel → Project → **Settings** → **Environment Variables** → add for **
 
 | Variable | Notes |
 |----------|--------|
-| `VITE_SUPABASE_URL` | `https://aidcfsxtjcnzqkzumtwt.supabase.co` |
+| `VITE_SUPABASE_URL` | `https://zygkofiiurlsnrkcmaya.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | Supabase Dashboard → API → anon |
 | `SUPABASE_URL` | Same as `VITE_SUPABASE_URL` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (secret) — server only |
@@ -40,7 +40,7 @@ The API serverless function has no Supabase credentials at runtime.
 
 1. Vercel → Project → **Settings** → **Environment Variables**
 2. Add (or fix) for **Production** and **Preview**:
-   - `SUPABASE_URL` = `https://aidcfsxtjcnzqkzumtwt.supabase.co`
+   - `SUPABASE_URL` = `https://zygkofiiurlsnrkcmaya.supabase.co`
    - `SUPABASE_SERVICE_ROLE_KEY` = service_role secret (not anon)
 3. **All four** Supabase vars must be from the **same** project:
    - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
@@ -55,11 +55,11 @@ If public pages load but admin fails, the client bundle may still point at an ol
 The server env is set but Supabase rejected the key. In Vercel, fix:
 
 1. `SUPABASE_SERVICE_ROLE_KEY` must be the **service_role** secret (not `anon`).
-2. `SUPABASE_URL` must be `https://aidcfsxtjcnzqkzumtwt.supabase.co` (same project as local `.env`).
+2. `SUPABASE_URL` must be `https://zygkofiiurlsnrkcmaya.supabase.co` (same project as local `.env`).
 3. No quotes or trailing spaces in values.
 4. **Redeploy** after editing env vars.
 
-Get keys: Supabase Dashboard → Project **aidcfsxtjcnzqkzumtwt** → Settings → API.
+Get keys: Supabase Dashboard → Project **zygkofiiurlsnrkcmaya** → Settings → API.
 
 ## 4. Verify
 
