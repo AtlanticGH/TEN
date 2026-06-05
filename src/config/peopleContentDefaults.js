@@ -24,6 +24,8 @@ export const DEFAULT_ABOUT_TEAM = {
   title: 'The people powering TEN',
   items: [
     {
+      name: '',
+      position: 'Program Lead',
       title: 'Program Lead',
       description: 'Designs weekly and monthly activities that keep members accountable and growth-focused.',
       image: '',
@@ -34,6 +36,8 @@ export const DEFAULT_ABOUT_TEAM = {
       ],
     },
     {
+      name: '',
+      position: 'Mentor Relations',
       title: 'Mentor Relations',
       description: 'Connects members with experienced founders, experts, and strategic advisors.',
       image: '',
@@ -44,6 +48,8 @@ export const DEFAULT_ABOUT_TEAM = {
       ],
     },
     {
+      name: '',
+      position: 'Member Engagement Lead',
       title: 'Member Engagement Lead',
       description: 'Cultivates engagement across circles, events, and founder collaboration touchpoints.',
       image: '',
@@ -54,6 +60,8 @@ export const DEFAULT_ABOUT_TEAM = {
       ],
     },
     {
+      name: '',
+      position: 'Partnerships & Growth',
       title: 'Partnerships & Growth',
       description: 'Builds ecosystem partnerships that expand opportunity for TEN members.',
       image: '',

@@ -67,17 +67,32 @@ export function TeamEditor({ team, setTeam, canEdit, saving, onSave }) {
       {(team.items || []).map((member, i) => (
         <div key={i} className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
           <p className="text-xs font-semibold uppercase text-zinc-500">Member {i + 1}</p>
-          <input
-            className={`${ADMIN_INPUT_CLASS} mt-2`}
-            placeholder="Name / role"
-            value={member.title || ''}
-            disabled={!canEdit}
-            onChange={(e) => {
-              const items = [...team.items]
-              items[i] = { ...items[i], title: e.target.value }
-              setTeam((v) => ({ ...v, items }))
-            }}
-          />
+          <Field label="Name">
+            <input
+              className={ADMIN_INPUT_CLASS}
+              placeholder="Full name"
+              value={member.name || ''}
+              disabled={!canEdit}
+              onChange={(e) => {
+                const items = [...team.items]
+                items[i] = { ...items[i], name: e.target.value }
+                setTeam((v) => ({ ...v, items }))
+              }}
+            />
+          </Field>
+          <Field label="Position">
+            <input
+              className={ADMIN_INPUT_CLASS}
+              placeholder="Job title or role"
+              value={member.position || member.title || ''}
+              disabled={!canEdit}
+              onChange={(e) => {
+                const items = [...team.items]
+                items[i] = { ...items[i], position: e.target.value, title: e.target.value }
+                setTeam((v) => ({ ...v, items }))
+              }}
+            />
+          </Field>
           <textarea
             className={`${ADMIN_TEXTAREA_CLASS} mt-2`}
             rows={3}
@@ -139,7 +154,7 @@ export function TeamEditor({ team, setTeam, canEdit, saving, onSave }) {
           onClick={() =>
             setTeam((v) => ({
               ...v,
-              items: [...(v.items || []), { title: '', description: '', image: '', image_fallback: '', social_links: [] }],
+              items: [...(v.items || []), { name: '', position: '', title: '', description: '', image: '', image_fallback: '', social_links: [] }],
             }))
           }
         >

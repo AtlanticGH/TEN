@@ -146,18 +146,21 @@ export function TeamGridSection({ content }) {
         {content?.title ? <h2 className="mt-3 text-3xl font-semibold md:text-4xl">{content.title}</h2> : null}
       </div>
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {items.map((m) => (
-          <Reveal key={m.title} as="article" className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        {items.map((m, i) => {
+          const position = m.position || m.title
+          return (
+          <Reveal key={m.name || position || i} as="article" className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <ImageWithFallback
               src={m.image || ''}
               fallbackSrc={m.image_fallback || ''}
-              alt=""
+              alt={m.name ? `Portrait of ${m.name}` : position || ''}
               className="h-64 w-full object-cover md:h-72"
               loading="lazy"
             />
             <div className="p-5">
-              <h3 className="text-lg font-semibold">{m.title}</h3>
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{m.description}</p>
+              {m.name ? <h3 className="text-lg font-semibold">{m.name}</h3> : position ? <h3 className="text-lg font-semibold">{position}</h3> : null}
+              {m.name && position ? <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{position}</p> : null}
+              {m.description ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{m.description}</p> : null}
               {(m.social_links || []).length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {m.social_links.map((s) => (
@@ -175,7 +178,8 @@ export function TeamGridSection({ content }) {
               ) : null}
             </div>
           </Reveal>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

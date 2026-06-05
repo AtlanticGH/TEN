@@ -144,7 +144,9 @@ function FeaturesBlock({ content }) {
         </div>
       )}
       <div className={`grid gap-5 ${team ? 'md:grid-cols-2 xl:grid-cols-4' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
-        {items.map((item, i) => (
+        {items.map((item, i) => {
+          const position = team ? item.position || item.title : item.title
+          return (
           <Reveal
             key={i}
             as="article"
@@ -158,19 +160,27 @@ function FeaturesBlock({ content }) {
               <ImageWithFallback
                 src={item.image}
                 fallbackSrc={item.fallback_image || ''}
-                alt={item.title || ''}
+                alt={team && item.name ? `Portrait of ${item.name}` : position || ''}
                 className={team ? 'h-64 w-full object-cover md:h-72' : 'mb-4 aspect-[4/3] w-full rounded-lg object-cover'}
                 loading="lazy"
               />
             ) : null}
             <div className={team || item.image ? 'p-5' : ''}>
-              {item.title ? <h3 className="text-lg font-semibold">{item.title}</h3> : null}
+              {team ? (
+                <>
+                  {item.name ? <h3 className="text-lg font-semibold">{item.name}</h3> : position ? <h3 className="text-lg font-semibold">{position}</h3> : null}
+                  {item.name && position ? <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{position}</p> : null}
+                </>
+              ) : position ? (
+                <h3 className="text-lg font-semibold">{position}</h3>
+              ) : null}
               {item.description ? (
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{item.description}</p>
+                <p className={`text-sm text-zinc-600 dark:text-zinc-300 ${team ? (item.name || position ? 'mt-2' : '') : position ? 'mt-2' : ''}`}>{item.description}</p>
               ) : null}
             </div>
           </Reveal>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

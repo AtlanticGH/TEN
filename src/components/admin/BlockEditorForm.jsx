@@ -146,6 +146,7 @@ export function BlockEditorForm({ blockType, content, onChange, disabled, mediaU
       const items = c.items || []
       const isFaq = blockType === 'faq'
       const isFeatures = blockType === 'features'
+      const isTeam = isFeatures && c.variant === 'team'
       return (
         <div className="mt-4 space-y-3">
           {isFeatures ? (
@@ -218,6 +219,26 @@ export function BlockEditorForm({ blockType, content, onChange, disabled, mediaU
                 </div>
               ) : (
                 <>
+                  {isTeam ? (
+                    <input
+                      className={`${ADMIN_INPUT_CLASS} mb-2`}
+                      placeholder="Name"
+                      value={item.name || ''}
+                      disabled={ro}
+                      onChange={(e) => set({ items: updateListItem(items, i, { name: e.target.value }) })}
+                    />
+                  ) : null}
+                  {isTeam ? (
+                    <input
+                      className={`${ADMIN_INPUT_CLASS} mb-2`}
+                      placeholder="Position"
+                      value={item.position || item.title || ''}
+                      disabled={ro}
+                      onChange={(e) =>
+                        set({ items: updateListItem(items, i, { position: e.target.value, title: e.target.value }) })
+                      }
+                    />
+                  ) : (
                   <input
                     className={`${ADMIN_INPUT_CLASS} mb-2`}
                     placeholder="Title"
@@ -225,6 +246,7 @@ export function BlockEditorForm({ blockType, content, onChange, disabled, mediaU
                     disabled={ro}
                     onChange={(e) => set({ items: updateListItem(items, i, { title: e.target.value }) })}
                   />
+                  )}
                   <input
                     className={`${ADMIN_INPUT_CLASS} mb-2`}
                     placeholder="Eyebrow (optional)"
