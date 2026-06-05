@@ -85,11 +85,11 @@ export function BlockEditorForm({ blockType, content, onChange, disabled, mediaU
             />
           </Field>
           <Field label="Background video URL (optional)">
-            <input
-              className={ADMIN_INPUT_CLASS}
+            <VideoUrlField
               value={c.background_video || ''}
               disabled={ro}
-              onChange={(e) => set({ background_video: e.target.value })}
+              uploadFolder={mediaFolder}
+              onChange={(url) => set({ background_video: url })}
             />
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">

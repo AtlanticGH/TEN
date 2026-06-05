@@ -1,7 +1,21 @@
 /**
  * Merge CMS JSON overrides onto defaults.
- * Empty/null/undefined values keep defaults so visible copy never blanks after fetch.
+ * Empty/null/undefined text values keep defaults so visible copy never blanks after fetch.
+ * Empty optional media/URL fields are honored so staff can clear videos and images.
  */
+const CLEARABLE_MEDIA_KEYS = new Set([
+  'background_video',
+  'background_image',
+  'image',
+  'image_fallback',
+  'video',
+  'featured_image_url',
+  'og_image_url',
+  'avatar',
+  'preview_image',
+  'fallback_image',
+])
+
 export function parseSiteContentValue(value) {
   if (value == null) return null
   if (typeof value === 'string') {
@@ -24,7 +38,10 @@ export function mergeSiteContentDefaults(defaults, override) {
   const merged = { ...defaults }
   for (const [key, value] of Object.entries(parsed)) {
     if (value === null || value === undefined) continue
-    if (typeof value === 'string' && value.trim() === '') continue
+    if (typeof value === 'string' && value.trim() === '') {
+      if (CLEARABLE_MEDIA_KEYS.has(key)) merged[key] = ''
+      continue
+    }
     if (Array.isArray(value)) {
       merged[key] = value
       continue

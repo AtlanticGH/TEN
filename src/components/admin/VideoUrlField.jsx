@@ -20,6 +20,11 @@ export function VideoUrlField({ label, value = '', onChange, disabled, uploadFol
         <button type="button" className={ADMIN_BTN_SECONDARY} disabled={disabled} onClick={() => setPickerOpen(true)}>
           Pick file
         </button>
+        {value ? (
+          <button type="button" className={ADMIN_BTN_SECONDARY} disabled={disabled} onClick={() => onChange('')}>
+            Clear
+          </button>
+        ) : null}
       </div>
       <MediaPickerModal
         open={pickerOpen}
