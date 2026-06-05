@@ -169,7 +169,7 @@ function FeaturesBlock({ content }) {
               {team ? (
                 <>
                   {item.name ? <h3 className="text-lg font-semibold">{item.name}</h3> : position ? <h3 className="text-lg font-semibold">{position}</h3> : null}
-                  {item.name && position ? <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{position}</p> : null}
+                  {item.name && position ? <p className="mt-1 text-sm font-semibold text-orange-600 dark:text-orange-400">{position}</p> : null}
                 </>
               ) : position ? (
                 <h3 className="text-lg font-semibold">{position}</h3>

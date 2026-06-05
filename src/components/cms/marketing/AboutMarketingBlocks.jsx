@@ -159,7 +159,7 @@ export function TeamGridSection({ content }) {
             />
             <div className="p-5">
               {m.name ? <h3 className="text-lg font-semibold">{m.name}</h3> : position ? <h3 className="text-lg font-semibold">{position}</h3> : null}
-              {m.name && position ? <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{position}</p> : null}
+              {m.name && position ? <p className="mt-1 text-sm font-semibold text-orange-600 dark:text-orange-400">{position}</p> : null}
               {m.description ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{m.description}</p> : null}
               {(m.social_links || []).length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
