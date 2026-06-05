@@ -112,7 +112,7 @@ export function ResetPasswordPage() {
         badge="Account"
         heading={heroHeading}
         description={heroDescription}
-        image="/assets/images/1543269664-76bc3997d9ea.jpg"
+        image=""
       />
 
       <section className="mx-auto max-w-7xl px-8 pb-16 pt-10 md:px-12 lg:px-10">

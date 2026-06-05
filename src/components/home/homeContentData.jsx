@@ -176,17 +176,17 @@ export const HOME_TESTIMONIALS = [
   {
     name: 'Future Founder',
     quote: 'Placeholder for founder transformation stories.',
-    avatar: '/assets/images/1531123897727-8f129e1688ce.jpg',
+    avatar: '',
   },
   {
     name: 'Mentor Story',
     quote: 'Placeholder for mentorship impact experiences.',
-    avatar: '/assets/images/1507003211169-0a1dd7228f2d.jpg',
+    avatar: '',
   },
   {
     name: 'Community Impact',
     quote: 'Placeholder for ventures creating social change.',
-    avatar: '/assets/images/1573497019940-1c28c88b4f3e.jpg',
+    avatar: '',
   },
 ]
 

@@ -6,7 +6,7 @@ const ORANGE_GRADIENT = { backgroundImage: 'linear-gradient(135deg, #F97316, #FB
 /** Full-viewport home hero (matches marketing HomePage gateway). */
 export function HomeGatewayHero({ content }) {
   const c = content || {}
-  const image = c.background_image || c.image || '/assets/images/1523240795612-9a054b0db644.jpg'
+  const image = c.background_image || c.image || ''
   const video = c.background_video
 
   return (
@@ -19,9 +19,9 @@ export function HomeGatewayHero({ content }) {
         <video className="absolute inset-0 h-full w-full object-cover" poster={image} autoPlay muted loop playsInline aria-hidden="true">
           <source src={video} />
         </video>
-      ) : (
+      ) : image ? (
         <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" loading="eager" fetchPriority="high" />
-      )}
+      ) : null}
       <div
         className="absolute inset-0"
         style={{

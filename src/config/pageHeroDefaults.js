@@ -19,42 +19,42 @@ export const DEFAULT_PAGE_HEROES = {
     heading: 'Who we are and why TEN exists',
     description:
       'The Ember Network is a transformative hub for emerging entrepreneurs, turning ambitious ideas into thriving enterprises through mentorship and strategic guidance.',
-    image: '/assets/images/1519389950473-47ba0277781c.jpg',
+    image: '',
   },
   programs: {
     badge: 'Programs',
     heading: 'From spark to scale',
     description:
       'Structured programs and experiences that move founders from ideation to impact — through workshops, pitch challenges, mentorship circles, and the entrepreneurial growth cycle.',
-    image: '/assets/images/1498050108023-c5249f4df085.jpg',
+    image: '',
   },
   resources: {
     badge: 'Resources',
     heading: 'Practical guides for purposeful growth',
     description:
       'Explore actionable playbooks, templates, and mentorship notes to help you move from idea to measurable progress.',
-    image: '/assets/images/1454165804606-c3d57bc86b40.jpg',
+    image: '',
   },
   contact: {
     badge: 'Contact',
     heading: 'Contact The Ember Network',
     description:
       'Reach out for membership support, mentor collaboration, and strategic partnerships within TEN.',
-    image: '/assets/images/1517048676732-d65bc937f952.jpg',
+    image: '',
   },
   gallery: {
     badge: 'Gallery',
     heading: 'Moments from the network',
     description:
       'Watch program highlights and browse photo albums from events, mentorship sessions, and community gatherings.',
-    image: '/assets/images/1531123897727-8f129e1688ce.jpg',
+    image: '',
   },
   community: {
     badge: 'Community',
     heading: 'Who Can Join TEN',
     description:
       'TEN brings together aspiring entrepreneurs, early-stage founders, and experts in one collaborative ecosystem — built for ambitious individuals ready to learn, collaborate, and grow.',
-    image: '/assets/images/1529156069898-49953e39b3ac.jpg',
+    image: '',
   },
 }
 

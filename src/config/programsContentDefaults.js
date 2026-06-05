@@ -19,7 +19,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Build the foundation behind bold ideas.',
       description:
         'Hands-on workshops designed to equip founders with practical skills in strategy, branding, finance, product development and business growth. From idea validation to execution, members gain the tools needed to transform vision into viable ventures.',
-      image: '/assets/images/1454165804606-c3d57bc86b40.jpg',
+      image: '',
       image_alt: 'Founders in a hands-on workshop session',
       video: '',
     },
@@ -30,7 +30,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Where innovation meets opportunity.',
       description:
         'Competitive pitch experiences that sharpen ideas, build confidence and expose founders to expert feedback and recognition. Members learn how to communicate their vision with clarity, confidence and purpose.',
-      image: '/assets/images/1542744173-8e7e53415bb0.jpg',
+      image: '',
       image_alt: 'Founder pitching to a panel of judges',
       video: '',
     },
@@ -41,7 +41,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Real stories. Real lessons. Real access.',
       description:
         'Exclusive conversations with accomplished entrepreneurs, investors and industry leaders sharing insights, failures and breakthrough moments. Designed to inspire meaningful connections and practical learning.',
-      image: '/assets/images/1573496359142-b8d87734a5a2.jpg',
+      image: '',
       image_alt: 'Speaker sharing insights at a fireside dialogue',
       video: '',
     },
@@ -52,7 +52,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Growth happens in community.',
       description:
         'Collaborative circles where founders discuss challenges, exchange ideas and receive strategic feedback from mentors and peers. Accountability and collaboration become catalysts for sustainable growth.',
-      image: '/assets/images/1520607162513-77705c0f0d4a.jpg',
+      image: '',
       image_alt: 'Founders collaborating in a mastermind circle',
       video: '',
     },
@@ -63,7 +63,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Build businesses that create meaningful change.',
       description:
         'Members develop entrepreneurial solutions that combine innovation with social impact, empowering communities while building sustainable ventures. Because successful businesses should also create lasting value.',
-      image: '/assets/images/1573496774426-fe3db3dd1731.jpg',
+      image: '',
       image_alt: 'Entrepreneur leading an impact-focused venture',
       video: '',
     },
@@ -82,7 +82,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Learn. Build. Present. Improve.',
       description:
         'Members complete weekly entrepreneurial tasks focused on ideation, research, business models and strategy development. Peer reviews and presentations encourage accountability, collaboration and continuous improvement.',
-      image: '/assets/images/1454165804606-c3d57bc86b40.jpg',
+      image: '',
       image_alt: 'Weekly planning and collaboration',
       video: '',
     },
@@ -94,7 +94,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Workshops. Mentorship. Networking.',
       description:
         'Interactive monthly sessions bring members together for expert-led workshops, progress reviews and meaningful networking experiences. Founders gain personalized feedback while refining their business approaches.',
-      image: '/assets/images/1552664730-d307ca884978.jpg',
+      image: '',
       image_alt: 'Monthly mentor workshop',
       video: '',
     },
@@ -106,7 +106,7 @@ export const DEFAULT_PROGRAMS_PAGE_CONTENT = {
       tagline: 'Exposure. Impact. Transformation.',
       description:
         'Quarterly pitch experiences, masterclasses and innovation challenges help founders showcase growth, attract opportunities and develop scalable solutions. Members are encouraged to integrate social impact into their entrepreneurial journeys.',
-      image: '/assets/images/1542744173-05336fcc7ad4.jpg',
+      image: '',
       image_alt: 'Quarterly pitch and progress review',
       video: '',
     },

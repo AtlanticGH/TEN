@@ -45,7 +45,7 @@ export const DEFAULT_ABOUT_PAGE_CONTENT = {
   why_join: {
     eyebrow: 'Why Join Us',
     title: 'What members gain at TEN',
-    image: '/assets/images/1520607162513-77705c0f0d4a.jpg',
+    image: '',
     benefits: [
       'Access to Mentorship',
       'Collaborative Network',

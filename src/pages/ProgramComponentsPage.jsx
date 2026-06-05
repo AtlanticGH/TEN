@@ -3,15 +3,8 @@ import { Link } from 'react-router-dom'
 export function ProgramComponentsPage() {
   return (
     <main id="page-main" data-component="page-main" className="overflow-x-hidden">
-      <section className="relative min-h-[52vh]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('/assets/images/1521737604893-d14cc237f11d.jpg')",
-          }}
-        />
-        <div className="absolute inset-0 bg-black/70" />
+      <section className="relative min-h-[52vh] bg-zinc-950">
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-zinc-950 to-zinc-950" />
         <div className="relative mx-auto max-w-7xl px-8 py-24 pt-32 md:px-12 lg:px-10">
           <p className="text-xs uppercase tracking-[0.2em] text-orange-300">Program Components</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-extrabold text-white md:text-6xl">Structured learning, step by step</h1>
@@ -44,12 +37,7 @@ export function ProgramComponentsPage() {
       <section id="weekly-component" className="mx-auto max-w-7xl px-8 pb-8 md:px-12 lg:px-10">
         <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-            <img
-              src="/assets/images/1454165804606-c3d57bc86b40.jpg"
-              alt="Weekly planning and presentation workflow"
-              className="h-full min-h-[260px] w-full object-cover"
-              loading="lazy"
-            />
+            <div className="min-h-[260px] bg-gradient-to-br from-orange-500/20 to-zinc-900" aria-hidden="true" />
             <div className="p-7 md:p-8">
               <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Component 01</p>
               <h2 className="mt-3 text-2xl font-semibold">Weekly Component</h2>
@@ -81,12 +69,7 @@ export function ProgramComponentsPage() {
                 <li>Pitch &amp; Progress Review with actionable next steps.</li>
               </ul>
             </div>
-            <img
-              src="/assets/images/1552664730-d307ca884978.jpg"
-              alt="Monthly workshop and mentoring session"
-              className="order-1 h-full min-h-[260px] w-full object-cover lg:order-2"
-              loading="lazy"
-            />
+            <div className="order-1 min-h-[260px] bg-gradient-to-br from-orange-500/20 to-zinc-900 lg:order-2" aria-hidden="true" />
           </div>
         </article>
       </section>
@@ -94,12 +77,7 @@ export function ProgramComponentsPage() {
       <section id="quarterly-component" className="mx-auto max-w-7xl px-8 py-8 md:px-12 lg:px-10">
         <article className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-            <img
-              src="/assets/images/1542744173-8e7e53415bb0.jpg"
-              alt="Quarterly pitch competition and expert panel"
-              className="h-full min-h-[260px] w-full object-cover"
-              loading="lazy"
-            />
+            <div className="min-h-[260px] bg-gradient-to-br from-orange-500/20 to-zinc-900" aria-hidden="true" />
             <div className="p-7 md:p-8">
               <p className="text-xs uppercase tracking-[0.2em] text-orange-500">Component 03</p>
               <h2 className="mt-3 text-2xl font-semibold">Quarterly Component</h2>
@@ -129,12 +107,7 @@ export function ProgramComponentsPage() {
                 Read Founder Story
               </Link>
             </div>
-            <img
-              src="/assets/images/1573496774426-fe3db3dd1731.jpg"
-              alt="Founder leadership portrait"
-              className="order-1 h-full min-h-[260px] w-full object-cover lg:order-2"
-              loading="lazy"
-            />
+            <div className="order-1 min-h-[260px] bg-gradient-to-br from-orange-500/20 to-zinc-900 lg:order-2" aria-hidden="true" />
           </div>
         </article>
       </section>

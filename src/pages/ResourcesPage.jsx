@@ -70,7 +70,7 @@ function ResourcesPageContent() {
         badge="Resources"
         heading="Practical guides for purposeful growth"
         description="Explore actionable playbooks, templates, and mentorship notes to help you move from idea to measurable progress."
-        image="/assets/images/1454165804606-c3d57bc86b40.jpg"
+        image=""
       />
 
       <section id="featured-resources" className="mx-auto max-w-7xl px-8 py-14 md:px-12 lg:px-10">

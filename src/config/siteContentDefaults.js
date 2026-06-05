@@ -11,7 +11,7 @@ export const DEFAULT_HOME_HERO = {
   cta_primary_href: '/apply',
   cta_secondary_label: 'Explore Our Story',
   cta_secondary_href: '/about',
-  background_image: '/assets/images/1523240795612-9a054b0db644.jpg',
+  background_image: '',
   background_video: '',
 }
 

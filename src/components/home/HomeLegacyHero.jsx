@@ -3,12 +3,10 @@ import { HeroHeadline } from './HeroHeadlineLines'
 
 const CONTAINER = 'mx-auto max-w-7xl px-6 sm:px-8 lg:px-10'
 const ORANGE_GRADIENT = { backgroundImage: 'linear-gradient(135deg, #F97316, #FBBF24)' }
-const HERO_IMAGE_FALLBACK = '/assets/images/1523240795612-9a054b0db644.jpg'
-
 /** Legacy home gateway hero (used when no CMS hero block). */
 export function HomeLegacyHero({ heroCopy, preview = false }) {
   const c = heroCopy || {}
-  const heroImage = c.background_image || HERO_IMAGE_FALLBACK
+  const heroImage = c.background_image || ''
   const heroVideo = c.background_video
 
   const CtaTag = preview ? 'span' : Link
@@ -36,7 +34,7 @@ export function HomeLegacyHero({ heroCopy, preview = false }) {
         >
           <source src={heroVideo} />
         </video>
-      ) : (
+      ) : heroImage ? (
         <img
           src={heroImage}
           alt="Entrepreneurs collaborating around a table"
@@ -44,7 +42,7 @@ export function HomeLegacyHero({ heroCopy, preview = false }) {
           loading="eager"
           fetchPriority="high"
         />
-      )}
+      ) : null}
       <div
         className="absolute inset-0"
         style={{

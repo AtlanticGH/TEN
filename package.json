@@ -29,7 +29,8 @@
     "bootstrap:resources": "node scripts/bootstrap-resources.mjs",
     "bootstrap:admin": "node scripts/create-admin.mjs",
     "setup:check": "node scripts/setup-check.mjs",
-    "verify:prod": "node scripts/verify-production.mjs"
+    "verify:prod": "node scripts/verify-production.mjs",
+    "migrate:images": "node scripts/migrate-images-to-storage.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
