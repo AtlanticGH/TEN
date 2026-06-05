@@ -33,3 +33,14 @@ export function resolveVideoEmbed(url) {
 
   return null
 }
+
+/** Poster/thumbnail for gallery click-to-play tiles. */
+export function getVideoPoster(url, poster) {
+  if (poster) return poster
+  const raw = String(url || '').trim()
+  const yt =
+    raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/i) ||
+    raw.match(/youtube\.com\/shorts\/([\w-]{11})/i)
+  if (yt?.[1]) return `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`
+  return ''
+}

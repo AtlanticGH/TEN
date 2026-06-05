@@ -33,10 +33,10 @@ export function resolveGalleryAlbums({ galleryBlockContent, mediaRows } = {}) {
 }
 
 /**
- * Merge CMS video block items with uploaded media library videos.
+ * Videos shown on the gallery page — CMS block items only (not auto-pulled from media library).
  */
-export function resolveGalleryVideos({ videoBlockContent, mediaRows } = {}) {
-  const fromBlock = (videoBlockContent?.items || [])
+export function resolveGalleryVideos({ videoBlockContent } = {}) {
+  return (videoBlockContent?.items || [])
     .map((item) => ({
       url: item.url || item.video || item.src || '',
       title: item.title || '',
@@ -44,20 +44,4 @@ export function resolveGalleryVideos({ videoBlockContent, mediaRows } = {}) {
       poster: item.poster || item.poster_image || '',
     }))
     .filter((item) => item.url)
-
-  const seen = new Set(fromBlock.map((v) => v.url))
-  const fromMedia = []
-  for (const row of mediaRows || []) {
-    const url = row.public_url || ''
-    if (!url || seen.has(url)) continue
-    seen.add(url)
-    fromMedia.push({
-      url,
-      title: row.title || '',
-      caption: row.alt || row.title || '',
-      poster: '',
-    })
-  }
-
-  return [...fromBlock, ...fromMedia]
 }
