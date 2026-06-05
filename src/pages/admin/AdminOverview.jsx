@@ -14,13 +14,14 @@ import { apiFetch } from '@/lib/apiClient'
 import { getCmsSummary } from '../../services/cms/pages'
 
 const QUICK_LINKS = [
-  ['Homepage hero', '/admin/home'],
-  ['Applications', '/admin/applications'],
-  ['Programs page', '/admin/programs'],
-  ['About page', '/admin/about'],
-  ['Page heroes', '/admin/heroes'],
-  ['Media library', '/admin/media'],
+  ['Homepage', '/admin/home'],
+  ['About', '/admin/about'],
+  ['Programs', '/admin/programs'],
+  ['Resources', '/admin/resources'],
   ['Gallery', '/admin/gallery'],
+  ['Page heroes', '/admin/heroes'],
+  ['Applications', '/admin/applications'],
+  ['Media library', '/admin/media'],
   ['Navigation', '/admin/navigation'],
   ['Site settings', '/admin/settings'],
 ]

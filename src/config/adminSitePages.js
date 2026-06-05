@@ -30,15 +30,17 @@ export const ADMIN_SITE_PAGES = [
     label: 'Resources',
     path: '/resources',
     description: 'Resources page copy plus downloadable files.',
+    editorPath: '/admin/resources',
     suggestedSections: ['intro', 'faq'],
     hasDownloads: true,
   },
   {
-    slug: 'contact',
-    label: 'Contact',
-    path: '/contact',
-    description: 'Contact hero, details, and FAQ.',
-    suggestedSections: ['hero', 'details', 'faq'],
+    slug: 'gallery',
+    label: 'Gallery',
+    path: '/gallery',
+    description: 'Photo albums and video gallery.',
+    editorPath: '/admin/gallery',
+    suggestedSections: ['hero', 'albums', 'videos'],
   },
   {
     slug: 'community',
@@ -46,6 +48,13 @@ export const ADMIN_SITE_PAGES = [
     path: '/community',
     description: 'Membership / community landing content.',
     suggestedSections: ['intro', 'pillars', 'benefits', 'cta'],
+  },
+  {
+    slug: 'contact',
+    label: 'Contact',
+    path: '/contact',
+    description: 'Contact hero, details, and FAQ.',
+    suggestedSections: ['hero', 'details', 'faq'],
   },
 ]
 

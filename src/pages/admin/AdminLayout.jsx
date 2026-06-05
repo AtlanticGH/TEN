@@ -20,23 +20,26 @@ export function AdminLayout() {
       <DashboardNavLink to="/admin/home" onNavigate={onNavigate}>
         Homepage
       </DashboardNavLink>
+      <DashboardNavLink to="/admin/about" onNavigate={onNavigate}>
+        About
+      </DashboardNavLink>
       <DashboardNavLink to="/admin/programs" onNavigate={onNavigate}>
         Programs
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/about" onNavigate={onNavigate}>
-        About page
+      <DashboardNavLink to="/admin/resources" onNavigate={onNavigate}>
+        Resources
       </DashboardNavLink>
-      <DashboardNavLink to="/admin/applications" onNavigate={onNavigate}>
-        Applications
+      <DashboardNavLink to="/admin/gallery" onNavigate={onNavigate}>
+        Gallery
       </DashboardNavLink>
       <DashboardNavLink to="/admin/heroes" onNavigate={onNavigate}>
         Page heroes
       </DashboardNavLink>
+      <DashboardNavLink to="/admin/applications" onNavigate={onNavigate}>
+        Applications
+      </DashboardNavLink>
       <DashboardNavLink to="/admin/media" onNavigate={onNavigate}>
         Media library
-      </DashboardNavLink>
-      <DashboardNavLink to="/admin/gallery" onNavigate={onNavigate}>
-        Gallery
       </DashboardNavLink>
       <DashboardNavLink to="/admin/navigation" onNavigate={onNavigate}>
         Navigation
@@ -56,7 +59,7 @@ export function AdminLayout() {
     <MainDashboardLayout
       workspaceLabel="CMS"
       workspaceTitle="Content management"
-      workspaceDescription="Manage homepage, about page, media, gallery, navigation, and site settings."
+      workspaceDescription="Edit pages in the same order as the public site, then manage media, navigation, and settings."
       mobileMenuTitle="CMS menu"
       renderNav={renderNav}
       bannerActions={

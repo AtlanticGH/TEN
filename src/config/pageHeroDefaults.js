@@ -4,9 +4,9 @@ export const PAGE_HERO_PAGES = [
   { slug: 'about', label: 'About', path: '/about', uploadFolder: 'cms' },
   { slug: 'programs', label: 'Programs', path: '/programs', uploadFolder: 'cms' },
   { slug: 'resources', label: 'Resources', path: '/resources', uploadFolder: 'cms' },
-  { slug: 'contact', label: 'Contact', path: '/contact', uploadFolder: 'cms' },
   { slug: 'gallery', label: 'Gallery', path: '/gallery', uploadFolder: 'gallery' },
   { slug: 'community', label: 'Community', path: '/community', uploadFolder: 'cms' },
+  { slug: 'contact', label: 'Contact', path: '/contact', uploadFolder: 'cms' },
 ]
 
 export function pageHeroKey(slug) {

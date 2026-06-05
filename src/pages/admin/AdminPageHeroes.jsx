@@ -26,7 +26,7 @@ export function AdminPageHeroesPage() {
       <DashboardPageIntro
         label="Page heroes"
         title="Page heroes"
-        description="Edit the hero image and headline on About, Programs, Resources, Contact, and Gallery. Homepage hero is edited separately."
+        description="Edit the hero image and headline on each public page (About → Programs → Resources → Gallery → Community → Contact). Homepage hero is edited separately."
       />
 
       <div className="flex flex-wrap gap-2 border-b border-zinc-200 pb-2 dark:border-zinc-800">
