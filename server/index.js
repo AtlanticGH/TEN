@@ -413,7 +413,7 @@ function encodeStoragePath(path) {
 }
 
 function publicObjectUrl(bucket, path) {
-  const base = String(SUPABASE_URL || '').replace(/\/$/, '')
+  const base = String(readSupabaseServerEnv().SUPABASE_URL || '').replace(/\/$/, '')
   return `${base}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encodeStoragePath(path)}`
 }
 
