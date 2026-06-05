@@ -42,15 +42,17 @@ export function TorchbearerSection({ content, embedded = false }) {
           {c.subtitle ? (
             <p className="mt-1 text-[15px] italic text-zinc-500 dark:text-zinc-400">{c.subtitle}</p>
           ) : null}
-          <Link
-            to="/about"
-            className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-orange-600 transition hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-300"
-          >
-            Read her full story
-            <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-              <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
+          {c.story_link && c.story_link_label ? (
+            <Link
+              to={c.story_link}
+              className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-orange-600 transition hover:text-orange-500 dark:text-orange-400 dark:hover:text-orange-300"
+            >
+              {c.story_link_label}
+              <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          ) : null}
           {stats.length ? (
             <div className="mt-8 grid grid-cols-2 gap-6 border-t border-zinc-200 pt-8 dark:border-zinc-800 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
               {stats.map(({ value, label }) => (

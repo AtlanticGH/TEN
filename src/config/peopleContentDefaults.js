@@ -80,5 +80,7 @@ export const DEFAULT_HOME_TORCHBEARER = {
     { value: '600+', label: 'Employees Led' },
     { value: 'CNN', label: 'Featured Business Leader' },
   ],
+  story_link: '/about',
+  story_link_label: 'Read her full story',
   social_links: [...DEFAULT_SOCIAL_LINKS],
 }

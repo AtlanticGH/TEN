@@ -154,3 +154,83 @@ export function TeamEditor({ team, setTeam, canEdit, saving, onSave }) {
     </form>
   )
 }
+
+export function TorchbearerEditor({ torchbearer, setTorchbearer, canEdit, saving, onSave }) {
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave()
+      }}
+    >
+      <Field label="Eyebrow">
+        <input className={ADMIN_INPUT_CLASS} value={torchbearer.eyebrow} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, eyebrow: e.target.value }))} />
+      </Field>
+      <Field label="Section title">
+        <input className={ADMIN_INPUT_CLASS} value={torchbearer.title} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, title: e.target.value }))} />
+      </Field>
+      <Field label="Name">
+        <input className={ADMIN_INPUT_CLASS} value={torchbearer.name} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, name: e.target.value }))} />
+      </Field>
+      <Field label="Tagline">
+        <input className={ADMIN_INPUT_CLASS} value={torchbearer.tagline} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, tagline: e.target.value }))} />
+      </Field>
+      <Field label="Subtitle">
+        <input className={ADMIN_INPUT_CLASS} value={torchbearer.subtitle} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, subtitle: e.target.value }))} />
+      </Field>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="Story link label">
+          <input className={ADMIN_INPUT_CLASS} value={torchbearer.story_link_label || ''} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, story_link_label: e.target.value }))} />
+        </Field>
+        <Field label="Story link URL">
+          <input className={ADMIN_INPUT_CLASS} value={torchbearer.story_link || ''} disabled={!canEdit} onChange={(e) => setTorchbearer((v) => ({ ...v, story_link: e.target.value }))} placeholder="/about" />
+        </Field>
+      </div>
+      <ImageUrlField label="Portrait image" value={torchbearer.image} disabled={!canEdit} uploadFolder="cms" onChange={(url) => setTorchbearer((v) => ({ ...v, image: url }))} />
+      <ImageUrlField label="Fallback image" value={torchbearer.image_fallback} disabled={!canEdit} uploadFolder="cms" onChange={(url) => setTorchbearer((v) => ({ ...v, image_fallback: url }))} />
+      <p className={ADMIN_FIELD_LABEL}>Stats</p>
+      {(torchbearer.stats || []).map((stat, i) => (
+        <div key={i} className="grid gap-2 sm:grid-cols-2">
+          <input
+            className={ADMIN_INPUT_CLASS}
+            placeholder="Value"
+            value={stat.value || ''}
+            disabled={!canEdit}
+            onChange={(e) => {
+              const stats = [...torchbearer.stats]
+              stats[i] = { ...stats[i], value: e.target.value }
+              setTorchbearer((v) => ({ ...v, stats }))
+            }}
+          />
+          <input
+            className={ADMIN_INPUT_CLASS}
+            placeholder="Label"
+            value={stat.label || ''}
+            disabled={!canEdit}
+            onChange={(e) => {
+              const stats = [...torchbearer.stats]
+              stats[i] = { ...stats[i], label: e.target.value }
+              setTorchbearer((v) => ({ ...v, stats }))
+            }}
+          />
+        </div>
+      ))}
+      {canEdit ? (
+        <button
+          type="button"
+          className="text-sm text-zinc-600"
+          onClick={() => setTorchbearer((v) => ({ ...v, stats: [...(v.stats || []), { value: '', label: '' }] }))}
+        >
+          + Add stat
+        </button>
+      ) : null}
+      <SocialLinksEditor links={torchbearer.social_links} disabled={!canEdit} onChange={(social_links) => setTorchbearer((v) => ({ ...v, social_links }))} />
+      {canEdit ? (
+        <button type="submit" disabled={saving} className={`${ADMIN_BTN_PRIMARY} disabled:opacity-60`}>
+          {saving ? 'Saving…' : 'Save torchbearer section'}
+        </button>
+      ) : null}
+    </form>
+  )
+}
