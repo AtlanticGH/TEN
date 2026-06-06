@@ -3,7 +3,7 @@
  * Run: npm run verify:prod
  * Optional: PRODUCTION_URL=https://your-app.vercel.app npm run verify:prod
  */
-const base = (process.env.PRODUCTION_URL || 'https://ember-network-qc25.vercel.app').replace(/\/$/, '')
+const base = (process.env.PRODUCTION_URL || 'https://ten-ten-ruby.vercel.app').replace(/\/$/, '')
 
 const checks = [
   { name: 'SPA home', path: '/', expectStatus: 200, expectBody: (t) => t.includes('The Ember Network') },

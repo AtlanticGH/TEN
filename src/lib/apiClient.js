@@ -1,5 +1,5 @@
 import { getSupabase } from '@/lib/supabaseClient'
-import { apiUrl } from '@/lib/apiBase'
+import { apiUrl, usesSameOriginApi } from '@/lib/apiBase'
 
 const API_TIMEOUT_MS = 20_000
 const UPLOAD_TIMEOUT_MS = 5 * 60_000
@@ -10,6 +10,12 @@ function isUploadBody(body) {
 
 function requestTimeoutMs(body) {
   return isUploadBody(body) ? UPLOAD_TIMEOUT_MS : API_TIMEOUT_MS
+}
+
+function apiFetchHeaders(init = {}) {
+  const headers = new Headers(init.headers || {})
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json')
+  return headers
 }
 
 async function fetchWithTimeout(url, init = {}) {
@@ -39,22 +45,49 @@ async function fetchWithTimeout(url, init = {}) {
   }
 }
 
-export async function publicApiFetch(path, init = {}) {
-  const url = apiUrl(path)
-  const res = await fetchWithTimeout(url, init)
-  const json = await res.json().catch(() => null)
-  if (!res.ok) {
-    const msg = formatApiError(res.status, json)
-    throw new Error(msg)
+async function readApiResponse(res) {
+  const text = await res.text()
+  const contentType = res.headers.get('content-type') || ''
+  if (contentType.includes('text/html') || text.trimStart().startsWith('<!DOCTYPE') || text.trimStart().startsWith('<html')) {
+    return {
+      json: null,
+      html: true,
+    }
   }
-  return json
+  if (!text) return { json: null, html: false }
+  try {
+    return { json: JSON.parse(text), html: false }
+  } catch {
+    return { json: null, html: false, raw: text }
+  }
 }
 
-function formatApiError(status, json) {
+function formatApiError(status, json, { html = false, path = '' } = {}) {
   if (status === 502) {
     return 'API server is not running. Stop dev:all (Ctrl+C) and run npm run dev:all again, or run npm start in a second terminal on port 3000.'
   }
+  if (html) {
+    return `Request failed: ${status}. The host returned HTML instead of JSON for ${path || 'the API'} — redeploy with server env vars and same-origin /api (leave VITE_API_URL empty on Vercel).`
+  }
+  if (status === 404) {
+    const base = json?.error || json?.message || `Request failed: ${status}`
+    if (usesSameOriginApi()) {
+      return `${base} API routes may be misconfigured on the host — redeploy with server env vars and same-origin /api.`
+    }
+    return `${base} Check VITE_API_URL (use the site origin only, without a trailing /api).`
+  }
   return json?.error || json?.message || `Request failed: ${status}`
+}
+
+export async function publicApiFetch(path, init = {}) {
+  const url = apiUrl(path)
+  const headers = apiFetchHeaders(init)
+  const res = await fetchWithTimeout(url, { ...init, headers })
+  const { json, html } = await readApiResponse(res)
+  if (!res.ok) {
+    throw new Error(formatApiError(res.status, json, { html, path }))
+  }
+  return json
 }
 
 export async function apiFetch(path, init = {}) {
@@ -64,10 +97,9 @@ export async function apiFetch(path, init = {}) {
   const token = data?.session?.access_token || ''
   if (!token) throw new Error('Not authenticated')
 
-  const headers = new Headers(init.headers || {})
+  const headers = apiFetchHeaders(init)
   if (!headers.has('Authorization')) headers.set('Authorization', `Bearer ${token}`)
 
-  // Only set JSON header if caller didn’t provide one and body is not FormData/Blob/etc.
   const hasCT = headers.has('content-type')
   const body = init.body
   const isBodyPlainObject =
@@ -79,12 +111,9 @@ export async function apiFetch(path, init = {}) {
 
   const url = apiUrl(path)
   const res = await fetchWithTimeout(url, { ...init, headers })
-
-  const json = await res.json().catch(() => null)
+  const { json, html } = await readApiResponse(res)
   if (!res.ok) {
-    const msg = formatApiError(res.status, json)
-    throw new Error(msg)
+    throw new Error(formatApiError(res.status, json, { html, path }))
   }
   return json
 }
-

@@ -40,11 +40,7 @@ function ResourcesPageContent() {
         if (!ignore) setItems(data)
       } catch (err) {
         const msg = err?.message || 'Unable to load resources.'
-        const hint =
-          /404/.test(msg) && !import.meta.env.VITE_API_URL
-            ? ' API routes may be misconfigured on the host — redeploy with server env vars and same-origin /api.'
-            : ''
-        if (!ignore) setError(msg + hint)
+        if (!ignore) setError(msg)
       } finally {
         if (!ignore) setLoading(false)
       }

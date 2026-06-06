@@ -1,4 +1,4 @@
-import { StrictMode, lazy } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -9,60 +9,61 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AdminLoginRedirect, AdminRoot } from './components/auth/AdminRoot'
 import { RouterErrorBoundary } from './components/routing/RouterErrorBoundary'
 import { PageFallback } from './router/lazyPages'
+import { lazyWithRetry } from './router/lazyWithRetry'
 import { queryClient } from './lib/queryClient'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
 import { HomePage } from './pages/HomePage'
 
-const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
-const ProgramsPage = lazy(() => import('./pages/ProgramsPage').then((m) => ({ default: m.ProgramsPage })))
-const ResourcesPage = lazy(() => import('./pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage })))
-const ContactPage = lazy(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })))
-const JoinCommunityPage = lazy(() => import('./pages/JoinCommunityPage').then((m) => ({ default: m.JoinCommunityPage })))
-const GalleryPage = lazy(() => import('./pages/GalleryPage').then((m) => ({ default: m.GalleryPage })))
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
-const CmsDynamicPage = lazy(() => import('./pages/CmsDynamicPage').then((m) => ({ default: m.CmsDynamicPage })))
+const AboutPage = lazyWithRetry(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
+const ProgramsPage = lazyWithRetry(() => import('./pages/ProgramsPage').then((m) => ({ default: m.ProgramsPage })))
+const ResourcesPage = lazyWithRetry(() => import('./pages/ResourcesPage').then((m) => ({ default: m.ResourcesPage })))
+const ContactPage = lazyWithRetry(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })))
+const JoinCommunityPage = lazyWithRetry(() => import('./pages/JoinCommunityPage').then((m) => ({ default: m.JoinCommunityPage })))
+const GalleryPage = lazyWithRetry(() => import('./pages/GalleryPage').then((m) => ({ default: m.GalleryPage })))
+const NotFoundPage = lazyWithRetry(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
+const CmsDynamicPage = lazyWithRetry(() => import('./pages/CmsDynamicPage').then((m) => ({ default: m.CmsDynamicPage })))
 
-const AdminLoginPage = lazy(() => import('./pages/admin/AdminLogin').then((m) => ({ default: m.AdminLoginPage })))
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
-const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverview').then((m) => ({ default: m.AdminOverviewPage })))
-const AdminPageSlugRedirect = lazy(() =>
+const AdminLoginPage = lazyWithRetry(() => import('./pages/admin/AdminLogin').then((m) => ({ default: m.AdminLoginPage })))
+const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })))
+const AdminOverviewPage = lazyWithRetry(() => import('./pages/admin/AdminOverview').then((m) => ({ default: m.AdminOverviewPage })))
+const AdminPageSlugRedirect = lazyWithRetry(() =>
   import('./pages/admin/AdminPageSlugRedirect').then((m) => ({ default: m.AdminPageSlugRedirect })),
 )
-const AdminMediaPage = lazy(() => import('./pages/admin/AdminMedia').then((m) => ({ default: m.AdminMediaPage })))
-const AdminGlobalSettingsPage = lazy(() =>
+const AdminMediaPage = lazyWithRetry(() => import('./pages/admin/AdminMedia').then((m) => ({ default: m.AdminMediaPage })))
+const AdminGlobalSettingsPage = lazyWithRetry(() =>
   import('./pages/admin/AdminGlobalSettings').then((m) => ({ default: m.AdminGlobalSettingsPage })),
 )
-const AdminGalleryPage = lazy(() =>
+const AdminGalleryPage = lazyWithRetry(() =>
   import('./pages/admin/AdminGallery').then((m) => ({ default: m.AdminGalleryPage })),
 )
-const AdminNavigationPage = lazy(() =>
+const AdminNavigationPage = lazyWithRetry(() =>
   import('./pages/admin/AdminNavigation').then((m) => ({ default: m.AdminNavigationPage })),
 )
-const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsers').then((m) => ({ default: m.AdminUsersPage })))
-const AdminContentPage = lazy(() => import('./pages/admin/AdminContent').then((m) => ({ default: m.AdminContentPage })))
-const AdminPageHeroesPage = lazy(() =>
+const AdminUsersPage = lazyWithRetry(() => import('./pages/admin/AdminUsers').then((m) => ({ default: m.AdminUsersPage })))
+const AdminContentPage = lazyWithRetry(() => import('./pages/admin/AdminContent').then((m) => ({ default: m.AdminContentPage })))
+const AdminPageHeroesPage = lazyWithRetry(() =>
   import('./pages/admin/AdminPageHeroes').then((m) => ({ default: m.AdminPageHeroesPage })),
 )
-const AdminProgramsPage = lazy(() => import('./pages/admin/AdminPrograms').then((m) => ({ default: m.AdminProgramsPage })))
-const AdminAboutPage = lazy(() => import('./pages/admin/AdminAbout').then((m) => ({ default: m.AdminAboutPage })))
-const AdminPeoplePage = lazy(() => import('./pages/admin/AdminPeople').then((m) => ({ default: m.AdminPeoplePage })))
-const AdminResourcesPage = lazy(() =>
+const AdminProgramsPage = lazyWithRetry(() => import('./pages/admin/AdminPrograms').then((m) => ({ default: m.AdminProgramsPage })))
+const AdminAboutPage = lazyWithRetry(() => import('./pages/admin/AdminAbout').then((m) => ({ default: m.AdminAboutPage })))
+const AdminPeoplePage = lazyWithRetry(() => import('./pages/admin/AdminPeople').then((m) => ({ default: m.AdminPeoplePage })))
+const AdminResourcesPage = lazyWithRetry(() =>
   import('./pages/admin/AdminResources').then((m) => ({ default: m.AdminResourcesPage })),
 )
-const AdminApplicationsPage = lazy(() =>
+const AdminApplicationsPage = lazyWithRetry(() =>
   import('./pages/admin/AdminApplications').then((m) => ({ default: m.AdminApplicationsPage })),
 )
-const AdminCoursesPage = lazy(() =>
+const AdminCoursesPage = lazyWithRetry(() =>
   import('./pages/admin/AdminCourses').then((m) => ({ default: m.AdminCoursesPage })),
 )
-const AdminCourseEditorPage = lazy(() =>
+const AdminCourseEditorPage = lazyWithRetry(() =>
   import('./pages/admin/AdminCourseEditor').then((m) => ({ default: m.AdminCourseEditorPage })),
 )
-const AdminLogsPage = lazy(() =>
+const AdminLogsPage = lazyWithRetry(() =>
   import('./pages/admin/AdminLogsPage').then((m) => ({ default: m.AdminLogsPage })),
 )
-const ResetPasswordPage = lazy(() =>
+const ResetPasswordPage = lazyWithRetry(() =>
   import('./pages/ResetPassword').then((m) => ({ default: m.ResetPasswordPage })),
 )
 

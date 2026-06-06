@@ -1,7 +1,7 @@
 # Vercel deployment checklist
 
 **Supabase project:** `zygkofiiurlsnrkcmaya` — https://zygkofiiurlsnrkcmaya.supabase.co  
-**Production URL:** https://ember-network-qc25.vercel.app
+**Production URL:** https://ten-ten-ruby.vercel.app
 
 > After switching Supabase projects, update **all** Vercel env vars to match local `.env` (URL + anon + service_role from the **same** project).
 
@@ -15,7 +15,7 @@ Vercel → Project → **Settings** → **Environment Variables** → add for **
 | `VITE_SUPABASE_ANON_KEY` | Supabase Dashboard → API → anon |
 | `SUPABASE_URL` | Same as `VITE_SUPABASE_URL` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (secret) — server only |
-| `FRONTEND_ORIGIN` | `https://ember-network-qc25.vercel.app` |
+| `FRONTEND_ORIGIN` | `https://ten-ten-ruby.vercel.app` |
 | `SITE_URL` | Same as `FRONTEND_ORIGIN` |
 
 **Leave empty:** `VITE_API_URL` (browser must use same-origin `/api/*`).
@@ -24,7 +24,7 @@ Vercel → Project → **Settings** → **Environment Variables** → add for **
 
 Dashboard → **Authentication** → **URL Configuration**:
 
-- `https://ember-network-qc25.vercel.app/reset-password`
+- `https://ten-ten-ruby.vercel.app/reset-password`
 - `http://localhost:5173/reset-password`
 - `http://localhost:5174/reset-password`
 - `http://localhost:5175/reset-password`

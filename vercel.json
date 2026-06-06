@@ -10,7 +10,11 @@
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api?__path=$1" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/).*)",
+      "has": [{ "type": "header", "key": "accept", "value": "text/html.*" }],
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
