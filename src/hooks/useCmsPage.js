@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { enabledBlocks, hasVisibleBodyBlocks } from '../lib/cmsBlocks'
 import { getPublicPage } from '../services/cms/pages'
 
 export function cmsPageQueryOptions(slug) {
@@ -22,11 +23,13 @@ export function cmsPageQueryOptions(slug) {
 export function useCmsPage(slug) {
   const { data, isLoading, isError, error, isFetching } = useQuery(cmsPageQueryOptions(slug))
   const blocks = data?.blocks || []
+  const activeBlocks = enabledBlocks(blocks)
   const page = data?.page || null
   return {
     page,
     blocks,
-    hasBlocks: blocks.length > 0,
+    hasBlocks: activeBlocks.length > 0,
+    hasBodyBlocks: hasVisibleBodyBlocks(blocks),
     loading: isLoading,
     isRefreshing: isFetching && !isLoading,
     isError,

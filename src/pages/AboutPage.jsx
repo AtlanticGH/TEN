@@ -9,15 +9,17 @@ import {
   VisionMissionSection,
 } from '../components/cms/marketing/AboutMarketingBlocks'
 import { PageHeroSection } from '../components/shared/PageHeroSection'
+import { DEFAULT_ABOUT_PAGE_CONTENT } from '../config/aboutContentDefaults'
+import { DEFAULT_ABOUT_FOUNDER, DEFAULT_ABOUT_TEAM } from '../config/peopleContentDefaults'
 import { useAboutPageContent } from '../hooks/useAboutPageContent'
 import { useCmsPage } from '../hooks/useCmsPage'
 import { useAboutFounder, useAboutTeam } from '../hooks/usePeopleContent'
 
 export function AboutPage() {
   const { seo } = useCmsPage('about')
-  const { data: content } = useAboutPageContent()
-  const { data: founder } = useAboutFounder()
-  const { data: team } = useAboutTeam()
+  const { data: content = DEFAULT_ABOUT_PAGE_CONTENT } = useAboutPageContent()
+  const { data: founder = DEFAULT_ABOUT_FOUNDER } = useAboutFounder()
+  const { data: team = DEFAULT_ABOUT_TEAM } = useAboutTeam()
 
   return (
     <>
@@ -31,8 +33,8 @@ export function AboutPage() {
         <VisionMissionSection vision={content.vision} mission={content.mission} />
         <FireListSection content={content.fire_values} />
         <SplitBenefitsSection content={content.why_join} />
-        {founder ? <FounderProfileSection content={founder} /> : null}
-        {team ? <TeamGridSection content={team} /> : null}
+        <FounderProfileSection content={founder} />
+        <TeamGridSection content={team} />
         <LinkPillsSection content={{ external_links: content.social_links, buttons: content.cta_buttons }} />
         <MarqueeSection content={{ items: content.marquee_items }} />
       </main>

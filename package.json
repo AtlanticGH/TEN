@@ -5,8 +5,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev-all.mjs",
     "dev:all": "node scripts/dev-all.mjs",
+    "dev:vite": "vite --port 5190 --strictPort",
     "build": "vite build",
     "lint": "eslint .",
     "repo:doctor": "node scripts/repo-doctor.mjs",

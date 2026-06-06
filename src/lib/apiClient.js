@@ -3,6 +3,17 @@ import { apiUrl, usesSameOriginApi } from '@/lib/apiBase'
 
 const API_TIMEOUT_MS = 20_000
 const UPLOAD_TIMEOUT_MS = 5 * 60_000
+const TEN_DEV_URL = 'http://localhost:5190'
+
+function isLocalDevHost() {
+  if (typeof window === 'undefined') return false
+  const host = window.location.hostname
+  return host === 'localhost' || host === '127.0.0.1'
+}
+
+function localDevApiHelp() {
+  return `Run npm run dev (or npm run dev:all) and open ${TEN_DEV_URL}/admin — see .ten-dev-url in the project root.`
+}
 
 function isUploadBody(body) {
   return body instanceof ArrayBuffer || body instanceof Blob
@@ -29,14 +40,18 @@ async function fetchWithTimeout(url, init = {}) {
       const timeoutErr = new Error(
         isUploadBody(init.body)
           ? 'Upload timed out — try a smaller file (max 25 MB) or check your connection.'
-          : 'Request timed out — is the API server running? (npm run dev:all)',
+          : isLocalDevHost()
+            ? `Request timed out — ${localDevApiHelp()}`
+            : 'Request timed out — is the API server running?',
       )
       timeoutErr.cause = err
       throw timeoutErr
     }
     if (err?.message?.includes('Failed to fetch') || err?.message?.includes('NetworkError')) {
       throw new Error(
-        'API server is not running. Stop dev:all (Ctrl+C) and run npm run dev:all again, or run npm start on port 3000.',
+        isLocalDevHost()
+          ? `API server is not reachable. ${localDevApiHelp()}`
+          : 'API server is not reachable — check deployment env vars and /api routing.',
       )
     }
     throw err
@@ -63,10 +78,17 @@ async function readApiResponse(res) {
 }
 
 function formatApiError(status, json, { html = false, path = '' } = {}) {
-  if (status === 502) {
-    return 'API server is not running. Stop dev:all (Ctrl+C) and run npm run dev:all again, or run npm start in a second terminal on port 3000.'
+  if (status === 502 || status === 503 || status === 504) {
+    return isLocalDevHost()
+      ? `API server is not running. ${localDevApiHelp()}`
+      : 'API server is not running — redeploy with server env vars and same-origin /api.'
   }
   if (html) {
+    if (isLocalDevHost()) {
+      const port = window.location.port || '5190'
+      const tenUrl = port === '5190' ? window.location.origin : TEN_DEV_URL
+      return `Request failed: ${status}. Got HTML instead of JSON for ${path}. Port ${port} is not wired to the TEN API — ${localDevApiHelp()} Open ${tenUrl}/admin.`
+    }
     return `Request failed: ${status}. The host returned HTML instead of JSON for ${path || 'the API'} — redeploy with server env vars and same-origin /api (leave VITE_API_URL empty on Vercel).`
   }
   if (status === 404) {

@@ -3,6 +3,7 @@ dist/
 dist-ssr/
 .vite/
 *.local
+.ten-dev-url
 .DS_Store
 
 # Environment

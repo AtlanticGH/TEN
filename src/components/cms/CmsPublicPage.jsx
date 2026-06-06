@@ -8,24 +8,29 @@ import { PageMeta } from './PageMeta'
 
 /**
  * Renders CMS blocks, then legacy cms_content sections, then fallback JSX.
- * @deprecated Admin: use page builder only. Public sections bridge until migrated to blocks.
+ * Fallback body sections are preserved when CMS only has a hero block.
  */
 export function CmsPublicPage({ slug, fallback, children }) {
-  const { blocks, hasBlocks, loading, seo } = useCmsPage(slug)
+  const { blocks, hasBlocks, hasBodyBlocks, loading, seo } = useCmsPage(slug)
   const { sections, hasSections, loading: sectionsLoading } = useCmsSections(slug)
+  const fallbackContent = children || fallback || null
+  const bodyBlocks = blocksWithoutHero(blocks)
 
   if ((loading || sectionsLoading) && !hasBlocks && !hasSections) {
-    return children || fallback || null
+    return fallbackContent
   }
 
-  if (hasBlocks) {
-    const bodyBlocks = blocksWithoutHero(blocks)
+  const meta = (
+    <PageMeta title={seo?.title} description={seo?.description} robots={seo?.robots} />
+  )
+
+  if (hasBodyBlocks) {
     return (
       <>
-        <PageMeta title={seo?.title} description={seo?.description} robots={seo?.robots} />
+        {meta}
         <main id="page-main" data-component="page-main" data-cms-page={slug} className="overflow-x-hidden">
           <PageHeroSection slug={slug} />
-          {bodyBlocks.length ? <CmsPageBlocks blocks={bodyBlocks} /> : null}
+          <CmsPageBlocks blocks={bodyBlocks} />
         </main>
       </>
     )
@@ -34,7 +39,7 @@ export function CmsPublicPage({ slug, fallback, children }) {
   if (hasSections) {
     return (
       <>
-        <PageMeta title={seo?.title} description={seo?.description} robots={seo?.robots} />
+        {meta}
         <main id="page-main" data-component="page-main" data-cms-page={slug} className="overflow-x-hidden">
           <PageHeroSection slug={slug} />
           <CmsSectionsRenderer sections={sections} />
@@ -43,10 +48,22 @@ export function CmsPublicPage({ slug, fallback, children }) {
     )
   }
 
+  if (hasBlocks) {
+    return (
+      <>
+        {meta}
+        <main id="page-main" data-component="page-main" data-cms-page={slug} className="overflow-x-hidden">
+          <PageHeroSection slug={slug} />
+          {fallbackContent}
+        </main>
+      </>
+    )
+  }
+
   return (
     <>
-      <PageMeta title={seo?.title} description={seo?.description} robots={seo?.robots} />
-      {children || fallback || null}
+      {meta}
+      {fallbackContent}
     </>
   )
 }

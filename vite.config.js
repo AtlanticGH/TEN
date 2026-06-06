@@ -88,18 +88,25 @@ export default defineConfig({
   // routes those requests to api/index.js (which mounts the Express app
   // from server/index.js). If VITE_API_URL is set in a build env, fetch
   // helpers in src/ use it instead of relative /api paths.
+  //
+  // Local defaults (5190 / 3090) avoid clashing with other apps on 5173 / 3000.
+  // Always start with npm run dev:all — not npm run dev alone.
   server: {
+    port: 5190,
+    strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: `http://localhost:${process.env.DEV_API_PORT || '3090'}`,
         changeOrigin: true,
       },
     },
   },
   preview: {
+    port: 5190,
+    strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: `http://localhost:${process.env.DEV_API_PORT || '3090'}`,
         changeOrigin: true,
       },
     },

@@ -13,6 +13,7 @@ import { lazyWithRetry } from './router/lazyWithRetry'
 import { queryClient } from './lib/queryClient'
 import { supabaseIsConfigured } from './lib/supabaseClient'
 import { SupabaseConfigRequired } from './components/system/SupabaseConfigRequired'
+import { DevApiGuard } from './components/system/DevApiGuard'
 import { HomePage } from './pages/HomePage'
 
 const AboutPage = lazyWithRetry(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })))
@@ -163,6 +164,8 @@ const appTree = supabaseIsConfigured ? (
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>{appTree}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <DevApiGuard>{appTree}</DevApiGuard>
+    </QueryClientProvider>
   </StrictMode>,
 )

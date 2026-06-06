@@ -10,10 +10,14 @@ export function useAboutPageContent() {
   return useQuery({
     queryKey: ['site-content', ABOUT_PAGE_CONTENT_KEY],
     queryFn: async () => {
-      const row = await getSiteContent(ABOUT_PAGE_CONTENT_KEY)
-      return mergeAboutPageContent(extractSiteContentValue(row))
+      try {
+        const row = await getSiteContent(ABOUT_PAGE_CONTENT_KEY)
+        return mergeAboutPageContent(extractSiteContentValue(row))
+      } catch {
+        return mergeAboutPageContent(null)
+      }
     },
+    initialData: DEFAULT_ABOUT_PAGE_CONTENT,
     staleTime: 1000 * 60 * 5,
-    placeholderData: DEFAULT_ABOUT_PAGE_CONTENT,
   })
 }
