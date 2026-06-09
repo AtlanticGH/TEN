@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { FaqEditor } from '../../components/admin/FaqEditor'
+import { ImageUrlField } from '../../components/admin/ImageUrlField'
+import { ResourceEditorForm } from '../../components/admin/ResourceEditorForm'
 import {
   ADMIN_FIELD_LABEL,
   DashboardAlert,
@@ -18,7 +20,7 @@ import { DEFAULT_RESOURCES_FAQ, RESOURCES_FAQ_KEY, mergeFaqContent } from '../..
 import { useAuth } from '../../hooks/useAuth'
 import { canEditContent } from '../../lib/rbac'
 import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
-import { createResource, deleteResource, listResources } from '../../services/resources'
+import { createResource, deleteResource, listAdminResources, updateResource } from '../../services/resources'
 
 export function AdminResourcesPage() {
   const nested = useLocation().pathname.includes('/admin/pages/')
@@ -37,12 +39,15 @@ export function AdminResourcesPage() {
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
   const [file, setFile] = useState(null)
+  const [coverImageUrl, setCoverImageUrl] = useState('')
+  const [editingId, setEditingId] = useState('')
+  const [savingId, setSavingId] = useState('')
 
   const refresh = async () => {
     setLoading(true)
     setError('')
     try {
-      const data = await listResources({ limit: 200 })
+      const data = await listAdminResources({ limit: 200 })
       setItems(data)
     } catch (err) {
       setError(err?.message || 'Unable to load resources.')
@@ -91,7 +96,7 @@ export function AdminResourcesPage() {
         <DashboardPageIntro
           label="Resources"
           title="Free downloads"
-          description="Upload PDFs/templates for the public Resources page."
+          description="Upload PDFs and templates, set horizontal tile cover images, and edit existing resources."
           actions={
             <button type="button" onClick={() => refresh()} className={`${ADMIN_BTN_SECONDARY} !py-2`}>
               Refresh
@@ -114,11 +119,12 @@ export function AdminResourcesPage() {
               setBusy(true)
               setError('')
               try {
-                await createResource({ title, description, category, file })
+                await createResource({ title, description, category, file, cover_image_url: coverImageUrl })
                 setTitle('')
                 setDescription('')
                 setCategory('')
                 setFile(null)
+                setCoverImageUrl('')
                 await refresh()
               } catch (err) {
                 setError(err?.message || 'Unable to create resource.')
@@ -154,6 +160,13 @@ export function AdminResourcesPage() {
                 placeholder="Templates / Funding / Pitching"
               />
             </label>
+            <ImageUrlField
+              label="Cover image (tile preview)"
+              value={coverImageUrl}
+              uploadFolder="resources"
+              onChange={setCoverImageUrl}
+            />
+            <p className="-mt-1 text-xs text-zinc-500">Shown on the public Resources page. If empty, image uploads use the file itself; PDFs use a default cover.</p>
             <label className="block">
               <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">File *</span>
               <input
@@ -176,47 +189,106 @@ export function AdminResourcesPage() {
             <DashboardSkeleton className="mt-4 h-32" />
           ) : items.length ? (
             <div className="mt-4 space-y-3">
-              {items.map((r) => (
-                <DashboardInsetCard key={r.id}>
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold">{r.title}</p>
-                      {r.category ? <p className="mt-1 text-xs text-zinc-500">{r.category}</p> : null}
-                      {r.description ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{r.description}</p> : null}
-                      {r.download_url ? (
-                        <a
-                          className="mt-3 inline-flex text-sm font-semibold text-orange-600 hover:underline dark:text-orange-300"
-                          href={r.download_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Download
-                        </a>
-                      ) : null}
+              {items.map((r) => {
+                const isEditing = editingId === r.id
+                return (
+                  <DashboardInsetCard key={r.id}>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex min-w-0 flex-1 gap-4">
+                        {r.cover_image_url || r.download_url ? (
+                          <img
+                            src={r.cover_image_url || r.download_url}
+                            alt=""
+                            className="h-20 w-32 shrink-0 rounded-md object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex h-20 w-32 shrink-0 items-center justify-center rounded-md border border-dashed border-zinc-300 bg-zinc-50 text-[10px] text-zinc-500 dark:border-zinc-600 dark:bg-zinc-900">
+                            No cover
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold">{r.title}</p>
+                          {r.category ? <p className="mt-1 text-xs text-zinc-500">{r.category}</p> : null}
+                          {r.description ? (
+                            <p className="mt-2 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">{r.description}</p>
+                          ) : null}
+                          {r.download_url ? (
+                            <a
+                              className="mt-2 inline-flex text-sm font-semibold text-orange-600 hover:underline dark:text-orange-300"
+                              href={r.download_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Download file
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 flex-wrap gap-2">
+                        {canEdit ? (
+                          <button
+                            type="button"
+                            disabled={busy || savingId === r.id}
+                            onClick={() => setEditingId(isEditing ? '' : r.id)}
+                            className={ADMIN_BTN_SECONDARY}
+                          >
+                            {isEditing ? 'Close' : 'Edit'}
+                          </button>
+                        ) : null}
+                        {canEdit ? (
+                          <button
+                            type="button"
+                            disabled={busy || savingId === r.id}
+                            onClick={async () => {
+                              if (!confirm('Delete this resource?')) return
+                              setBusy(true)
+                              setError('')
+                              setNotice('')
+                              try {
+                                await deleteResource(r)
+                                if (editingId === r.id) setEditingId('')
+                                setNotice('Resource deleted.')
+                                await refresh()
+                              } catch (err) {
+                                setError(err?.message || 'Unable to delete resource.')
+                              } finally {
+                                setBusy(false)
+                              }
+                            }}
+                            className="rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-500 disabled:opacity-60"
+                          >
+                            Delete
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={async () => {
-                        if (!confirm('Delete this resource?')) return
-                        setBusy(true)
-                        setError('')
-                        try {
-                          await deleteResource(r)
-                          await refresh()
-                        } catch (err) {
-                          setError(err?.message || 'Unable to delete resource.')
-                        } finally {
-                          setBusy(false)
-                        }
-                      }}
-                      className="rounded-full bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-500 disabled:opacity-60"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </DashboardInsetCard>
-              ))}
+                    {isEditing ? (
+                      <ResourceEditorForm
+                        resource={r}
+                        canEdit={canEdit}
+                        saving={savingId === r.id}
+                        onCancel={() => setEditingId('')}
+                        onSave={async (patch) => {
+                          setSavingId(r.id)
+                          setError('')
+                          setNotice('')
+                          try {
+                            await updateResource(r.id, patch)
+                            setNotice('Resource saved.')
+                            setEditingId('')
+                            await refresh()
+                          } catch (err) {
+                            setError(err?.message || 'Unable to save resource.')
+                          } finally {
+                            setSavingId('')
+                          }
+                        }}
+                      />
+                    ) : null}
+                  </DashboardInsetCard>
+                )
+              })}
             </div>
           ) : (
             <div className="mt-4">

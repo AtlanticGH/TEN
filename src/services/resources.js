@@ -27,7 +27,7 @@ export async function listAdminResources({ limit = 200 } = {}) {
   return withDownloadUrls(rows)
 }
 
-export async function createResource({ title, description, category, file, file_url } = {}) {
+export async function createResource({ title, description, category, file, file_url, cover_image_url } = {}) {
   if (!title?.trim()) throw new Error('Title is required')
 
   let upload = null
@@ -59,7 +59,16 @@ export async function createResource({ title, description, category, file, file_
       file_url: resolvedUrl || null,
       mime_type: upload?.mime_type || null,
       size_bytes: upload?.size_bytes || null,
+      cover_image_url: cover_image_url ? String(cover_image_url).trim() : null,
     }),
+  })
+}
+
+export async function updateResource(id, patch = {}) {
+  if (!id) throw new Error('Missing resource id')
+  return await apiFetch(`/api/admin/resources/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(patch),
   })
 }
 

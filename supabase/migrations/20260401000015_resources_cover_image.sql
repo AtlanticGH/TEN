@@ -1,0 +1,3 @@
+-- Resource download tiles: optional cover image for public cards
+ALTER TABLE public.resources
+  ADD COLUMN IF NOT EXISTS cover_image_url text;

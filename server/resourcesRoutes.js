@@ -71,6 +71,7 @@ export function registerResourcesRoutes(app, { supabase, verifyUser, requireStaf
           file_url: fileUrl,
           mime_type: p.mime_type || null,
           size_bytes: p.size_bytes || null,
+          cover_image_url: p.cover_image_url ? String(p.cover_image_url).trim() : null,
           published: p.published !== false,
         })
         .select('*')
@@ -79,6 +80,32 @@ export function registerResourcesRoutes(app, { supabase, verifyUser, requireStaf
       res.json(data)
     } catch (err) {
       res.status(400).json({ error: err?.message || 'Create resource error' })
+    }
+  })
+
+  app.put('/api/admin/resources/:id', verifyUser, requireStaff, async (req, res) => {
+    try {
+      if (!requireSupabase(res)) return
+      const id = String(req.params.id || '')
+      const p = req.body && typeof req.body === 'object' ? req.body : {}
+      const patch = {}
+      if (p.title !== undefined) {
+        const title = String(p.title || '').trim()
+        if (!title) return res.status(400).json({ error: 'Title is required' })
+        patch.title = title
+      }
+      if (p.description !== undefined) patch.description = String(p.description || '').trim() || null
+      if (p.category !== undefined) patch.category = String(p.category || '').trim() || null
+      if (p.cover_image_url !== undefined) {
+        patch.cover_image_url = p.cover_image_url ? String(p.cover_image_url).trim() : null
+      }
+      if (p.published !== undefined) patch.published = p.published !== false
+      if (!Object.keys(patch).length) return res.status(400).json({ error: 'No fields to update' })
+      const { data, error } = await supabase.from('resources').update(patch).eq('id', id).select('*').single()
+      if (error) throw error
+      res.json(data)
+    } catch (err) {
+      res.status(400).json({ error: err?.message || 'Update resource error' })
     }
   })
 

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { InnerPageHero } from '../components/shared/InnerPageHero'
+import { ResourceCard } from '../components/resources/ResourceCard'
 import { FaqAccordion } from '../components/shared/FaqAccordion'
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_RESOURCES_FAQ, RESOURCES_FAQ_KEY } from '../config/faqContentDefaults'
@@ -80,10 +80,9 @@ function ResourcesPageBody() {
             {error}
           </div>
         ) : loading ? (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <div className="animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/70 p-10 dark:border-zinc-800 dark:bg-zinc-900/40" />
-            <div className="animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/70 p-10 dark:border-zinc-800 dark:bg-zinc-900/40" />
-            <div className="animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/70 p-10 dark:border-zinc-800 dark:bg-zinc-900/40" />
+          <div className="space-y-6">
+            <div className="min-h-[11rem] animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/70 dark:border-zinc-800 dark:bg-zinc-900/40 sm:min-h-[12rem]" />
+            <div className="min-h-[11rem] animate-pulse rounded-2xl border border-zinc-200 bg-zinc-100/70 dark:border-zinc-800 dark:bg-zinc-900/40 sm:min-h-[12rem]" />
           </div>
         ) : items.length ? (
           <div className="space-y-6">
@@ -96,29 +95,9 @@ function ResourcesPageBody() {
                 ))}
               </div>
             ) : null}
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="flex flex-col gap-6">
               {items.map((r) => (
-                <article key={r.id} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/70">
-                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">{r.title}</h3>
-                  {r.description ? <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{r.description}</p> : null}
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                    {r.category ? <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{r.category}</span> : <span />}
-                    {r.download_url ? (
-                      <a
-                        href={r.download_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex rounded-full border border-zinc-300 px-4 py-1.5 text-xs font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200"
-                      >
-                        Download
-                      </a>
-                    ) : (
-                      <Link to="/community" className="inline-flex rounded-full border border-zinc-300 px-4 py-1.5 text-xs font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
-                        Learn more
-                      </Link>
-                    )}
-                  </div>
-                </article>
+                <ResourceCard key={r.id} resource={r} />
               ))}
             </div>
           </div>
