@@ -8,12 +8,20 @@ export const DEFAULT_SOCIAL_LINKS = [
   { label: 'Facebook', href: 'https://www.facebook.com/theembernetwork' },
 ]
 
+const FOUNDER_PORTRAIT = '/assets/images/profiles/ceo-portrait.jpg'
+const TEAM_PORTRAITS = [
+  '/assets/images/1560250097-0b93528c311a.jpg',
+  '/assets/images/1573497019940-1c28c88b4f3e.jpg',
+  '/assets/images/1542744173-05336fcc7ad4.jpg',
+  '/assets/images/1520607162513-77705c0f0d4a.jpg',
+]
+
 export const DEFAULT_ABOUT_FOUNDER = {
   eyebrow: 'Meet Our Founder',
   title: 'Maud Lindsay-Gamrat',
   subtitle: 'Founder & Executive Director',
-  image: '',
-  image_fallback: '',
+  image: FOUNDER_PORTRAIT,
+  image_fallback: '/assets/images/1573496774426-fe3db3dd1731.jpg',
   body:
     "Maud Lindsay-Gamrat is a dynamic entrepreneur and seasoned business leader with over two decades of experience in Ghana's corporate landscape. As the CEO of Atlantic, she has built a thriving company delivering world-class catering and hospitality solutions across inflight, offshore, remote site, and corporate operations on some of the continent's largest oil and gas and mining sites.\n\nUnder her leadership, Atlantic has grown into a powerhouse employing more than 545 staff, with approximately 98% being Ghanaians, reflecting her strong commitment to local capacity building. Across a 24-year career spanning Sales, Marketing, Human Resources, and Finance, she has launched and managed major remote-site hospitality projects with consistent operational excellence.\n\nHer strategic vision has earned notable recognition, including Most Outstanding Female-Owned Business in Ghana's Upstream Petroleum Sector (Petroleum Commission of Ghana) and Glitz Woman of the Year for Catering and Hospitality (Glitz Africa). She has also been featured on global platforms such as CNN's \"Passion to Portfolio\" for her impact as a business leader.\n\nBeyond business, Maud is deeply committed to women's empowerment and entrepreneurship. Through The Ember Network, she is focused on equipping and connecting ambitious entrepreneurs, especially women, by building a supportive ecosystem that fosters innovation, leadership, and sustainable venture growth.",
   social_links: [...DEFAULT_SOCIAL_LINKS],
@@ -28,8 +36,8 @@ export const DEFAULT_ABOUT_TEAM = {
       position: 'Program Lead',
       title: 'Program Lead',
       description: 'Designs weekly and monthly activities that keep members accountable and growth-focused.',
-      image: '',
-      image_fallback: '',
+      image: TEAM_PORTRAITS[0],
+      image_fallback: TEAM_PORTRAITS[0],
       social_links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com' },
         { label: 'Instagram', href: 'https://www.instagram.com' },
@@ -40,8 +48,8 @@ export const DEFAULT_ABOUT_TEAM = {
       position: 'Mentor Relations',
       title: 'Mentor Relations',
       description: 'Connects members with experienced founders, experts, and strategic advisors.',
-      image: '',
-      image_fallback: '',
+      image: TEAM_PORTRAITS[1],
+      image_fallback: TEAM_PORTRAITS[1],
       social_links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com' },
         { label: 'Instagram', href: 'https://www.instagram.com' },
@@ -52,8 +60,8 @@ export const DEFAULT_ABOUT_TEAM = {
       position: 'Member Engagement Lead',
       title: 'Member Engagement Lead',
       description: 'Cultivates engagement across circles, events, and founder collaboration touchpoints.',
-      image: '',
-      image_fallback: '',
+      image: TEAM_PORTRAITS[2],
+      image_fallback: TEAM_PORTRAITS[2],
       social_links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com' },
         { label: 'Instagram', href: 'https://www.instagram.com' },
@@ -64,8 +72,8 @@ export const DEFAULT_ABOUT_TEAM = {
       position: 'Partnerships & Growth',
       title: 'Partnerships & Growth',
       description: 'Builds ecosystem partnerships that expand opportunity for TEN members.',
-      image: '',
-      image_fallback: '',
+      image: TEAM_PORTRAITS[3],
+      image_fallback: TEAM_PORTRAITS[3],
       social_links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com' },
         { label: 'Instagram', href: 'https://www.instagram.com' },
@@ -80,8 +88,8 @@ export const DEFAULT_HOME_TORCHBEARER = {
   name: 'Maud Lindsay-Gamrat',
   tagline: 'Entrepreneur. Mentor. Builder of Possibilities.',
   subtitle: 'The Flame Behind the Vision',
-  image: '',
-  image_fallback: '',
+  image: FOUNDER_PORTRAIT,
+  image_fallback: '/assets/images/1573496774426-fe3db3dd1731.jpg',
   stats: [
     { value: '24+', label: 'Years Leadership Experience' },
     { value: 'CEO', label: 'of Atlantic Catering' },

@@ -1,5 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 
+function normalizeImageSrc(src) {
+  const t = String(src || '').trim()
+  if (!t) return ''
+  if (t.startsWith('/') && !t.startsWith('//')) {
+    return t
+      .split('/')
+      .map((seg, i) => (i === 0 ? seg : encodeURIComponent(decodeURIComponent(seg))))
+      .join('/')
+  }
+  return t
+}
+
 export function ImageWithFallback({
   src,
   fallbackSrc,
@@ -14,16 +26,17 @@ export function ImageWithFallback({
       if (Array.isArray(fallbackSrc)) list.push(...fallbackSrc)
       else list.push(fallbackSrc)
     }
-    return list.filter(Boolean)
+    return list.map(normalizeImageSrc).filter(Boolean)
   }, [fallbackSrc])
 
-  const [currentSrc, setCurrentSrc] = useState(src || '')
+  const normalizedSrc = useMemo(() => normalizeImageSrc(src), [src])
+  const [currentSrc, setCurrentSrc] = useState(normalizedSrc)
   const [fallbackIndex, setFallbackIndex] = useState(0)
 
   useEffect(() => {
-    setCurrentSrc(src || '')
+    setCurrentSrc(normalizedSrc)
     setFallbackIndex(0)
-  }, [src])
+  }, [normalizedSrc])
 
   const onError = () => {
     if (fallbackIndex >= fallbacks.length) return

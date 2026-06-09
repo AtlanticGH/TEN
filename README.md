@@ -23,15 +23,17 @@ Create a local env file:
 Start **frontend + API** together (recommended):
 
 ```bash
-npm run dev:all
+npm run dev
 ```
 
-Open http://localhost:5173/
+Open the URL printed in the terminal (usually **http://localhost:5190**). The project also writes it to `.ten-dev-url`.
 
-API only (e.g. port 3000):
+Do **not** use `localhost:5173` unless another app already owns it — TEN uses **5190** (Vite) and **3090** (API) by default.
+
+API only (e.g. port 3090):
 
 ```bash
-npm start
+PORT=3090 npm start
 ```
 
 ## Troubleshooting
@@ -40,7 +42,7 @@ If the client reports Supabase is not configured, add `VITE_SUPABASE_URL` and `V
 
 **Password reset / invite links land on a blank login page:** Supabase appends a one-time token in the URL hash. Add these to **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**:
 
-- `http://localhost:5173/reset-password` (local)
+- `http://localhost:5190/reset-password` (local)
 - `https://<your-production-domain>/reset-password` (production)
 
 Forgot-password, invite, and recovery flows all redirect to `/reset-password` (not `/login`).

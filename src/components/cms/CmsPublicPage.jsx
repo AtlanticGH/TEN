@@ -10,10 +10,11 @@ import { PageMeta } from './PageMeta'
  * Renders CMS blocks, then legacy cms_content sections, then fallback JSX.
  * Fallback body sections are preserved when CMS only has a hero block.
  */
-export function CmsPublicPage({ slug, fallback, children }) {
+export function CmsPublicPage({ slug, fallback, fallbackBody, children }) {
   const { blocks, hasBlocks, hasBodyBlocks, loading, seo } = useCmsPage(slug)
   const { sections, hasSections, loading: sectionsLoading } = useCmsSections(slug)
   const fallbackContent = children || fallback || null
+  const bodyFallback = fallbackBody || fallbackContent
   const bodyBlocks = blocksWithoutHero(blocks)
 
   if ((loading || sectionsLoading) && !hasBlocks && !hasSections) {
@@ -54,7 +55,7 @@ export function CmsPublicPage({ slug, fallback, children }) {
         {meta}
         <main id="page-main" data-component="page-main" data-cms-page={slug} className="overflow-x-hidden">
           <PageHeroSection slug={slug} />
-          {fallbackContent}
+          {bodyFallback}
         </main>
       </>
     )

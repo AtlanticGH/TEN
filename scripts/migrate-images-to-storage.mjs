@@ -85,7 +85,8 @@ async function indexExistingMedia() {
     const title = normalizeKey(asset.title)
     urlMap.set(`basename:${base}`, pub)
     if (title) urlMap.set(`title:${title}`, pub)
-    if (title.includes('ceo portrat')) {
+    if (title.includes('ceo portrat') || title.includes('ceo-portrait')) {
+      urlMap.set('/assets/images/profiles/ceo-portrait.jpg', pub)
       urlMap.set('/assets/images/profiles/ceo portrat 7.png', pub)
     }
   }

@@ -11,12 +11,12 @@ import { useCmsPage } from '../hooks/useCmsPage'
 export function CmsDynamicPage() {
   const { slug } = useParams()
   const safeSlug = String(slug || '')
+  const reserved = !safeSlug || isReservedPublicSlug(safeSlug)
+  const { blocks, hasBlocks, loading, seo, isError } = useCmsPage(safeSlug, { enabled: !reserved })
 
-  if (!safeSlug || isReservedPublicSlug(safeSlug)) {
+  if (reserved) {
     return <Navigate to="/" replace />
   }
-
-  const { blocks, hasBlocks, loading, seo, isError } = useCmsPage(safeSlug)
 
   if (loading) {
     return (

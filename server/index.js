@@ -30,6 +30,10 @@ function corsOrigins() {
   if (origins.size) return [...origins]
   if (process.env.NODE_ENV === 'production') return false
   return [
+    'http://localhost:5190',
+    'http://localhost:5191',
+    'http://localhost:5192',
+    'http://localhost:5193',
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',

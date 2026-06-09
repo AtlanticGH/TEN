@@ -109,7 +109,7 @@ function FeaturesBlock({ content }) {
                   <div className={`min-h-[260px] ${imageFirst ? '' : 'lg:order-2'}`}>
                     <ImageWithFallback
                       src={item.image}
-                      fallbackSrc={item.fallback_image || ''}
+                      fallbackSrc={item.fallback_image || item.image_fallback || ''}
                       alt={item.title || ''}
                       className="h-full w-full object-cover"
                       loading="lazy"
@@ -159,7 +159,7 @@ function FeaturesBlock({ content }) {
             {item.image ? (
               <ImageWithFallback
                 src={item.image}
-                fallbackSrc={item.fallback_image || ''}
+                fallbackSrc={item.fallback_image || item.image_fallback || ''}
                 alt={team && item.name ? `Portrait of ${item.name}` : position || ''}
                 className={team ? 'h-64 w-full object-cover md:h-72' : 'mb-4 aspect-[4/3] w-full rounded-lg object-cover'}
                 loading="lazy"

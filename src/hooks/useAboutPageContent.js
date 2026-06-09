@@ -17,7 +17,7 @@ export function useAboutPageContent() {
         return mergeAboutPageContent(null)
       }
     },
-    initialData: DEFAULT_ABOUT_PAGE_CONTENT,
+    placeholderData: DEFAULT_ABOUT_PAGE_CONTENT,
     staleTime: 1000 * 60 * 5,
   })
 }

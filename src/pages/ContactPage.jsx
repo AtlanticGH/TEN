@@ -4,7 +4,18 @@ import { PageHeroSection } from '../components/shared/PageHeroSection'
 import { CmsPublicPage } from '../components/cms/CmsPublicPage'
 
 export function ContactPage() {
-  return <CmsPublicPage slug="contact" fallback={<ContactPageContent />} />
+  return (
+    <CmsPublicPage
+      slug="contact"
+      fallback={<ContactPageContent />}
+      fallbackBody={
+        <>
+          <ContactDetails />
+          <ContactFAQ />
+        </>
+      }
+    />
+  )
 }
 
 function ContactPageContent() {

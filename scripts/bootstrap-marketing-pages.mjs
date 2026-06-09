@@ -23,7 +23,7 @@ const FOUNDER_HTML = `
 <article class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
   <div class="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
     <div class="relative min-h-[260px]">
-      <img src="/assets/images/profiles/ceo portrat 7.png" alt="Maud Lindsay-Gamrat" class="h-full w-full object-cover" loading="lazy" />
+      <img src="/assets/images/profiles/ceo-portrait.jpg" alt="Maud Lindsay-Gamrat" class="h-full w-full object-cover" loading="lazy" />
     </div>
     <div class="p-8 md:p-10">
       <p class="text-xs uppercase tracking-[0.18em] text-orange-500">Meet Our Founder</p>

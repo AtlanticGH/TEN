@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { enabledBlocks, hasVisibleBodyBlocks } from '../lib/cmsBlocks'
 import { getPublicPage } from '../services/cms/pages'
 
-export function cmsPageQueryOptions(slug) {
+export function cmsPageQueryOptions(slug, { enabled = true } = {}) {
   return {
     queryKey: ['cms-page', slug],
+    enabled: enabled && Boolean(slug),
     queryFn: async () => {
       try {
         return await getPublicPage(slug)
@@ -20,8 +21,8 @@ export function cmsPageQueryOptions(slug) {
   }
 }
 
-export function useCmsPage(slug) {
-  const { data, isLoading, isError, error, isFetching } = useQuery(cmsPageQueryOptions(slug))
+export function useCmsPage(slug, options = {}) {
+  const { data, isLoading, isError, error, isFetching } = useQuery(cmsPageQueryOptions(slug, options))
   const blocks = data?.blocks || []
   const activeBlocks = enabledBlocks(blocks)
   const page = data?.page || null

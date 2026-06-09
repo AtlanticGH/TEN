@@ -6,10 +6,30 @@ import { listResources } from '../services/resources'
 import { CmsPublicPage } from '../components/cms/CmsPublicPage'
 
 export function ResourcesPage() {
-  return <CmsPublicPage slug="resources" fallback={<ResourcesPageContent />} />
+  return (
+    <CmsPublicPage
+      slug="resources"
+      fallback={<ResourcesPageContent />}
+      fallbackBody={<ResourcesPageBody />}
+    />
+  )
 }
 
 function ResourcesPageContent() {
+  return (
+    <main id="page-main" data-component="page-main" className="overflow-x-hidden">
+      <InnerPageHero
+        badge="Resources"
+        heading="Practical guides for purposeful growth"
+        description="Explore actionable playbooks, templates, and mentorship notes to help you move from idea to measurable progress."
+        image=""
+      />
+      <ResourcesPageBody />
+    </main>
+  )
+}
+
+function ResourcesPageBody() {
   const [open, setOpen] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -61,14 +81,7 @@ function ResourcesPageContent() {
   }, [items])
 
   return (
-    <main id="page-main" data-component="page-main" className="overflow-x-hidden">
-      <InnerPageHero
-        badge="Resources"
-        heading="Practical guides for purposeful growth"
-        description="Explore actionable playbooks, templates, and mentorship notes to help you move from idea to measurable progress."
-        image=""
-      />
-
+    <>
       <section id="featured-resources" className="mx-auto max-w-7xl px-8 py-14 md:px-12 lg:px-10">
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.18em] text-orange-400">Featured Resources</p>
@@ -112,7 +125,7 @@ function ResourcesPageContent() {
                         Download
                       </a>
                     ) : (
-                      <Link to="/apply" className="inline-flex rounded-full border border-zinc-300 px-4 py-1.5 text-xs font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
+                      <Link to="/community" className="inline-flex rounded-full border border-zinc-300 px-4 py-1.5 text-xs font-semibold text-zinc-700 hover:border-orange-400 hover:text-orange-500 dark:border-zinc-700 dark:text-zinc-200">
                         Learn more
                       </Link>
                     )}
@@ -154,7 +167,7 @@ function ResourcesPageContent() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   )
 }
 
