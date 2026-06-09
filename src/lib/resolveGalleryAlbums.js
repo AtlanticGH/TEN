@@ -1,15 +1,8 @@
 import { groupPhotosIntoAlbums, normalizeGalleryAlbums } from './galleryAlbums'
 import { DEFAULT_GALLERY_ALBUMS, GALLERY_FOLDER_LABELS } from './galleryDefaults'
 
-/**
- * Resolve albums for public gallery: CMS block → media library → built-in defaults.
- * @param {{ galleryBlockContent?: object, mediaRows?: Array }} input
- */
-export function resolveGalleryAlbums({ galleryBlockContent, mediaRows } = {}) {
-  const fromCms = normalizeGalleryAlbums(galleryBlockContent)
-  if (fromCms.length) return fromCms
-
-  const fromMedia = (mediaRows || [])
+function mapMediaRows(mediaRows) {
+  return (mediaRows || [])
     .map((row) => ({
       src: row.public_url || row.url || '',
       alt: row.alt || row.title || '',
@@ -17,17 +10,37 @@ export function resolveGalleryAlbums({ galleryBlockContent, mediaRows } = {}) {
       folder: row.folder || 'general',
     }))
     .filter((item) => item.src)
+}
 
-  if (fromMedia.length) {
-    return groupPhotosIntoAlbums(fromMedia, {
-      getGroupKey: (photo) => photo.folder || 'general',
-      getAlbumMeta: (key) => ({
-        title: GALLERY_FOLDER_LABELS[key] || key.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-        caption: 'Media library',
-        description: `Photos uploaded to the ${GALLERY_FOLDER_LABELS[key] || key} collection.`,
-      }),
-    })
-  }
+function albumsFromMediaRows(mediaRows, { folder } = {}) {
+  const rows = folder ? mediaRows.filter((row) => (row.folder || 'general') === folder) : mediaRows
+  const photos = mapMediaRows(rows)
+  if (!photos.length) return []
+
+  return groupPhotosIntoAlbums(photos, {
+    getGroupKey: (photo) => photo.folder || 'general',
+    getAlbumMeta: (key) => ({
+      title: GALLERY_FOLDER_LABELS[key] || key.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      caption: 'Media library',
+      description: `Photos uploaded to the ${GALLERY_FOLDER_LABELS[key] || key} collection.`,
+    }),
+  })
+}
+
+/**
+ * Resolve albums for public gallery: CMS block (with photos) → gallery folder → all media → defaults.
+ * @param {{ galleryBlockContent?: object, mediaRows?: Array }} input
+ */
+export function resolveGalleryAlbums({ galleryBlockContent, mediaRows } = {}) {
+  const fromCms = normalizeGalleryAlbums(galleryBlockContent)
+  if (fromCms.length) return fromCms
+
+  const rows = mediaRows || []
+  const fromGalleryFolder = albumsFromMediaRows(rows, { folder: 'gallery' })
+  if (fromGalleryFolder.length) return fromGalleryFolder
+
+  const fromAllMedia = albumsFromMediaRows(rows)
+  if (fromAllMedia.length) return fromAllMedia
 
   return DEFAULT_GALLERY_ALBUMS
 }

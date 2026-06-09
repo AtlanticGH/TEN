@@ -1,9 +1,21 @@
+import { buildPublicStorageUrl } from './storageUrls'
+
 /** @typedef {{ src: string, alt?: string, caption?: string, fallback?: string }} GalleryPhoto */
 /** @typedef {{ title?: string, caption?: string, description?: string, items?: GalleryPhoto[] }} GalleryAlbum */
 
+function resolvePhotoSrc(item) {
+  const raw = String(item?.image || item?.src || item?.url || item?.public_url || '').trim()
+  if (!raw) return ''
+  if (raw.includes('/storage/v1/object/public/') || raw.startsWith('http://') || raw.startsWith('https://')) {
+    return raw
+  }
+  if (raw.startsWith('/') && !raw.startsWith('//')) return raw
+  return buildPublicStorageUrl('public', raw.replace(/^\/+/, ''))
+}
+
 function mapPhoto(item) {
   return {
-    src: item.image || item.src || item.url || '',
+    src: resolvePhotoSrc(item),
     alt: item.alt || '',
     caption: item.caption || item.title || '',
     fallback: item.fallback_image || item.fallback || '',
@@ -26,7 +38,7 @@ export function normalizeGalleryAlbums(content) {
         description: album.description || '',
         items: (album.items || []).map(mapPhoto).filter((photo) => photo.src),
       }))
-      .filter((album) => album.title || album.caption || album.description || album.items.length)
+      .filter((album) => album.items.length > 0)
   }
 
   const legacyItems = (c.items || []).map(mapPhoto).filter((photo) => photo.src)

@@ -79,30 +79,6 @@ export function registerGalleryEnsureRoute(app, { supabase, verifyUser, requireS
             albums: DEFAULT_GALLERY_ALBUMS,
           },
         })
-      } else {
-        const { data: galleryBlocks } = await supabase
-          .from('page_blocks')
-          .select('id, content')
-          .eq('page_id', page.id)
-          .eq('block_type', 'gallery')
-        const empty = (galleryBlocks || []).find((b) => {
-          const albums = b.content?.albums || []
-          return !albums.some((a) => (a.items || []).some((it) => it.image || it.src))
-        })
-        if (empty) {
-          await supabase
-            .from('page_blocks')
-            .update({
-              content: {
-                eyebrow: 'Photos',
-                title: 'Photo albums',
-                subtitle: 'Browse collections by theme — each album has a caption, description, and photo captions.',
-                albums: DEFAULT_GALLERY_ALBUMS,
-              },
-              updated_by: req.user.id,
-            })
-            .eq('id', empty.id)
-        }
       }
       if (seeds.length) {
         const { error: seedErr } = await supabase.from('page_blocks').insert(seeds)

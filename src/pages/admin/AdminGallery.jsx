@@ -116,7 +116,8 @@ export function AdminGalleryPage() {
       <DashboardPanel>
         <p className={ADMIN_FIELD_LABEL}>Quick upload</p>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Files go to the <strong>gallery</strong> folder in the media library. Pick them in albums or videos below.
+          Files go to the <strong>gallery</strong> folder. Uploaded photos appear on the public gallery automatically; add
+          them to an album below for captions and grouping.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <select
@@ -143,7 +144,7 @@ export function AdminGalleryPage() {
                 setNotice('')
                 try {
                   await uploadMediaFile({ file, folder: 'gallery', title: file.name })
-                  setNotice('Uploaded — use Pick in the editor below to add it to an album or video.')
+                  setNotice('Uploaded — it will show on /gallery. Use Pick below to add captions or group into an album.')
                 } catch (err) {
                   setError(err?.message || 'Upload failed.')
                 } finally {

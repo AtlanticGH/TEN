@@ -580,7 +580,7 @@ export function BlockEditorForm({ blockType, content, onChange, disabled, mediaU
               className="text-sm font-medium text-zinc-600"
               onClick={() =>
                 set({
-                  albums: [...albums, { title: '', caption: '', description: '', items: [{ image: '', caption: '', alt: '' }] }],
+                  albums: [...albums, { title: '', caption: '', description: '', items: [] }],
                 })
               }
             >
