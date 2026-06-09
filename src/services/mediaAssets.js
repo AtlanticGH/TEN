@@ -116,6 +116,41 @@ export async function uploadMediaFile({ file, folder = 'uploads', title = '', al
   return uploadViaApiProxy({ file, folder, title, alt, tags })
 }
 
+/**
+ * Upload multiple files sequentially (images, videos, PDFs).
+ * @param {{ files: FileList|File[], folder?: string, title?: string, alt?: string, tags?: string[], onProgress?: (p: { current: number, total: number, file: File }) => void }} opts
+ */
+export async function uploadMediaFiles({ files, folder = 'uploads', title = '', alt = '', tags = [], onProgress } = {}) {
+  const list = Array.from(files || []).filter(Boolean)
+  if (!list.length) throw new Error('No files selected')
+
+  const results = []
+  const errors = []
+
+  for (let i = 0; i < list.length; i += 1) {
+    const file = list[i]
+    onProgress?.({ current: i + 1, total: list.length, file })
+    try {
+      const asset = await uploadMediaFile({
+        file,
+        folder,
+        title: title.trim() || file.name,
+        alt,
+        tags,
+      })
+      results.push({ file, asset })
+    } catch (err) {
+      errors.push({ file, error: err?.message || 'Upload failed' })
+    }
+  }
+
+  if (!results.length && errors.length) {
+    throw new Error(errors.map((e) => `${e.file.name}: ${e.error}`).join('; '))
+  }
+
+  return { results, errors, uploaded: results.length, failed: errors.length }
+}
+
 export async function updateMediaAsset(id, patch) {
   return await apiFetch(`/api/admin/media-assets/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(patch || {}) })
 }

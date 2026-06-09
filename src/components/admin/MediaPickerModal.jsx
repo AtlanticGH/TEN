@@ -17,7 +17,7 @@ import {
   deleteMediaAsset,
   getPublicAssetUrl,
   listMediaAssets,
-  uploadMediaFile,
+  uploadMediaFiles,
 } from '../../services/mediaAssets'
 
 /**
@@ -123,22 +123,39 @@ export function MediaPickerModal({
           </button>
           {canEdit ? (
             <label className={`${ADMIN_BTN_PRIMARY} cursor-pointer`}>
-              {uploading ? 'Uploading…' : 'Upload new'}
+              {uploading ? 'Uploading…' : videoMode ? 'Upload new' : 'Upload images'}
               <input
                 type="file"
                 accept={accept}
+                multiple={!videoMode}
                 className="sr-only"
                 disabled={uploading}
                 onChange={async (e) => {
-                  const file = e.target.files?.[0]
-                  if (!file) return
+                  const files = Array.from(e.target.files || [])
+                  if (!files.length) return
                   setUploading(true)
                   setError('')
                   try {
-                    const asset = await uploadMediaFile({ file, folder: folder || uploadFolder || 'cms' })
-                    const url = getPublicAssetUrl({ asset })
-                    if (url) onSelect(url)
-                    onClose()
+                    if (files.length === 1 && videoMode) {
+                      const { results } = await uploadMediaFiles({
+                        files,
+                        folder: folder || uploadFolder || 'cms',
+                      })
+                      const url = getPublicAssetUrl({ asset: results[0]?.asset })
+                      if (url) onSelect(url)
+                      onClose()
+                    } else {
+                      const { uploaded, failed, errors } = await uploadMediaFiles({
+                        files,
+                        folder: folder || uploadFolder || 'cms',
+                      })
+                      await refresh()
+                      if (failed) {
+                        setError(
+                          `Uploaded ${uploaded}; ${failed} failed. ${errors.map((item) => item.file.name).join(', ')}`,
+                        )
+                      }
+                    }
                   } catch (err) {
                     setError(err?.message || 'Upload failed.')
                   } finally {

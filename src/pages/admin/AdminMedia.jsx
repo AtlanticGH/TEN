@@ -30,7 +30,7 @@ import {
   getPublicAssetUrl,
   listMediaAssets,
   updateMediaAsset,
-  uploadMediaFile,
+  uploadMediaFiles,
 } from '../../services/mediaAssets'
 import { useAuth } from '../../hooks/useAuth'
 import { canEditContent } from '../../lib/rbac'
@@ -55,6 +55,7 @@ export function AdminMediaPage() {
   const [folderFilter, setFolderFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('all')
   const [busy, setBusy] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(null)
 
   const [openId, setOpenId] = useState('')
   const [uploadFolder, setUploadFolder] = useState('cms')
@@ -95,26 +96,35 @@ export function AdminMediaPage() {
     return c
   }, [items])
 
-  const uploadFile = async (file) => {
-    if (!file || !canEdit) return
+  const uploadFiles = async (fileList) => {
+    const files = Array.from(fileList || []).filter(Boolean)
+    if (!files.length || !canEdit) return
     setError('')
     setNotice('')
     setBusy('upload')
+    setUploadProgress({ current: 0, total: files.length })
     try {
-      await uploadMediaFile({
-        file,
+      const { uploaded, failed, errors } = await uploadMediaFiles({
+        files,
         folder: uploadFolder,
-        title: uploadTitle.trim() || file.name,
+        title: uploadTitle,
         alt: uploadAlt.trim(),
+        onProgress: ({ current, total }) => setUploadProgress({ current, total }),
       })
-      setNotice(`Uploaded to ${uploadFolder}.`)
-      setUploadTitle('')
-      setUploadAlt('')
+      if (uploaded && failed) {
+        setNotice(`Uploaded ${uploaded} file${uploaded === 1 ? '' : 's'} to ${uploadFolder}. ${failed} failed.`)
+        setError(errors.map((e) => `${e.file.name}: ${e.error}`).join(' '))
+      } else if (uploaded) {
+        setNotice(`Uploaded ${uploaded} file${uploaded === 1 ? '' : 's'} to ${uploadFolder}.`)
+        setUploadTitle('')
+        setUploadAlt('')
+      }
       await refresh()
     } catch (err) {
       setError(err?.message || 'Upload failed.')
     } finally {
       setBusy('')
+      setUploadProgress(null)
     }
   }
 
@@ -142,7 +152,7 @@ export function AdminMediaPage() {
         <DashboardPageIntro
           label="Media"
           title="Media library"
-          description="Upload and organize images, videos, and PDFs. Click an asset to edit or delete it."
+          description="Upload and organize images, videos, and PDFs. Select or drop multiple files at once. Click an asset to edit or delete it."
         />
       ) : null}
 
@@ -209,8 +219,8 @@ export function AdminMediaPage() {
           <DashboardSectionHeader
             bordered={false}
             label="Upload"
-            title="Add new file"
-            description="Max 25 MB. Images and PDFs via API; videos upload directly to storage (MP4, WebM, MOV)."
+            title="Add new files"
+            description="Max 25 MB per file. Choose multiple images at once, or mix videos and PDFs. Videos upload directly to storage (MP4, WebM, MOV)."
           />
           <div className="mt-4 space-y-4">
             <label className="block">
@@ -261,22 +271,26 @@ export function AdminMediaPage() {
               onDrop={async (e) => {
                 e.preventDefault()
                 e.currentTarget.classList.remove('border-orange-400')
-                const file = e.dataTransfer.files?.[0]
-                await uploadFile(file)
+                await uploadFiles(e.dataTransfer.files)
               }}
             >
-              <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Drop a file here</p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">or choose from your device</p>
+              <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Drop files here</p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">or choose multiple images from your device</p>
+              {uploadProgress ? (
+                <p className="mt-2 text-xs font-medium text-orange-600 dark:text-orange-400">
+                  Uploading {uploadProgress.current} of {uploadProgress.total}…
+                </p>
+              ) : null}
               <label className={`${ADMIN_BTN_PRIMARY} mt-4 cursor-pointer`}>
-                {busy === 'upload' ? 'Uploading…' : 'Choose file'}
+                {busy === 'upload' ? 'Uploading…' : 'Choose files'}
                 <input
                   type="file"
+                  multiple
                   accept="image/*,video/*,application/pdf"
                   className="sr-only"
                   disabled={busy === 'upload'}
                   onChange={async (e) => {
-                    const file = e.target.files?.[0]
-                    await uploadFile(file)
+                    await uploadFiles(e.target.files)
                     e.target.value = ''
                   }}
                 />

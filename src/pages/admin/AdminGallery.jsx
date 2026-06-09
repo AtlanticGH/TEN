@@ -17,7 +17,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { canEditContent } from '../../lib/rbac'
 import { updatePage, updatePageBlock } from '../../services/cms/pages'
 import { ensureGalleryCms, loadGalleryEditor } from '../../services/galleryAdmin'
-import { uploadMediaFile } from '../../services/mediaAssets'
+import { uploadMediaFiles } from '../../services/mediaAssets'
 
 const TABS = [
   { id: 'photos', label: 'Photo albums' },
@@ -134,17 +134,25 @@ export function AdminGalleryPage() {
             <input
               type="file"
               accept={uploadKind === 'video' ? 'video/*' : 'image/*'}
+              multiple={uploadKind === 'image'}
               className="sr-only"
               disabled={!canEdit || busy === 'upload'}
               onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (!file) return
+                const files = Array.from(e.target.files || [])
+                if (!files.length) return
                 setBusy('upload')
                 setError('')
                 setNotice('')
                 try {
-                  await uploadMediaFile({ file, folder: 'gallery', title: file.name })
-                  setNotice('Uploaded — it will show on /gallery. Use Pick below to add captions or group into an album.')
+                  const { uploaded, failed } = await uploadMediaFiles({
+                    files,
+                    folder: 'gallery',
+                  })
+                  setNotice(
+                    uploaded
+                      ? `Uploaded ${uploaded} file${uploaded === 1 ? '' : 's'} — ${failed ? `${failed} failed. ` : ''}they will show on /gallery. Use Pick below to add captions or group into an album.`
+                      : 'Upload failed.',
+                  )
                 } catch (err) {
                   setError(err?.message || 'Upload failed.')
                 } finally {
