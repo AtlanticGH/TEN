@@ -18,6 +18,7 @@ const QUICK_LINKS = [
   ['About', '/admin/about'],
   ['Programs', '/admin/programs'],
   ['Resources', '/admin/resources'],
+  ['Contact', '/admin/contact'],
   ['Gallery', '/admin/gallery'],
   ['Page heroes', '/admin/heroes'],
   ['Applications', '/admin/applications'],

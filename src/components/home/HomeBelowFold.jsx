@@ -1,19 +1,17 @@
 import { Link } from 'react-router-dom'
+import { useHomePageContent } from '../../hooks/useHomePageContent'
+import { enrichFireItems } from '../../lib/homeFireStyles'
+import { resolveProgramIcon } from '../../lib/homeProgramIcons'
 import { TorchbearerSection } from '../marketing/TorchbearerSection'
 import { Reveal } from '../shared/Reveal'
+import { ImageWithFallback } from '../ui/ImageWithFallback'
 import { useHomeTorchbearer } from '../../hooks/usePeopleContent'
 import { HomeWhoStatsBar } from './HomeWhoStatsBar'
 import {
-  HOME_BENEFITS,
   HOME_CONTAINER,
   HOME_EYEBROW,
-  HOME_FIRE,
-  HOME_GROWTH_CYCLE,
   HOME_HEADLINE,
-  HOME_PROGRAMS,
   HOME_SECTION_PAD,
-  HOME_TESTIMONIALS,
-  HOME_TIERS,
   MOVEMENT_CTA_ACTIONS,
   MOVEMENT_CTA_BODY,
   MOVEMENT_CTA_BTN_PRIMARY,
@@ -40,19 +38,27 @@ function CheckIcon() {
 
 /** Marketing home sections below the hero (Spark → Join CTA). */
 export function HomeBelowFold() {
+  const { data: page } = useHomePageContent()
   const { data: torchbearer } = useHomeTorchbearer()
+
+  const purpose = page.purpose
+  const who = page.who
+  const story = who.story
+  const fireItems = enrichFireItems(who.fire.items)
+  const programs = page.programs
+  const growth = programs.growth_cycle
+  const community = page.community
+  const testimonials = page.testimonials
+  const cta = page.cta
 
   return (
     <>
       <section className={`bg-gradient-to-br from-zinc-950 via-zinc-900 to-orange-700 ${HOME_SECTION_PAD}`}>
         <div className={`${HOME_CONTAINER} flex flex-col items-center text-center`}>
           <Reveal className="max-w-[640px]">
-            <span className={HOME_EYEBROW}>Our Purpose</span>
-            <h2 className={`${HOME_HEADLINE} text-white`}>Every Venture Begins With a Spark</h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-400">
-              Entrepreneurship starts with belief, but growth requires guidance, community and opportunity. The Ember
-              Network exists to transform raw ambition into lasting impact.
-            </p>
+            <span className={HOME_EYEBROW}>{purpose.eyebrow}</span>
+            <h2 className={`${HOME_HEADLINE} text-white`}>{purpose.title}</h2>
+            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-400">{purpose.description}</p>
           </Reveal>
           <Reveal delay={150} className="mt-14">
             <div className="relative mx-auto h-28 w-28">
@@ -78,69 +84,104 @@ export function HomeBelowFold() {
       <section className="bg-white pt-20 pb-0 md:pt-28 lg:pt-32 dark:bg-zinc-950">
         <div className={HOME_CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className={HOME_EYEBROW}>Who We Are</span>
-            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>More Than A Network</h2>
-            <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
-              We are a transformative ecosystem for emerging entrepreneurs, equipping ambitious innovators with
-              mentorship, strategic guidance, collaboration and the tools to thrive in today&rsquo;s world.
-            </p>
-            <p className="mx-auto mt-5 max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
-              We exist to nurture bold thinkers, resilient builders and purpose-driven founders who are ready to shape
-              industries and uplift communities.
-            </p>
+            <span className={HOME_EYEBROW}>{who.eyebrow}</span>
+            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>{who.title}</h2>
+            {who.paragraphs.map((paragraph) => (
+              <p
+                key={paragraph.slice(0, 40)}
+                className="mx-auto mt-5 max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 first:mt-0 dark:text-zinc-400"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </Reveal>
+
+          <Reveal
+            as="article"
+            delay={100}
+            className="group mt-14 overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-md shadow-zinc-200/40 ring-1 ring-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none dark:ring-zinc-800/70"
+          >
+            <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="flex flex-col justify-center gap-10 p-8 md:p-10 lg:p-12">
+                {story.sections.map((section, i) => (
+                  <div
+                    key={section.eyebrow}
+                    className={i > 0 ? 'border-t border-zinc-200 pt-10 dark:border-zinc-800' : ''}
+                  >
+                    <p className={HOME_EYEBROW}>{section.eyebrow}</p>
+                    <h3 className="text-2xl font-bold leading-tight tracking-tight text-zinc-900 dark:text-white md:text-3xl">
+                      {section.title}
+                    </h3>
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph.slice(0, 40)} className="mt-4 text-[16px] leading-[1.7] text-zinc-600 dark:text-zinc-300">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="relative min-h-[280px] overflow-hidden lg:min-h-full">
+                <ImageWithFallback
+                  src={story.image.src}
+                  fallbackSrc="/assets/images/1520607162513-77705c0f0d4a.jpg"
+                  alt={story.image.alt}
+                  className="h-full min-h-[280px] w-full object-cover transition duration-700 group-hover:scale-105 lg:min-h-full"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              </div>
+            </div>
           </Reveal>
 
           <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <Reveal
-              as="article"
-              delay={100}
-              className="rounded-2xl border border-orange-100 bg-orange-50/60 p-8 dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <p className={HOME_EYEBROW}>Our Mission</p>
-              <p className="text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">
-                To ignite and sustain a thriving entrepreneurial ecosystem that empowers young innovators through
-                mentorship, resources and opportunities to transform bold ideas into lasting ventures.
-              </p>
-            </Reveal>
-            <Reveal
-              as="article"
-              delay={200}
-              className="rounded-2xl border border-orange-100 bg-orange-50/60 p-8 dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <p className={HOME_EYEBROW}>Our Vision</p>
-              <p className="text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">
-                To build a global network of forward-thinking entrepreneurs who drive innovation, lead with resilience
-                and create meaningful impact.
-              </p>
-            </Reveal>
-          </div>
-
-          <Reveal className="mt-20 text-center">
-            <span className={HOME_EYEBROW}>The FIRE Philosophy</span>
-            <h3 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white md:text-3xl">
-              What Keeps Our Flame Burning
-            </h3>
-          </Reveal>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {HOME_FIRE.map(({ letter, title, body }, i) => (
+            {[who.mission, who.vision].map((card) => (
               <Reveal
-                key={letter}
+                key={card.eyebrow}
                 as="article"
-                delay={(i + 1) * 100}
-                className="rounded-2xl border border-zinc-200 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+                delay={card === who.mission ? 100 : 200}
+                className="overflow-hidden rounded-2xl border border-orange-100 bg-orange-50/60 dark:border-zinc-800 dark:bg-zinc-900"
               >
-                <span className="text-5xl font-black text-orange-500">{letter}</span>
-                <div className="mt-2 mb-4 h-[3px] w-10 rounded-full bg-orange-500" />
-                <h4 className="text-lg font-bold text-zinc-900 dark:text-white">{title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{body}</p>
+                <ImageWithFallback
+                  src={card.image}
+                  alt={card.image_alt}
+                  className="h-44 w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="p-8">
+                  <p className={HOME_EYEBROW}>{card.eyebrow}</p>
+                  <p className="text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">{card.body}</p>
+                </div>
               </Reveal>
             ))}
           </div>
+
+          <Reveal className="mt-20 text-center">
+            <span className={HOME_EYEBROW}>{who.fire.eyebrow}</span>
+            <h3 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white md:text-3xl">
+              {who.fire.title}
+            </h3>
+          </Reveal>
         </div>
+
+        <Reveal delay={100} className="mt-10 w-full">
+          <div className="grid min-h-[280px] grid-cols-1 sm:grid-cols-2 lg:min-h-[320px] lg:grid-cols-4">
+            {fireItems.map(({ letter, title, body, panelClass, letterClass, accentClass, titleClass, bodyClass }) => (
+              <article
+                key={letter}
+                className={`flex h-full flex-col justify-center px-6 py-10 sm:px-8 sm:py-12 lg:px-10 lg:py-14 ${panelClass}`}
+              >
+                <span className={`text-5xl font-black leading-none lg:text-6xl ${letterClass}`}>{letter}</span>
+                <div className={`mt-4 mb-5 h-[3px] w-12 shrink-0 rounded-full ${accentClass}`} />
+                <h4 className={`text-lg font-bold lg:text-xl ${titleClass}`}>{title}</h4>
+                <p className={`mt-3 max-w-sm text-sm leading-relaxed lg:text-[15px] ${bodyClass}`}>{body}</p>
+              </article>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
-      <section id="home-stats-torchbearer" data-section="stats-torchbearer" className="mt-20 overflow-hidden">
-        <HomeWhoStatsBar />
+      <section id="home-stats-torchbearer" data-section="stats-torchbearer" className="overflow-hidden">
+        <HomeWhoStatsBar stats={who.stats} />
         <TorchbearerSection content={torchbearer} embedded />
       </section>
 
@@ -154,10 +195,9 @@ export function HomeBelowFold() {
               &ldquo;
             </span>
             <blockquote className="relative z-10 text-2xl font-light italic leading-relaxed text-white md:text-3xl">
-              When young people are empowered with guidance and opportunity, they don&rsquo;t just build businesses
-              &mdash; they transform communities.
+              {page.quote.text}
             </blockquote>
-            <p className="mt-8 font-semibold text-orange-200">&mdash; Maud Lindsay-Gamrat, Founder</p>
+            <p className="mt-8 font-semibold text-orange-200">{page.quote.attribution}</p>
           </div>
         </Reveal>
       </section>
@@ -165,36 +205,38 @@ export function HomeBelowFold() {
       <section className={`bg-white ${HOME_SECTION_PAD} dark:bg-zinc-950`}>
         <div className={HOME_CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className={HOME_EYEBROW}>Programs &amp; Experiences</span>
-            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>How We Build Our Founders</h2>
+            <span className={HOME_EYEBROW}>{programs.eyebrow}</span>
+            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>{programs.title}</h2>
             <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
-              The Ember Network combines mentorship, practical learning and collaborative experiences to help
-              entrepreneurs move confidently from idea to execution.
+              {programs.description}
             </p>
           </Reveal>
           <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {HOME_PROGRAMS.map(({ Icon, title, desc }, i) => (
-              <Reveal
-                key={title}
-                as="article"
-                delay={(i % 3) * 100}
-                className="group cursor-pointer overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="h-[3px] w-full bg-gradient-to-r from-orange-500 to-amber-400" />
-                <div className="p-6">
-                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-500 transition-colors duration-300 group-hover:bg-orange-100 dark:bg-orange-500/10">
-                    <Icon />
-                  </span>
-                  <h3 className="mt-4 text-lg font-bold text-zinc-900 dark:text-white">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{desc}</p>
-                </div>
-              </Reveal>
-            ))}
+            {programs.items.map((program, i) => {
+              const Icon = resolveProgramIcon(program.icon)
+              return (
+                <Reveal
+                  key={program.title}
+                  as="article"
+                  delay={(i % 3) * 100}
+                  className="group cursor-pointer overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-300 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                  <div className="h-[3px] w-full bg-gradient-to-r from-orange-500 to-amber-400" />
+                  <div className="p-6">
+                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-500 transition-colors duration-300 group-hover:bg-orange-100 dark:bg-orange-500/10">
+                      <Icon />
+                    </span>
+                    <h3 className="mt-4 text-lg font-bold text-zinc-900 dark:text-white">{program.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{program.desc}</p>
+                  </div>
+                </Reveal>
+              )
+            })}
           </div>
           <Reveal className="mt-20 text-center">
-            <span className={HOME_EYEBROW}>The Growth Cycle</span>
+            <span className={HOME_EYEBROW}>{growth.eyebrow}</span>
             <h3 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white md:text-3xl">
-              A Rhythm Built for Momentum
+              {growth.title}
             </h3>
           </Reveal>
           <div className="relative mt-12 flex flex-col gap-8 md:flex-row md:gap-6">
@@ -202,7 +244,7 @@ export function HomeBelowFold() {
               className="absolute left-0 right-0 top-6 hidden h-[2px] bg-gradient-to-r from-orange-500/40 via-orange-500/40 to-amber-400/40 md:block"
               aria-hidden="true"
             />
-            {HOME_GROWTH_CYCLE.map(({ num, title, tagline, body }, i) => (
+            {growth.items.map(({ num, title, tagline, body }, i) => (
               <Reveal
                 key={num}
                 as="article"
@@ -224,15 +266,14 @@ export function HomeBelowFold() {
       <section className={`bg-gradient-to-b from-orange-100 to-white ${HOME_SECTION_PAD} dark:from-zinc-900 dark:to-zinc-950`}>
         <div className={HOME_CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className={HOME_EYEBROW}>Community &amp; Membership</span>
-            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>Find Your Circle</h2>
+            <span className={HOME_EYEBROW}>{community.eyebrow}</span>
+            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>{community.title}</h2>
             <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
-              Built for ambitious individuals ready to learn, collaborate and grow within a community of forward-thinking
-              entrepreneurs.
+              {community.description}
             </p>
           </Reveal>
           <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {HOME_TIERS.map(({ name, desc, cta, to, featured }, i) => (
+            {community.tiers.map(({ name, desc, cta: tierCta, to, featured }, i) => (
               <Reveal
                 key={name}
                 as="article"
@@ -260,14 +301,14 @@ export function HomeBelowFold() {
                       : 'border-2 border-zinc-300 text-zinc-800 hover:border-orange-500 hover:text-orange-600 dark:border-zinc-700 dark:text-white',
                   ].join(' ')}
                 >
-                  {cta}
+                  {tierCta}
                 </Link>
               </Reveal>
             ))}
           </div>
           <Reveal className="mt-16">
             <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-              {HOME_BENEFITS.map((benefit) => (
+              {community.benefits.map((benefit) => (
                 <li key={benefit} className="flex items-center gap-3">
                   <CheckIcon />
                   <span className="text-[15px] text-zinc-700 dark:text-zinc-300">{benefit}</span>
@@ -281,15 +322,14 @@ export function HomeBelowFold() {
       <section className={`bg-zinc-50 ${HOME_SECTION_PAD} dark:bg-zinc-900`}>
         <div className={HOME_CONTAINER}>
           <Reveal className="mx-auto max-w-3xl text-center">
-            <span className={HOME_EYEBROW}>Impact Stories</span>
-            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>Sparks Becoming Success Stories</h2>
+            <span className={HOME_EYEBROW}>{testimonials.eyebrow}</span>
+            <h2 className={`${HOME_HEADLINE} text-zinc-900 dark:text-white`}>{testimonials.title}</h2>
             <p className="mx-auto max-w-[640px] text-[17px] leading-[1.7] text-zinc-600 dark:text-zinc-400">
-              Every entrepreneur begins with potential. Through mentorship, collaboration and opportunity, those sparks
-              evolve into stories of growth, resilience and transformation.
+              {testimonials.description}
             </p>
           </Reveal>
           <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {HOME_TESTIMONIALS.map(({ name, quote, avatar }, i) => (
+            {testimonials.items.map(({ name, quote, avatar }, i) => (
               <Reveal
                 key={name}
                 as="article"
@@ -298,7 +338,13 @@ export function HomeBelowFold() {
               >
                 <p className="flex-1 text-[16px] leading-[1.7] text-zinc-700 dark:text-zinc-300">&ldquo;{quote}&rdquo;</p>
                 <div className="mt-6 flex items-center gap-3">
-                  <img src={avatar} alt={`${name} avatar`} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
+                  {avatar ? (
+                    <img src={avatar} alt={`${name} avatar`} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600 dark:bg-orange-500/20 dark:text-orange-300">
+                      {name.slice(0, 1)}
+                    </div>
+                  )}
                   <span className="font-semibold text-zinc-900 dark:text-white">{name}</span>
                 </div>
               </Reveal>
@@ -310,18 +356,15 @@ export function HomeBelowFold() {
       <section className={MOVEMENT_CTA_GRADIENT}>
         <div className={`${HOME_CONTAINER} text-center`}>
           <Reveal className="mx-auto max-w-3xl">
-            <span className={MOVEMENT_CTA_EYEBROW}>Join The Movement</span>
-            <h2 className={MOVEMENT_CTA_HEADLINE}>The Future Needs Builders Like You</h2>
-            <p className={MOVEMENT_CTA_BODY}>
-              Your ideas matter. Your vision deserves guidance. Your future deserves community. The Ember Network exists
-              to help ambitious entrepreneurs ignite their potential and build lasting impact.
-            </p>
+            <span className={MOVEMENT_CTA_EYEBROW}>{cta.eyebrow}</span>
+            <h2 className={MOVEMENT_CTA_HEADLINE}>{cta.title}</h2>
+            <p className={MOVEMENT_CTA_BODY}>{cta.body}</p>
             <div className={MOVEMENT_CTA_ACTIONS}>
-              <Link to="/community" className={MOVEMENT_CTA_BTN_PRIMARY}>
-                Become An Ember
+              <Link to={cta.primary_href} className={MOVEMENT_CTA_BTN_PRIMARY}>
+                {cta.primary_label}
               </Link>
-              <Link to="/community" className={MOVEMENT_CTA_BTN_SECONDARY}>
-                Join The Network
+              <Link to={cta.secondary_href} className={MOVEMENT_CTA_BTN_SECONDARY}>
+                {cta.secondary_label}
               </Link>
             </div>
           </Reveal>

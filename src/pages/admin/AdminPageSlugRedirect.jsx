@@ -7,6 +7,8 @@ export function AdminPageSlugRedirect() {
   if (pageSlug === 'gallery') return <Navigate to="/admin/gallery" replace />
   if (pageSlug === 'home') return <Navigate to="/admin/home" replace />
   if (pageSlug === 'programs') return <Navigate to="/admin/programs" replace />
+  if (pageSlug === 'contact') return <Navigate to="/admin/contact" replace />
+  if (pageSlug === 'resources') return <Navigate to="/admin/resources" replace />
   if (!pageSlug) return <Navigate to="/admin/overview" replace />
   return <Navigate to="/admin/overview" replace />
 }

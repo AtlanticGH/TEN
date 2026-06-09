@@ -29,6 +29,9 @@ export function AdminLayout() {
       <DashboardNavLink to="/admin/resources" onNavigate={onNavigate}>
         Resources
       </DashboardNavLink>
+      <DashboardNavLink to="/admin/contact" onNavigate={onNavigate}>
+        Contact
+      </DashboardNavLink>
       <DashboardNavLink to="/admin/gallery" onNavigate={onNavigate}>
         Gallery
       </DashboardNavLink>

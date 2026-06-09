@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { TorchbearerEditor } from '../../components/admin/AboutPeopleEditor'
+import { HomePageSectionsEditor } from '../../components/admin/HomePageSectionsEditor'
 import { ImageUrlField } from '../../components/admin/ImageUrlField'
 import { VideoUrlField } from '../../components/admin/VideoUrlField'
 import { HomeLegacyHero } from '../../components/home/HomeLegacyHero'
@@ -19,6 +20,11 @@ import {
   DashboardSkeleton,
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
+import {
+  DEFAULT_HOME_PAGE_CONTENT,
+  HOME_PAGE_CONTENT_KEY,
+  mergeHomePageContent,
+} from '../../config/homePageContentDefaults'
 import { DEFAULT_HOME_TORCHBEARER, HOME_TORCHBEARER_KEY } from '../../config/peopleContentDefaults'
 import { DEFAULT_HOME_HERO, EMPTY_HOME_HERO, HOME_HERO_KEY } from '../../config/siteContentDefaults'
 import { useAuth } from '../../hooks/useAuth'
@@ -28,6 +34,7 @@ import { mergeSiteContentDefaults } from '../../utils/mergeSiteContent'
 
 const TABS = [
   { id: 'hero', label: 'Homepage hero' },
+  { id: 'sections', label: 'Page sections' },
   { id: 'torchbearer', label: 'Meet the Torchbearer' },
 ]
 
@@ -52,6 +59,7 @@ export function AdminContentPage() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [hero, setHero] = useState(EMPTY_HOME_HERO)
+  const [pageSections, setPageSections] = useState(() => mergeHomePageContent(DEFAULT_HOME_PAGE_CONTENT, null))
   const [torchbearer, setTorchbearer] = useState({ ...DEFAULT_HOME_TORCHBEARER })
 
   useEffect(() => {
@@ -61,13 +69,15 @@ export function AdminContentPage() {
       setError('')
       setNotice('')
       try {
-        const [heroRow, torchRow] = await Promise.all([
+        const [heroRow, sectionsRow, torchRow] = await Promise.all([
           getSiteContent(HOME_HERO_KEY),
+          getSiteContent(HOME_PAGE_CONTENT_KEY),
           getSiteContent(HOME_TORCHBEARER_KEY),
         ])
         if (!alive) return
         const heroCms = extractSiteContentValue(heroRow)
         setHero(heroCms ? mergeSiteContentDefaults(DEFAULT_HOME_HERO, heroCms) : { ...DEFAULT_HOME_HERO })
+        setPageSections(mergeHomePageContent(DEFAULT_HOME_PAGE_CONTENT, extractSiteContentValue(sectionsRow)))
         setTorchbearer(mergeSiteContentDefaults(DEFAULT_HOME_TORCHBEARER, extractSiteContentValue(torchRow)))
       } catch (err) {
         if (!alive) return
@@ -112,7 +122,7 @@ export function AdminContentPage() {
       <DashboardPageIntro
         label="Homepage"
         title="Homepage content"
-        description="Edit the homepage hero and the Meet the Torchbearer leadership section."
+        description="Edit the homepage hero, below-the-fold sections, and the Meet the Torchbearer leadership block."
         actions={
           <a href="/" target="_blank" rel="noreferrer" className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:border-orange-400 dark:border-zinc-600 dark:text-zinc-200">
             View homepage
@@ -204,6 +214,18 @@ export function AdminContentPage() {
             </div>
           </DashboardPanel>
         </DashboardSplit>
+      ) : null}
+
+      {tab === 'sections' ? (
+        <div className="mt-6">
+          <HomePageSectionsEditor
+            content={pageSections}
+            onChange={setPageSections}
+            canEdit={canEdit}
+            saving={saving}
+            onSave={() => save(HOME_PAGE_CONTENT_KEY, pageSections, 'Page sections')}
+          />
+        </div>
       ) : null}
 
       {tab === 'torchbearer' ? (

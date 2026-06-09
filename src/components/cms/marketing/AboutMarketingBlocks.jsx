@@ -60,23 +60,40 @@ export function FireListSection({ content }) {
   )
 }
 
+const DEFAULT_WHY_JOIN_IMAGE = '/assets/images/1520607162513-77705c0f0d4a.jpg'
+const DEFAULT_WHY_JOIN_IMAGE_FALLBACK = '/assets/images/1542744173-05336fcc7ad4.jpg'
+
 export function SplitBenefitsSection({ content }) {
   const benefits = content?.benefits || []
+  const imageSrc = content?.image || DEFAULT_WHY_JOIN_IMAGE
+  const imageFallback = content?.image_fallback || DEFAULT_WHY_JOIN_IMAGE_FALLBACK
   return (
-    <section className={`${CONTAINER} pb-10`}>
-      <Reveal as="article" className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <section id="why-join-us" data-section="why-join-us" className={`${CONTAINER} pb-10`}>
+      <Reveal
+        as="article"
+        className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+      >
         <div className="grid gap-0 lg:grid-cols-[0.95fr_1.05fr]">
-          {content?.image ? (
-            <div className="min-h-[250px]">
-              <img src={content.image} alt="" className="h-full w-full object-cover" loading="lazy" />
-            </div>
-          ) : null}
-          <div className="p-8 md:p-10">
+          <div className="relative min-h-[250px]">
+            <ImageWithFallback
+              src={imageSrc}
+              fallbackSrc={imageFallback}
+              alt="Members collaborating at a TEN learning session"
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div className="flex flex-col justify-center p-8 md:p-10">
             {content?.eyebrow ? <p className={EYEBROW}>{content.eyebrow}</p> : null}
-            {content?.title ? <h2 className="mt-3 text-3xl font-semibold md:text-4xl">{content.title}</h2> : null}
+            {content?.title ? (
+              <h2 className="mt-3 text-3xl font-semibold md:text-4xl">{content.title}</h2>
+            ) : null}
             <ul className="mt-5 grid gap-2 text-sm text-zinc-600 dark:text-zinc-300 md:grid-cols-2">
               {benefits.map((b) => (
-                <li key={b} className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">
+                <li
+                  key={b}
+                  className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800"
+                >
                   {b}
                 </li>
               ))}

@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import { InnerPageHero } from '../components/shared/InnerPageHero'
+import { FaqAccordion } from '../components/shared/FaqAccordion'
 import { useEffect, useMemo, useState } from 'react'
+import { DEFAULT_RESOURCES_FAQ, RESOURCES_FAQ_KEY } from '../config/faqContentDefaults'
+import { useFaqContent } from '../hooks/useFaqContent'
 import { listResources } from '../services/resources'
 
 import { CmsPublicPage } from '../components/cms/CmsPublicPage'
@@ -30,25 +33,10 @@ function ResourcesPageContent() {
 }
 
 function ResourcesPageBody() {
-  const [open, setOpen] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [items, setItems] = useState([])
-
-  const faqs = [
-    {
-      q: 'How often do mentorship sessions happen?',
-      a: 'Most members have weekly accountability check-ins and monthly deep-dive mentor sessions.',
-    },
-    {
-      q: 'Can beginners join TEN?',
-      a: 'Yes. TEN supports both idea-stage founders and early-stage entrepreneurs with structured pathways.',
-    },
-    {
-      q: 'Where should I start?',
-      a: 'Start from the Join page application. We review your stage and recommend your first mentorship track.',
-    },
-  ]
+  const { data: faqContent = DEFAULT_RESOURCES_FAQ } = useFaqContent(RESOURCES_FAQ_KEY, DEFAULT_RESOURCES_FAQ)
 
   useEffect(() => {
     let ignore = false
@@ -141,32 +129,7 @@ function ResourcesPageBody() {
         )}
       </section>
 
-      <section id="resource-faqs" className="mx-auto max-w-7xl px-8 pb-20 md:px-12 lg:px-10">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900/60">
-          <p className="text-xs uppercase tracking-[0.18em] text-orange-400">FAQs</p>
-          <h2 className="mt-2 text-2xl font-semibold text-zinc-900 dark:text-white">Common questions</h2>
-          <div className="mt-5 space-y-3">
-            {faqs.map((f, idx) => {
-              const isOpen = open === idx
-              return (
-                <div key={f.q} className="rounded-xl border border-zinc-800 bg-zinc-900">
-                  <button
-                    type="button"
-                    aria-expanded={isOpen ? 'true' : 'false'}
-                    onClick={() => setOpen((v) => (v === idx ? null : idx))}
-                    className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-zinc-200"
-                  >
-                    {f.q} <span>{isOpen ? '–' : '+'}</span>
-                  </button>
-                  {isOpen ? (
-                    <div className="border-t border-zinc-800 px-4 py-3 text-sm text-zinc-300">{f.a}</div>
-                  ) : null}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
+      <FaqAccordion content={faqContent} sectionId="resource-faqs" />
     </>
   )
 }

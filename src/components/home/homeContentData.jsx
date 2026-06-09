@@ -56,21 +56,41 @@ export const HOME_FIRE = [
     letter: 'F',
     title: 'Fostering Potential',
     body: 'Every great founder starts somewhere. We cultivate raw ambition into real-world success by creating environments where emerging entrepreneurs can grow with confidence and purpose.',
+    panelClass: 'bg-orange-50 dark:bg-zinc-900',
+    letterClass: 'text-orange-600 dark:text-orange-400',
+    accentClass: 'bg-orange-500',
+    titleClass: 'text-zinc-900 dark:text-white',
+    bodyClass: 'text-zinc-700 dark:text-zinc-300',
   },
   {
     letter: 'I',
     title: 'Igniting Innovation',
     body: 'Bold ideas create transformative futures. We encourage disruptive thinking, creative problem-solving and visionary leadership that inspires meaningful change.',
+    panelClass: 'bg-orange-100 dark:bg-zinc-800',
+    letterClass: 'text-orange-600 dark:text-orange-400',
+    accentClass: 'bg-orange-500',
+    titleClass: 'text-zinc-900 dark:text-white',
+    bodyClass: 'text-zinc-700 dark:text-zinc-300',
   },
   {
     letter: 'R',
     title: 'Resilience In Action',
     body: 'Growth is built through perseverance. We empower founders to navigate challenges with adaptability, courage and determination.',
+    panelClass: 'bg-zinc-900 dark:bg-zinc-950',
+    letterClass: 'text-orange-400',
+    accentClass: 'bg-orange-400',
+    titleClass: 'text-white',
+    bodyClass: 'text-zinc-300',
   },
   {
     letter: 'E',
     title: 'Empowering Growth',
     body: 'Mentorship fuels transformation. Through guidance, strategic partnerships and opportunities, we equip members with the tools needed to elevate their ventures and impact.',
+    panelClass: 'bg-orange-500 dark:bg-orange-600',
+    letterClass: 'text-white',
+    accentClass: 'bg-white',
+    titleClass: 'text-white',
+    bodyClass: 'text-orange-50',
   },
 ]
 
@@ -80,6 +100,37 @@ export const HOME_WHO_STATS = [
   { value: 'Quarterly', label: 'Pitch Experiences' },
   { value: 'Real', label: 'Industry Access' },
 ]
+
+export const HOME_WHO_STORY = {
+  sections: [
+    {
+      eyebrow: 'Our Story',
+      title: 'A transformative hub for emerging entrepreneurs',
+      paragraphs: [
+        'The Ember Network is dedicated to turning ambitious ideas into thriving enterprises. We provide mentorship, strategic guidance, and a supportive ecosystem where young visionaries gain the skills, knowledge, and connections they need to succeed.',
+        'More than a network, TEN is a movement where small sparks of potential ignite into powerful flames of achievement.',
+      ],
+    },
+    {
+      eyebrow: 'Background',
+      title: 'Bridging ambition and execution',
+      paragraphs: [
+        'Entrepreneurship begins with a spark, but it takes the right environment to turn that spark into a lasting fire. TEN was founded to close the gap between ambition and execution through structured mentorship, hands-on learning, and a strong community.',
+        'We connect aspiring entrepreneurs with experienced mentors and industry leaders, creating a space where ideas are nurtured, resilience is built, and businesses take flight.',
+      ],
+    },
+  ],
+  images: [
+    {
+      src: '/assets/images/1521737604893-d14cc237f11d.jpg',
+      alt: 'Entrepreneurs collaborating in a workshop',
+    },
+    {
+      src: '/assets/images/1552664730-d307ca884978.jpg',
+      alt: 'Team discussing business strategy',
+    },
+  ],
+}
 
 export const HOME_TORCHBEARER_STATS = [
   { value: '24+', label: 'Years Leadership Experience' },

@@ -1,24 +1,37 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import { FaqEditor } from '../../components/admin/FaqEditor'
 import {
   ADMIN_FIELD_LABEL,
   DashboardAlert,
   DashboardEmpty,
   DashboardInsetCard,
+  DashboardNotice,
   DashboardPage,
   DashboardPageIntro,
   DashboardSkeleton,
   DashboardSplit,
 } from '../../components/dashboard/DashboardChrome'
 import { ADMIN_BTN_PRIMARY, ADMIN_BTN_SECONDARY } from '../../components/dashboard/DashboardChrome'
+import { DEFAULT_RESOURCES_FAQ, RESOURCES_FAQ_KEY, mergeFaqContent } from '../../config/faqContentDefaults'
+import { useAuth } from '../../hooks/useAuth'
+import { canEditContent } from '../../lib/rbac'
+import { extractSiteContentValue, getSiteContent, upsertSiteContent } from '../../services/siteContent'
 import { createResource, deleteResource, listResources } from '../../services/resources'
 
 export function AdminResourcesPage() {
   const nested = useLocation().pathname.includes('/admin/pages/')
+  const { profile } = useAuth()
+  const canEdit = canEditContent(profile?.role)
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [items, setItems] = useState([])
   const [busy, setBusy] = useState(false)
+  const [faqSaving, setFaqSaving] = useState(false)
+  const [faq, setFaq] = useState(() => mergeFaqContent(DEFAULT_RESOURCES_FAQ, null))
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -39,8 +52,36 @@ export function AdminResourcesPage() {
   }
 
   useEffect(() => {
-    queueMicrotask(() => refresh())
+    let alive = true
+    ;(async () => {
+      await refresh()
+      try {
+        const row = await getSiteContent(RESOURCES_FAQ_KEY)
+        if (alive) setFaq(mergeFaqContent(DEFAULT_RESOURCES_FAQ, extractSiteContentValue(row)))
+      } catch {
+        // defaults apply
+      }
+    })()
+    return () => {
+      alive = false
+    }
   }, [])
+
+  const saveFaq = async () => {
+    if (!canEdit) return
+    setFaqSaving(true)
+    setError('')
+    setNotice('')
+    try {
+      await upsertSiteContent({ key: RESOURCES_FAQ_KEY, value: faq })
+      await queryClient.invalidateQueries({ queryKey: ['site-content', RESOURCES_FAQ_KEY] })
+      setNotice('Resources FAQs saved.')
+    } catch (err) {
+      setError(err?.message || 'Unable to save FAQs.')
+    } finally {
+      setFaqSaving(false)
+    }
+  }
 
   const canCreate = useMemo(() => !!title.trim() && !!file && !busy, [title, file, busy])
 
@@ -60,6 +101,7 @@ export function AdminResourcesPage() {
       ) : null}
 
       {error ? <DashboardAlert message={error} onRetry={refresh} /> : null}
+      {notice ? <DashboardNotice message={notice} /> : null}
 
       <DashboardSplit className="lg:grid-cols-[0.9fr_1.1fr]">
         <DashboardInsetCard>
@@ -183,6 +225,12 @@ export function AdminResourcesPage() {
           )}
         </div>
       </DashboardSplit>
+
+      {!nested ? (
+        <div className="mt-10">
+          <FaqEditor content={faq} onChange={setFaq} canEdit={canEdit} onSave={saveFaq} saving={faqSaving} />
+        </div>
+      ) : null}
     </>
   )
 

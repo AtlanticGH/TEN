@@ -52,6 +52,9 @@ const AdminPeoplePage = lazyWithRetry(() => import('./pages/admin/AdminPeople').
 const AdminResourcesPage = lazyWithRetry(() =>
   import('./pages/admin/AdminResources').then((m) => ({ default: m.AdminResourcesPage })),
 )
+const AdminContactPage = lazyWithRetry(() =>
+  import('./pages/admin/AdminContact').then((m) => ({ default: m.AdminContactPage })),
+)
 const AdminApplicationsPage = lazyWithRetry(() =>
   import('./pages/admin/AdminApplications').then((m) => ({ default: m.AdminApplicationsPage })),
 )
@@ -113,6 +116,7 @@ const router = createBrowserRouter([
       { path: 'about', element: <AdminAboutPage /> },
       { path: 'people', element: <AdminPeoplePage /> },
       { path: 'resources', element: <AdminResourcesPage /> },
+      { path: 'contact', element: <AdminContactPage /> },
       { path: 'gallery', element: <AdminGalleryPage /> },
       { path: 'pages/manage', element: <Navigate to="/admin/overview" replace /> },
       { path: 'pages/gallery/builder', element: <Navigate to="/admin/gallery" replace /> },
